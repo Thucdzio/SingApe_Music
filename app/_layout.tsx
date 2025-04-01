@@ -1,24 +1,26 @@
-import { Tabs } from "expo-router";
-import { GluestackUIProvider, Text } from "@gluestack-ui/themed";
-import { config } from "@/components/ui/gluestack-ui-provider/config";
+import { Slot, Stack, Tabs } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import '@/global.css';
+import { AuthProvider } from "../context/auth";
 
-export default function Layout() {
+export default function RootLayout() {
   return (
-    <GluestackUIProvider config={config}>
-      <Tabs>
-        <Tabs.Screen
-          name="home"
-          options={{ title: "🏠 Home", tabBarIcon: () => <Text>🎵</Text> }}
-        />
-        <Tabs.Screen
-          name="library"
-          options={{ title: "📚 Thư viện", tabBarIcon: () => <Text>📁</Text> }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{ title: "👤 Hồ sơ", tabBarIcon: () => <Text>🧑</Text> }}
-        />
-      </Tabs>
+    <GluestackUIProvider>
+      <AuthProvider>
+        <RootNavigator />
+        <StatusBar style="auto"/>
+      </AuthProvider>
     </GluestackUIProvider>
-  );
+  )
+}
+
+function RootNavigator() {
+  return (
+    <Stack>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="(app)/(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+    </Stack>
+  )
 }
