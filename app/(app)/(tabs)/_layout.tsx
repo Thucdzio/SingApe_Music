@@ -3,9 +3,14 @@ import { HStack } from "@/components/ui/hstack";
 import { Tabs } from "expo-router";
 import { useAuth } from "../../../context/auth";
 import { Text } from "@react-navigation/elements";
+import { FontAwesome } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
+import { useColorScheme } from "nativewind";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
+  const colorScheme = useColorScheme();
+  console.log("Color scheme: ", colorScheme.colorScheme);
 
   if (!session) {
     return (
@@ -19,15 +24,30 @@ export default function TabsNavigation() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#673ab7",
-        tabBarInactiveTintColor: "#000",
-        tabBarLabelStyle: { fontSize: 12 },
-        tabBarStyle: { backgroundColor: "#fff" },
+        tabBarStyle: {
+          position: "absolute",
+          borderTopWidth: 0,
+          height: 50,
+          paddingBottom: 10,
+          paddingTop: 10,
+          backgroundColor: colorScheme.colorScheme === "dark" ? "#000000" : "#ffffff",
+        },
+        tabBarActiveTintColor: colorScheme.colorScheme === "dark" ? "#fdfdfd" : "#0d0d0d",
+        tabBarInactiveTintColor: colorScheme.colorScheme === "dark" ? "#bababa" : "#333333",
       }}
     >
-      <Tabs.Screen name="(songs)" options={{ title: "Home" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
-      <Tabs.Screen name="library" options={{ title: "Library" }} />
+      <Tabs.Screen name="(songs)" options={{ 
+        title: "Home", 
+        tabBarIcon: ({color}) => <FontAwesome name="home" size={24} color={color}/>
+      }} />
+      <Tabs.Screen name="profile" options={{ 
+        title: "Profile",
+        tabBarIcon: ({color}) => <FontAwesome name="user" size={24} color={color} />
+      }} />
+      <Tabs.Screen name="library" options={{ 
+        title: "Library",
+        tabBarIcon: ({color}) => <FontAwesome name="music" size={24} color={color} />
+      }} />
     </Tabs>
   );
 }

@@ -1,10 +1,12 @@
-import { Tabs } from 'expo-router'
-import { View, Text } from 'react-native'
+import { Box } from '@/components/ui/box'
+import { Text } from '@/components/ui/text'
 
 export default function Library() {
     return (
-        <View style={{ flex: 1 }}>
-            <Text>Library</Text>
-        </View>
+        <Box>
+            <Text>
+                Library
+            </Text>
+        </Box>
     )
 }
