@@ -4,9 +4,9 @@ import { useRouter, Tabs } from "expo-router";
 import { useAuth } from "../../../context/auth";
 import { Text } from "@react-navigation/elements";
 import { FontAwesome } from "@expo/vector-icons";
-import { StyleSheet } from "react-native";
 import { useColorScheme } from "nativewind";
 import store from "@/store/store";
+import Feather from "@expo/vector-icons/Feather";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
@@ -48,6 +48,15 @@ export default function TabsNavigation() {
         title: "Library",
         tabBarIcon: ({color}) => <FontAwesome name="music" size={24} color={color} />
       }} />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Setting",
+          tabBarIcon: ({ color }) => (
+            <Feather name="settings" size={24} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

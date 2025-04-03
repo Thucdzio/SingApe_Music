@@ -1,88 +1,101 @@
-import React from "react";
-import { Image } from "@/components/ui/image";
-import { Text, View } from "react-native";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Stack } from "expo-router";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
-import { Box } from "@/components/ui/box";
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
 
+import { SafeAreaView, View } from "react-native";
 import { router } from "expo-router";
-
-const ProfileHeader = () => {
-  const handleSettingButton = () => {
-    router.push("/profile/settings");
-  }
-
-  const handleNotificationButton = () => {
-    router.push("/profile/notifications");
-  }
-  
-  return (
-    <Stack.Screen
-        options={{
-          headerShown: true,
-          headerTitle: "Cá nhân",
-          headerTitleStyle: {
-            fontSize: 26,
-            fontWeight: "bold",
-          },
-          headerBackground: () => (
-            <View className="color-background-500" />
-          ),
-          headerRight: () => (
-            <HStack className="gap-4 mr-4">
-              <Button
-                variant="solid"
-                className="rounded-full p-2 bg-inherit 
-                data-[hover=true]:bg-inherit
-                data-[active=true]:bg-inherit brightness-125"
-              >
-                <AntDesign name="setting" size={26}
-                onPress={
-                  handleSettingButton
-                }
-                />
-              </Button>
-              
-              <Button
-                className="rounded-full p-2 active:bg-green-400 focus:bg-green-400 bg-white"
-              >
-                <Feather name="bell" size={26}
-                onPress={
-                  handleNotificationButton
-                }/>
-              </Button>
-            </HStack>
-          ),
-        }}
-      />
-  )
-}
+import { useAuth } from "@/context/auth";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Feather from "@expo/vector-icons/Feather";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import Fontisto from "@expo/vector-icons/Fontisto";
+import Entypo from "@expo/vector-icons/Entypo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { Box, HStack, Text, VStack, Image } from "@/components/ui";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallbackText,
+  AvatarImage,
+} from "@/components/ui/avatar";
 
 export default function Profile() {
+  const { signIn } = useAuth();
   return (
-    <View className="color-background-500">
-      {ProfileHeader()}
-      <VStack>
-        <HStack className="p-4 items-center gap-4">
-          <Image
-            className="rounded-full"
-            size="md"
+    <SafeAreaView>
+      <HStack className="p-5">
+        <Avatar size="2xl" className="border">
+          <AvatarFallbackText>Lucas</AvatarFallbackText>
+          <AvatarImage
             source={{
-              uri: "https://avatars.githubusercontent.com/u/114483495?v=4",
+              uri: "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/hinh-anime-2.jpg",
             }}
-            alt="avatar"
           />
-          <VStack>
-            <Text className="text-lg font-bold">Ly Hong Duc</Text>
-            <Box className="bg-gray-200 rounded-full px-2 py-1">
-              <Text className="text-gray-500">@lyhongduc</Text>
-            </Box>
-          </VStack>
+          <AvatarBadge />
+        </Avatar>
+        <VStack>
+          <Text className=" text-2xl font-bold pl-10 pt-4">Lucas Dzio</Text>
+          <Text className="pl-10 pt-2 ">@Lucasdzio</Text>
+        </VStack>
+      </HStack>
+
+      <VStack className="pl-5">
+        <HStack>
+          <FontAwesome5 name="map-marker-alt" size={16} color="black" />{" "}
+          <Text className="pl-10">144 Xuân Thủy Cầu Giấy Hà Nội Việt Nam</Text>
+        </HStack>
+        <HStack>
+          <Feather name="phone" size={16} color="black" />
+          <Text className="pl-10">+0123456789</Text>
+        </HStack>
+        <HStack>
+          <Fontisto name="email" size={16} color="black" />{" "}
+          <Text className="pl-10">lucasdzio@gmail.com</Text>
         </HStack>
       </VStack>
-    </View>
+      <VStack>
+        <Text className="text-4xl font-bold pl-5 pt-10">Preferences</Text>
+        <Text className="text-2xl font-bold pl-5 text-red-500 ">Sharing</Text>
+        <HStack className="w-full justify-between space-x-4 p-5">
+          <Entypo name="facebook" size={100} color="black" />
+          <Entypo name="instagram" size={100} color="black" />
+          <AntDesign name="youtube" size={100} color="black" />
+          <AntDesign name="twitter" size={100} color="black" />
+          <FontAwesome5 name="tiktok" size={100} color="black" />
+        </HStack>
+      </VStack>
+      <VStack className="p-5 space-y-4 ">
+        <HStack className="items-center justify-between p-4 bg-gray-200 rounded-lg ">
+          <Text className="text-lg font-semibold">Playlist</Text>
+          <MaterialCommunityIcons
+            name="playlist-music"
+            size={32}
+            color="black"
+          />
+        </HStack>
+        <HStack className="items-center justify-between p-4 bg-gray-200 rounded-lg">
+          <Text className="text-lg font-semibold">Edit Profile</Text>
+          <Feather name="edit" size={32} color="black" />
+        </HStack>
+        <HStack className="items-center justify-between p-4 bg-gray-200 rounded-lg">
+          <Text className="text-lg font-semibold">Setting</Text>
+          <Feather
+            name="settings"
+            size={24}
+            color={"black"}
+            onPress={() => router.push("/settings")}
+          />
+        </HStack>
+        <HStack className="items-center justify-between p-4 bg-gray-200 rounded-lg">
+          <Text className="text-lg font-semibold">LogOut</Text>
+          <MaterialCommunityIcons
+            name="logout"
+            size={32}
+            color="black"
+            onPress={() => {
+              router.push("/register");
+            }}
+          />
+        </HStack>
+      </VStack>
+    </SafeAreaView>
+
   );
 }
