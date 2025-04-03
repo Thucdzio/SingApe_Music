@@ -34,6 +34,7 @@
     "@react-navigation/drawer": "^7.3.2",
     "@react-navigation/elements": "^2.3.1",
     "@react-navigation/native": "^7.0.14",
+    "@reduxjs/toolkit": "^2.6.1",
     "babel-plugin-module-resolver": "^5.0.2",
     "expo": "^52.0.41",
     "expo-auth-session": "^6.0.3",
@@ -63,6 +64,7 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
+    "react-redux": "^9.2.0",
     "redux": "^5.0.1",
     "tailwindcss": "^3.4.17"
   },

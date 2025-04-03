@@ -6,12 +6,10 @@ import { Text } from "@react-navigation/elements";
 import { FontAwesome } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 import { useColorScheme } from "nativewind";
+import store from "@/store/store";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
-  const colorScheme = useColorScheme();
-  const router = useRouter();
-  console.log("Color scheme: ", colorScheme.colorScheme);
 
   if (!session) {
     return (
@@ -31,10 +29,10 @@ export default function TabsNavigation() {
           height: 50,
           paddingBottom: 10,
           paddingTop: 10,
-          backgroundColor: colorScheme.colorScheme === "dark" ? "#000000" : "#ffffff",
+          backgroundColor: store.getState().isDarkMode ? "#000000" : "#ffffff",
         },
-        tabBarActiveTintColor: colorScheme.colorScheme === "dark" ? "#fdfdfd" : "#0d0d0d",
-        tabBarInactiveTintColor: colorScheme.colorScheme === "dark" ? "#bababa" : "#333333"
+        tabBarActiveTintColor: store.getState().isDarkMode ? "#fdfdfd" : "#0d0d0d",
+        tabBarInactiveTintColor: store.getState().isDarkMode ? "#bababa" : "#333333"
       }}
     >
       <Tabs.Screen name="(songs)" options={{ 
