@@ -1,6 +1,6 @@
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
-import { Tabs } from "expo-router";
+import { useRouter, Tabs } from "expo-router";
 import { useAuth } from "../../../context/auth";
 import { Text } from "@react-navigation/elements";
 import { FontAwesome } from "@expo/vector-icons";
@@ -10,6 +10,7 @@ import { useColorScheme } from "nativewind";
 export default function TabsNavigation() {
   const { session } = useAuth();
   const colorScheme = useColorScheme();
+  const router = useRouter();
   console.log("Color scheme: ", colorScheme.colorScheme);
 
   if (!session) {
@@ -33,7 +34,7 @@ export default function TabsNavigation() {
           backgroundColor: colorScheme.colorScheme === "dark" ? "#000000" : "#ffffff",
         },
         tabBarActiveTintColor: colorScheme.colorScheme === "dark" ? "#fdfdfd" : "#0d0d0d",
-        tabBarInactiveTintColor: colorScheme.colorScheme === "dark" ? "#bababa" : "#333333",
+        tabBarInactiveTintColor: colorScheme.colorScheme === "dark" ? "#bababa" : "#333333"
       }}
     >
       <Tabs.Screen name="(songs)" options={{ 
@@ -42,7 +43,8 @@ export default function TabsNavigation() {
       }} />
       <Tabs.Screen name="profile" options={{ 
         title: "Profile",
-        tabBarIcon: ({color}) => <FontAwesome name="user" size={24} color={color} />
+        popToTopOnBlur: true,
+        tabBarIcon: ({color}) => <FontAwesome name="user" size={24} color={color} />,
       }} />
       <Tabs.Screen name="library" options={{ 
         title: "Library",
