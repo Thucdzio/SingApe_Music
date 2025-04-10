@@ -67,10 +67,10 @@ export default function AccountRegister() {
         </Input>
       </FormControl>
       <Button onPress={handleSubmit} variant="solid" className="mt-4">
-        Register
+        <Text>Register</Text>
       </Button>
       <Button onPress={() => router.back()} variant="outline" className="mt-2">
-        Back to Login
+        <Text> Back to Login</Text>
       </Button>
     </VStack>
   );

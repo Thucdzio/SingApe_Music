@@ -21,14 +21,14 @@ export default function Register() {
           variant="outline"
           className="mt-2 text-white bold"
         >
-          Continue with Google
+          <Text>Continue with Google</Text>
         </Button>
         <Button
           onPress={() => router.back()}
           variant="outline"
           className="mt-2 text-white bold"
         >
-          Back to Login
+          <Text>Back to Login</Text>
         </Button>
       </Box>
     </VStack>
