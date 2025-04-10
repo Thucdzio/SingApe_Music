@@ -11,19 +11,24 @@ export type AuthUser = {
   exp: string;
 }
 
+export type SignInParams = { 
+  email: string; 
+  password: string 
+};
+
 const AuthContext = createContext<{
   user?: AuthUser | null;
-  signIn: (params: { email: string; password: string }) => Promise<void>;
+  signIn: (params: SignInParams) => Promise<void>;
   signOut: () => void;
   session?: string | null;
-  isLoading?: boolean;
+  loading?: boolean;
   error?: AuthError | null;
 }>({
   user: null,
   signIn: async () => Promise.resolve(),
   signOut: () => null,
   session: null,
-  isLoading: true,
+  loading: true,
   error: null,
 });
 
@@ -43,17 +48,32 @@ export function useAuth() {
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [[isLoading, session], setSession] = useStorageState('session');
-
-  type SignInParams = { email: string; password: string };
+  const [loading, setLoading] = useState(false);
   
   const signIn = async ({ email, password }: SignInParams) => {
-    // Perform sign-in logic here, e.g., API call to authenticate the user
-    setSession('xxx');
+    setLoading(true);
+    try {
+      const response = true;
+      setSession('session_token');
+      const responseUser = {
+        id: '123',
+        email: email,
+        name: 'John Doe',
+        picture: 'https://example.com/johndoe.jpg',
+        provider: 'local',
+        exp: new Date().toISOString(),
+      }
+      setUser(responseUser);
+    } catch (error) {
+      console.error('Sign-in error:', error);
+      setUser(null);
+    }
+    setLoading(false);
   }
 
   const signOut = async () => {
-    // Perform sign-out logic here, e.g., API call to invalidate the session
     setSession(null);
+    setUser(null);
   }
 
   return (
@@ -63,7 +83,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         signIn,
         signOut,
         session,
-        isLoading,
+        loading,
         error: null, // Handle error state as needed
       }}>
       {children}

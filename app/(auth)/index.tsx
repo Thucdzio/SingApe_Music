@@ -37,7 +37,7 @@ export default function AuthenticateOption() {
       <Text className="text-primary-100 text-2lg mb-4">
         Tạo playlist và chia sẻ với bạn bè
       </Text>
-      <Box className="bg-none w-full max-w-md h-1/2">
+      <Box className="bg-none w-full max-w-md">
         <Button
           onPress={handleRegister}
           variant="solid"
@@ -59,6 +59,5 @@ export default function AuthenticateOption() {
         </Button>
       </Box>
     </VStack>
-    // </LinearGradient>
   );
 }
