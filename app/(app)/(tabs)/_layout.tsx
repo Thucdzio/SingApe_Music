@@ -1,6 +1,6 @@
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
-import { useRouter, Tabs } from "expo-router";
+import { useRouter, Tabs, Redirect } from "expo-router";
 import { useAuth } from "../../../context/auth";
 import { Text } from "@react-navigation/elements";
 import { FontAwesome } from "@expo/vector-icons";
@@ -12,11 +12,7 @@ export default function TabsNavigation() {
   const { session } = useAuth();
 
   if (!session) {
-    return (
-      <HStack>
-        <Text>Not logged in</Text>
-      </HStack>
-    );
+    return <Redirect href="/(auth)" />;
   }
 
   return (

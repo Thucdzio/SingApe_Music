@@ -1,4 +1,4 @@
-import GetStarted from "./(auth)/index";
+import AuthenticateOption from "./(auth)/index";
 
 export default function Login() {
   if (process.env.NODE_ENV !== 'production') {
@@ -6,6 +6,6 @@ export default function Login() {
   }
 
   return (
-    <GetStarted/>
+    <AuthenticateOption/>
   )
 }
