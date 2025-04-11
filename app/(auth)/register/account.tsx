@@ -9,7 +9,7 @@ import {
 import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/context/auth"; // Assuming you have an auth context to manage authentication
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function AccountRegister() {
   const { signIn, session } = useAuth(); // Assuming you have a signIn function in your auth context
@@ -32,9 +32,16 @@ export default function AccountRegister() {
     console.log("Form submitted");
   };
 
-  if (session) {
-    router.navigate("/(app)/(tabs)/(songs)"); // Redirect to home if already logged in
-  }
+  useEffect(() => {
+    if (session) {
+      router.navigate("/(app)/(tabs)/(songs)");
+    }
+  }, [session]);
+
+  // return <Text>Register</Text>;
+  // if (session) {
+  //   router.navigate("/(app)/(tabs)/(songs)"); // Redirect to home if already logged in
+  // }
 
   return (
     <VStack className="flex-1 justify-center items-center bg-black p-4">

@@ -49,28 +49,26 @@ export const TracksListItem = ({
               />
             ))}
         </HStack>
-
-        <VStack className="flex-1" space="lg">
-          <Text
-            numberOfLines={1}
-            className={`text-sm font-semibold ${
-              isActiveTrack ? "text-primary" : "text-foreground"
-            } max-w-[90%]`}
-          >
-            {track.title}
-          </Text>
-
-          {track.artist && (
-            <Text numberOfLines={1} className="text-muted text-[14px] mt-1">
-              {track.artist}
+        <HStack className="flex-1 items-center justify-between">
+          <VStack className="flex-1 pr-2">
+            <Text
+              numberOfLines={1}
+              className={`text-sm font-semibold ${
+                isActiveTrack ? "text-primary" : "text-foreground"
+              }`}
+            >
+              {track.title}
             </Text>
-          )}
-          <Entypo
-            name="dots-three-horizontal"
-            size={18}
-            colors="black"
-          ></Entypo>
-        </VStack>
+
+            {track.artist && (
+              <Text numberOfLines={1} className="text-muted text-[14px] mt-1">
+                {track.artist}
+              </Text>
+            )}
+          </VStack>
+
+          <Entypo name="dots-three-horizontal" size={18} color="#999" />
+        </HStack>
 
         {/* <StopPropagation>
           <TrackShortcutsMenu track={track}>

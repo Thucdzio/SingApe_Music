@@ -1,5 +1,5 @@
 import { VStack } from "@/components/ui/vstack";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
 import { Box } from "@/components/ui/box";
@@ -14,21 +14,21 @@ export default function Register() {
           variant="solid"
           className="mt-4"
         >
-          Register
+          <ButtonText> Register</ButtonText>
         </Button>
         <Button
           onPress={() => router.push("/login")}
           variant="outline"
           className="mt-2 text-white bold"
         >
-          <Text>Continue with Google</Text>
+          <ButtonText>Continue with Google</ButtonText>
         </Button>
         <Button
           onPress={() => router.back()}
           variant="outline"
           className="mt-2 text-white bold"
         >
-          <Text>Back to Login</Text>
+          <ButtonText>Back to Login</ButtonText>
         </Button>
       </Box>
     </VStack>

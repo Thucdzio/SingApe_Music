@@ -8,7 +8,7 @@ import { InputField } from "@/components/ui/input";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TrackList } from "@/app/components/TrackList";
 import { screenPadding } from "@/constants/token";
-import FloatingPlayer from "@/app/components/FloatingPlayer";
+import { FloatingPlayer } from "@/app/components/FloatingPlayer";
 
 export default function Songs() {
   const numCols = 3;
@@ -163,12 +163,12 @@ export default function Songs() {
             paddingHorizontal: screenPadding.horizontal,
           }}
         >
-          {/* <TrackList scrollEnabled={false}></TrackList> */}
+          <TrackList scrollEnabled={false}></TrackList>
         </ScrollView>
         <Text>Chill</Text>
         <Text>Chủ đề & Thể loại</Text>
         <Text>Album Hot</Text>
-        {/* <Button
+        <Button
           variant="solid"
           onPress={() => {
             console.log("press buttons");
@@ -176,7 +176,7 @@ export default function Songs() {
           }}
         >
           <ButtonText>Press</ButtonText>
-        </Button> */}
+        </Button>
       </VStack>
     </SafeAreaView>
   );

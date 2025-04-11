@@ -7,7 +7,7 @@ import { AuthProvider } from "../context/auth";
 import { useEffect, useState } from "react";
 import { ModeType } from "@/components/ui/gluestack-ui-provider/types";
 import store from "@/store/store";
-import FloatingPlayer from "./components/FloatingPlayer";
+import { FloatingPlayer } from "./components/FloatingPlayer";
 
 export default function RootLayout() {
   return (
@@ -15,7 +15,6 @@ export default function RootLayout() {
       <GluestackWrapper>
         <AuthProvider>
           <RootNavigator />
-          {/* <FloatingPlayer /> */}
           <StatusBar style="auto" />
         </AuthProvider>
       </GluestackWrapper>
