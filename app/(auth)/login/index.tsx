@@ -52,7 +52,8 @@ export default function Login() {
         email: emailRef.current,
         password: passwordRef.current,
       });
-      router.replace("/(app)/(tabs)");
+      router.dismissAll();
+      router.replace("/(tabs)");
     } catch (error) {
       console.error("Error signing in:", error);
     }

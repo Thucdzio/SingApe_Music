@@ -61,7 +61,8 @@ export default function Register() {
         email: emailRef.current,
         password: passwordRef.current,
       });
-      router.push("/(app)/(tabs)");
+      router.dismissAll();
+      router.replace("/(tabs)");
       console.log("Sign Up button pressed");
     } catch (error) {
       console.error("Error signing up:", error);

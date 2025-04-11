@@ -1,9 +1,9 @@
 import { Image } from "@/components/ui/image";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import { View } from "react-native";
 import { Heading } from "@/components/ui/heading";
 import { FlatList, Pressable } from "react-native";
-import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Stack } from "expo-router";
 
@@ -18,7 +18,7 @@ const NotificationsHeader = () => {
         fontSize: 20,
       },
       headerBackground: () => (
-        <Box className="color-background-500" />
+        <View className="color-background-500" />
       ),
     }}
     />

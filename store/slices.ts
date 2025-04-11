@@ -10,8 +10,12 @@ const themeSlice = createSlice({
         toggleTheme: (state) => {
             state.isDarkMode = !state.isDarkMode;
         },
+        setTheme: (state, action) => {
+            state.isDarkMode = action.payload.isDarkMode;
+            state.isSystemTheme = action.payload.isSystemTheme;
+        }
     },
 });
 
 export default themeSlice
-export const { toggleTheme } = themeSlice.actions
+export const { toggleTheme, setTheme } = themeSlice.actions
