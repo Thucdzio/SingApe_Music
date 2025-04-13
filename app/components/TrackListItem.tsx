@@ -39,13 +39,17 @@ export const TracksListItem = ({
           />
           {isActiveTrack &&
             (playing ? (
-              <Spinner />
+              <Spinner
+                className="absolute top-[14px] left-[14px]"
+                size="small"
+                color={colors.black}
+              />
             ) : (
               <Ionicons
                 style={{ position: "absolute", top: 14, left: 14 }}
                 name="play"
                 size={24}
-                color="#999"
+                color="black"
               />
             ))}
         </HStack>

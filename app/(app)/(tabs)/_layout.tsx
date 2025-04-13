@@ -5,7 +5,7 @@ import { useAuth } from "../../../context/auth";
 import { Text } from "@react-navigation/elements";
 import { FontAwesome } from "@expo/vector-icons";
 import { useColorScheme } from "nativewind";
-import store from "@/store/store";
+import store from "@/app/store/store";
 import Feather from "@expo/vector-icons/Feather";
 import { FloatingPlayer } from "@/app/components/FloatingPlayer";
 import { View } from "react-native";

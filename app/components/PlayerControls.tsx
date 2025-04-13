@@ -1,4 +1,4 @@
-import { colors } from "../../constants/token";
+import { colors } from "../../constants/tokens";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ViewStyle } from "react-native";
 import TrackPlayer, { useIsPlaying } from "react-native-track-player";
@@ -6,6 +6,7 @@ import { VStack, HStack, Pressable } from "@/components/ui";
 
 type PlayerControlsProps = {
   style?: ViewStyle;
+  iconSize?: number;
 };
 
 type PlayerButtonProps = {
@@ -13,23 +14,29 @@ type PlayerButtonProps = {
   iconSize?: number;
 };
 
-export const PlayerControls = ({ style }: PlayerControlsProps) => {
+export const PlayerControls = ({
+  style,
+  iconSize = 30,
+}: PlayerControlsProps) => {
   return (
-    <VStack space="lg">
-      <HStack space="2xl">
+    <VStack space="lg" className="items-center " style={style}>
+      <HStack className="items-center justify-between w-full px-6">
         <SkipToPreviousButton />
-        <PlayPauseButton />
+        <PlayPauseButton iconSize={iconSize} />
         <SkipToNextButton />
       </HStack>
     </VStack>
   );
 };
 
-export const PlayPauseButton = ({ iconSize = 30 }: PlayerButtonProps) => {
+export const PlayPauseButton = ({ iconSize = 48 }: PlayerButtonProps) => {
   const { playing } = useIsPlaying();
 
   return (
-    <Pressable onPress={playing ? TrackPlayer.pause : TrackPlayer.play}>
+    <Pressable
+      className="flex-1 items-center"
+      onPress={playing ? TrackPlayer.pause : TrackPlayer.play}
+    >
       <FontAwesome6
         name={playing ? "pause" : "play"}
         size={iconSize}
@@ -41,7 +48,10 @@ export const PlayPauseButton = ({ iconSize = 30 }: PlayerButtonProps) => {
 
 export const SkipToNextButton = ({ iconSize = 30 }: PlayerButtonProps) => {
   return (
-    <Pressable onPress={() => TrackPlayer.skipToNext()}>
+    <Pressable
+      className="flex-1 items-center"
+      onPress={() => TrackPlayer.skipToNext()}
+    >
       <FontAwesome6 name="forward" size={iconSize} color={colors.text} />
     </Pressable>
   );
@@ -49,7 +59,10 @@ export const SkipToNextButton = ({ iconSize = 30 }: PlayerButtonProps) => {
 
 export const SkipToPreviousButton = ({ iconSize = 30 }: PlayerButtonProps) => {
   return (
-    <Pressable onPress={() => TrackPlayer.skipToPrevious()}>
+    <Pressable
+      className="flex-1 items-center"
+      onPress={() => TrackPlayer.skipToPrevious()}
+    >
       <FontAwesome6 name="backward" size={iconSize} color={colors.text} />
     </Pressable>
   );

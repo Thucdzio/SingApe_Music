@@ -3,9 +3,16 @@ import TrackPlayer, {
   Capability,
   RatingType,
   RepeatMode,
+  State,
 } from "react-native-track-player";
 
 const setupPlayer = async () => {
+  const currentState = await TrackPlayer.getState().catch(() => null);
+
+  if (currentState !== null && currentState !== State.None) {
+    return;
+  }
+
   await TrackPlayer.setupPlayer({
     maxCacheSize: 1024 * 10,
   });
@@ -21,7 +28,7 @@ const setupPlayer = async () => {
     ],
   });
 
-  await TrackPlayer.setVolume(0.3); // not too loud
+  await TrackPlayer.setVolume(0.3);
   await TrackPlayer.setRepeatMode(RepeatMode.Queue);
 };
 

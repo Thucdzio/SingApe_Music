@@ -14,7 +14,7 @@ import Animated, {
 export type MovingTextProps = {
   text: string;
   animationThreshold: number;
-  style?: StyleProps;
+  style?: TextStyle | TextStyle[];
 };
 
 export const MovingText = ({
@@ -58,7 +58,7 @@ export const MovingText = ({
     <Animated.Text
       numberOfLines={1}
       style={[
-        style as TextStyle,
+        style,
         animatedStyle,
         shouldAnimate && {
           width: 9999,
