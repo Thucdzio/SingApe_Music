@@ -10,7 +10,7 @@ import { HStack, Input } from "@/components/ui";
 import { InputField } from "@/components/ui/input";
 import { useRef, useState } from "react";
 import { Divider } from "@/components/ui/divider";
-import { KeyboardAvoidingView, View } from "react-native";
+import { Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, View } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { useAuth } from "@/context/auth";
 import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
@@ -75,9 +75,11 @@ export default function Register() {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
     <View className="flex-1 items-center h-full bg-background-0">
       {header()}
-      <KeyboardAvoidingComponent>
+      {/* <KeyboardAvoidingComponent> */}
+      
       <VStack className="flex-1 justify-center items-center w-full max-w-md bg-transparent p-4">
         <VStack space="md" className="bg-none w-full">  
           <FormControl isRequired={true}>
@@ -152,7 +154,9 @@ export default function Register() {
           </Link>
         </VStack>
       </VStack>
-      </KeyboardAvoidingComponent>
+      
+      {/* </KeyboardAvoidingComponent> */}
     </View>
+    </TouchableWithoutFeedback>
   );
 }

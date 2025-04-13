@@ -1,7 +1,7 @@
 import React from "react";
 import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
-import { View, Text } from "react-native";
+import { View, Text, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useAuth } from "@/context/auth";
 import { Link, Stack, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
@@ -62,10 +62,11 @@ export default function Login() {
   // Call the signIn function when the component mounts or based on your app's logic
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View className="w-full h-full items-center bg-background-0">
     {header()}
-    <KeyboardAvoidingComponent>
-    <VStack space="md" className="bg-none w-full flex-1 justify-center p-4 max-w-md">
+    {/* <KeyboardAvoidingComponent> */}
+    <VStack space="md" className="bg-none w-full flex-1 justify-center p-4 max-w-md h-full">
       <VStack space="md" className="w-full justify-center">
         <FormControl isRequired={true}>
           <FormControlLabel>
@@ -130,7 +131,8 @@ export default function Login() {
         </Link>
       </VStack>
     </VStack>
-    </KeyboardAvoidingComponent>
+    {/* </KeyboardAvoidingComponent> */}
     </View>
+    </TouchableWithoutFeedback>
   );
 }

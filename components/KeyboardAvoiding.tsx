@@ -6,7 +6,7 @@ export const KeyboardAvoidingComponent = ({children}: any) => {
     return (
         <KeyboardAvoidingView
             behavior="height"
-            keyboardVerticalOffset={-250}
+            keyboardVerticalOffset={0}
             style={{ flex: 1 }}
         >
             <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }} style={{flex: 1}}>
