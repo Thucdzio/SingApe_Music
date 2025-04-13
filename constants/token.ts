@@ -14,11 +14,23 @@ export const iconSize = {
     xl: 36,
 };
 
+export const textColor = {
+    light: "#f0f0f0",
+    dark: "#181818",
+    activeLight: "#fafafa",
+    activeDark: "#272625",
+};
+
+export const iconColor = {
+    light: "#f0f0f0",   // text-primary-500
+    dark: "#181818",    // text-primary-500
+    activeLight: "#4F46E5", // indigo-600
+    activeDark: "#818CF8", // indigo-400
+};
+
 export const backgroundColor = {
-    light: "#121212",
-    dark: "#f6f6f6",
-    headerLight: "#272625",
-    headerDark: "f2f1f1"
+    light: "#f6f6f6", 
+    dark: "#272625"
 };
 
 export const screenPadding = {

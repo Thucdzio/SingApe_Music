@@ -2,7 +2,7 @@ import React from "react";
 import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
 import { View, Text } from "react-native";
-import { useAuth } from "../../../context/auth";
+import { useAuth } from "@/context/auth";
 import { Link, Stack, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { Box } from "@/components/ui/box";
@@ -18,6 +18,7 @@ import {
 import { ButtonText, Button, ButtonIcon } from "@/components/ui/button";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
+import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) =>
@@ -27,7 +28,7 @@ const header = () => {
     <Stack.Screen
       options={{
         headerShown: true,
-        headerTitle: "Đăng nhập",
+        headerTitle: "",
         headerTransparent: true,
         headerTintColor: isDarkMode ? "#fff" : "#000",
       }}
@@ -61,8 +62,9 @@ export default function Login() {
   // Call the signIn function when the component mounts or based on your app's logic
 
   return (
-    <View className="w-full h-full items-center bg-background-50">
+    <View className="w-full h-full items-center bg-background-0">
     {header()}
+    <KeyboardAvoidingComponent>
     <VStack space="md" className="bg-none w-full flex-1 justify-center p-4 max-w-md">
       <VStack space="md" className="w-full justify-center">
         <FormControl isRequired={true}>
@@ -128,6 +130,7 @@ export default function Login() {
         </Link>
       </VStack>
     </VStack>
+    </KeyboardAvoidingComponent>
     </View>
   );
 }

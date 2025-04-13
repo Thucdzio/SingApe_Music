@@ -19,10 +19,12 @@ export default function AuthenticateOption() {
     console.log("Sign Up button pressed");
   };
   const handleChangeTheme = () => {
+    console.log("Change Theme button pressed");
     store.dispatch(toggleTheme());
   };
   return (
-    <VStack className="flex-1 justify-center items-center p-4 bg-gradient-to-b from-background-100 to-background-50">
+    <Box className="flex-1 bg-background-0">
+    <VStack className="flex-1 justify-center items-center p-4">
       <Image
         size="lg"
         source={
@@ -59,5 +61,6 @@ export default function AuthenticateOption() {
         </Button>
       </Box>
     </VStack>
+    </Box>
   );
 }

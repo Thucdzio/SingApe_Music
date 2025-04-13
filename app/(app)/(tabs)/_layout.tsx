@@ -1,15 +1,10 @@
-import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
 import { useRouter, Tabs, Redirect } from "expo-router";
 import { useAuth } from "../../../context/auth";
-import { Text } from "@react-navigation/elements";
 import { FontAwesome } from "@expo/vector-icons";
-import { useColorScheme } from "nativewind";
-import store from "@/store/store";
-import Feather from "@expo/vector-icons/Feather";
-import { iconSize } from "@/constants/token";
-import { useEffect } from "react";
+import { backgroundColor, iconColor, iconSize, textColor } from "@/constants/token";
 import { useSelector } from "react-redux";
+import { Icon } from "@/components/ui/icon";
+import { Compass, Library, UserRound } from "lucide-react-native";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
@@ -27,35 +22,36 @@ export default function TabsNavigation() {
           position: "absolute",
           borderTopWidth: 0,
           height: 50,
-          backgroundColor: isDarkMode ? "#000000" : "#ffffff",
+          backgroundColor: isDarkMode ? backgroundColor.dark : backgroundColor.light,
         },
         tabBarLabelPosition: "below-icon",
-        tabBarActiveTintColor: isDarkMode ? "#fff" : "#000",
-        tabBarInactiveTintColor: isDarkMode ? "#bababa" : "#333333"
+        tabBarActiveTintColor: isDarkMode ? iconColor.activeLight :  iconColor.activeDark,
+        tabBarInactiveTintColor: isDarkMode ? iconColor.light : iconColor.dark,
       }}
     >
       <Tabs.Screen name="(songs)" options={{ 
         title: "Khám phá", 
-        tabBarIcon: ({color}) => <FontAwesome name="home" size={iconSize.base} color={color}/>
+        tabBarIcon: ({color}) => <Icon as={Compass} color={color}/>
+      }} />
+      <Tabs.Screen name="library" options={{ 
+        title: "Thư viện",
+        tabBarIcon: ({color}) => <Icon as={Library} color={color} />
       }} />
       <Tabs.Screen name="profile" options={{ 
         title: "Cá nhân",
         popToTopOnBlur: true,
-        tabBarIcon: ({color}) => <FontAwesome name="user" size={iconSize.base} color={color} />,
+        tabBarIcon: ({color}) => <Icon as={UserRound} color={color} />,
       }} />
-      <Tabs.Screen name="library" options={{ 
-        title: "Thư viện",
-        tabBarIcon: ({color}) => <FontAwesome name="music" size={iconSize.base} color={color} />
-      }} />
-      <Tabs.Screen
-        name="Cài đặt"
+      
+      {/* <Tabs.Screen
+        name="settings"
         options={{
           title: "Setting",
           tabBarIcon: ({ color }) => (
             <Feather name="settings" size={iconSize.base} color={color} />
           ),
         }}
-      />
+      /> */}
     </Tabs>
   );
 }

@@ -12,14 +12,8 @@ export default function Login() {
   if (session) {
     // return <Redirect href="/home" />;
   }
-
-  if (loading) {
-    return (
-      <div>Loading...</div>
-    )
-  }
   
   return (
-    <AuthenticateOption/>
+    <Redirect href="/(auth)" />
   )
 }

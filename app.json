@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
+    "backgroundColor": "none",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -15,8 +16,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.package.singape"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -28,7 +28,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "images": [
+            "./assets/images/splash-icon.png"
+          ],
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

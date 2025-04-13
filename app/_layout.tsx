@@ -22,9 +22,10 @@ export default function RootLayout() {
 }
 
 function GluestackWrapper({ children }: { children: React.ReactNode }) {
-  const theme = useSelector((state: any) =>
+  const theme = useSelector((state: any) => (
     state.isDarkMode ? "dark" : "light"
-  );
+  ));
+
   return (
     <GluestackUIProvider mode={theme as ModeType}>
       {children}
@@ -35,9 +36,18 @@ function GluestackWrapper({ children }: { children: React.ReactNode }) {
 function RootNavigator() {
   return (
     <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(app)/(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(auth)"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="(app)/(tabs)"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

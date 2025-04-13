@@ -1,6 +1,6 @@
 import { useContext, createContext, type PropsWithChildren, useState } from 'react';
 import { AuthError } from 'expo-auth-session';
-import { useStorageState } from './useStorageState';
+import { setStorageItemAsync, useStorageState } from './useStorageState';
 
 export type AuthUser = {
   id: string;
@@ -72,6 +72,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }
 
   const signOut = async () => {
+    setStorageItemAsync('session', null);
     setSession(null);
     setUser(null);
   }
