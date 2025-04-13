@@ -212,6 +212,7 @@ const buttonIconStyle = tva({
       md: 'h-[18px] w-[18px]',
       lg: 'h-[18px] w-[18px]',
       xl: 'h-5 w-5',
+      xxl: 'h-6 w-6',
     },
     action: {
       primary:

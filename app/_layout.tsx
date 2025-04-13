@@ -7,15 +7,18 @@ import { AuthProvider } from "../context/auth";
 import { useEffect, useState } from "react";
 import { ModeType } from "@/components/ui/gluestack-ui-provider/types";
 import store from "@/store/store";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (
     <Provider store={store}>
       <GluestackWrapper>
+        <SafeAreaProvider>
         <AuthProvider>
           <RootNavigator />
           <StatusBar style="auto" />
         </AuthProvider>
+        </SafeAreaProvider>
       </GluestackWrapper>
     </Provider>
   );

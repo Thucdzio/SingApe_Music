@@ -1,10 +1,11 @@
-import { useRouter, Tabs, Redirect } from "expo-router";
+import { useRouter, Tabs, Redirect, Stack } from "expo-router";
 import { useAuth } from "../../../context/auth";
 import { FontAwesome } from "@expo/vector-icons";
 import { backgroundColor, iconColor, iconSize, textColor } from "@/constants/token";
 import { useSelector } from "react-redux";
 import { Icon } from "@/components/ui/icon";
 import { Compass, Library, UserRound } from "lucide-react-native";
+import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
@@ -20,6 +21,7 @@ export default function TabsNavigation() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
+          bottom: 0,
           borderTopWidth: 0,
           height: 50,
           backgroundColor: isDarkMode ? backgroundColor.dark : backgroundColor.light,
@@ -42,16 +44,6 @@ export default function TabsNavigation() {
         popToTopOnBlur: true,
         tabBarIcon: ({color}) => <Icon as={UserRound} color={color} />,
       }} />
-      
-      {/* <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Setting",
-          tabBarIcon: ({ color }) => (
-            <Feather name="settings" size={iconSize.base} color={color} />
-          ),
-        }}
-      /> */}
     </Tabs>
   );
 }
