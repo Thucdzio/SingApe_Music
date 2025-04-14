@@ -3,13 +3,13 @@ import {
   PlayerControls,
   PlayPauseButton,
   SkipToNextButton,
-} from "../components/PlayerControls";
-import { unknownTrackImageSource } from "../../constants/image";
-import { useLastActiveTrack } from "../hooks/useLastActiveTrack";
+} from "@/components/PlayerControls";
+import { unknownTrackImageSource } from "../constants/image";
+import { useLastActiveTrack } from "@/hooks/useLastActiveTrack";
 import { useRouter } from "expo-router";
 import { View, TouchableOpacity, ViewProps } from "react-native";
 import { useActiveTrack } from "react-native-track-player";
-import { MovingText } from "./MovingText";
+import { MovingText } from "@/components/MovingText";
 import { HStack, Image, Pressable, VStack } from "@/components/ui";
 import { colors } from "@/constants/tokens";
 

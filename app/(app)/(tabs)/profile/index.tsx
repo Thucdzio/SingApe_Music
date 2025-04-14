@@ -8,7 +8,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { useSelector } from "react-redux";
-import { fontSize, iconSize } from "@/constants/token";
+import { fontSize, iconSize } from "@/constants/tokens";
 import { ButtonIcon, ButtonText } from "@/components/ui/button";
 import { useAuth } from "@/context/auth";
 import { VirtualHeader } from "@/components/VirtualHeader";

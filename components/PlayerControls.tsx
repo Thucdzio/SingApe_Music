@@ -1,4 +1,4 @@
-import { colors } from "../../constants/tokens";
+import { colors } from "../constants/tokens";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { ViewStyle } from "react-native";
 import TrackPlayer, { useIsPlaying } from "react-native-track-player";

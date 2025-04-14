@@ -1,4 +1,4 @@
-import { useFavorites } from "../store/library";
+import { useFavorites } from "@/store/library";
 import { useCallback, useEffect } from "react";
 import TrackPlayer, { useActiveTrack } from "react-native-track-player";
 

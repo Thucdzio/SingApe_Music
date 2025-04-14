@@ -1,5 +1,5 @@
 import { colors } from "@/constants/tokens";
-import { useTrackPlayerRepeatMode } from "../hooks/useTrackPlayerRepeatMode";
+import { useTrackPlayerRepeatMode } from "@/hooks/useTrackPlayerRepeatMode";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ComponentProps } from "react";
 import { RepeatMode } from "react-native-track-player";

@@ -6,9 +6,9 @@ import { useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { InputField } from "@/components/ui/input";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TrackList } from "@/app/components/TrackList";
+import { TrackList } from "@/components/TrackList";
 import { screenPadding } from "@/constants/tokens";
-import { FloatingPlayer } from "@/app/components/FloatingPlayer";
+import { FloatingPlayer } from "@/components/FloatingPlayer";
 
 export default function Songs() {
   const numCols = 3;

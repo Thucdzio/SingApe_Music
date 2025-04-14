@@ -6,10 +6,10 @@ import { Provider, useSelector } from "react-redux";
 import { AuthProvider } from "../context/auth";
 import { useCallback, useEffect, useState } from "react";
 import { ModeType } from "@/components/ui/gluestack-ui-provider/types";
-import store from "@/app/store/store";
+import store from "@/store/store";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useSetupTrackPlayer } from "./hooks/useSetupTrackPlayer";
-import { useLogTrackPlayerState } from "./hooks/useLogTrackPlayerState";
+import { useSetupTrackPlayer } from "@/hooks/useSetupTrackPlayer";
+import { useLogTrackPlayerState } from "@/hooks/useLogTrackPlayerState";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 SplashScreen.preventAutoHideAsync();
 

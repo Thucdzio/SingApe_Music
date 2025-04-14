@@ -1,7 +1,7 @@
-import Library from "../../assets/data/library.json";
+import Library from "../assets/data/library.json";
 import React, { useEffect } from "react";
 import { FlatList, FlatListProps, Text, View } from "react-native";
-import { TracksListItem } from "./TrackListItem";
+import { TracksListItem } from "../components/TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {};

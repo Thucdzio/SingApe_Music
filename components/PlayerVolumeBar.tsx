@@ -1,6 +1,6 @@
 import { HStack, Slider, Icon } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
-import { useTrackPlayerVolume } from "../hooks/useTrackPlayerVolume";
+import { useTrackPlayerVolume } from "@/hooks/useTrackPlayerVolume";
 import { View } from "react-native";
 import {
   SliderFilledTrack,

@@ -7,7 +7,7 @@ import { ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { VirtualHeader } from "@/components/VirtualHeader";
-import { fontSize, textColor } from "@/constants/token";
+import { fontSize, textColor } from "@/constants/tokens";
 import { router, Stack } from "expo-router";
 import {
   ArrowBigDownDash,

@@ -7,7 +7,7 @@ import {
   fontSize,
   iconSize,
   textColor,
-} from "@/constants/token";
+} from "@/constants/tokens";
 import { FlatList, View } from "react-native";
 import { Card } from "@/components/ui/card";
 import { useSelector } from "react-redux";
