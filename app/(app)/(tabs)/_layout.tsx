@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 import { Icon } from "@/components/ui/icon";
 import { Compass, Library, UserRound } from "lucide-react-native";
 import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
+import { FloatingPlayer } from "@/app/components/FloatingPlayer";
+import { View } from "react-native";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
@@ -14,8 +16,10 @@ export default function TabsNavigation() {
   if (!session) {
     return <Redirect href="/(auth)" />;
   }
-
+  console.log("TabsNavigation Rendered");
+  console.log("Rendering FloatingPlayer");
   return (
+    <View style={{ flex: 1}}>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -44,6 +48,9 @@ export default function TabsNavigation() {
         popToTopOnBlur: true,
         tabBarIcon: ({color}) => <Icon as={UserRound} color={color} />,
       }} />
+
     </Tabs>
+    <FloatingPlayer />
+    </View>
   );
 }
