@@ -38,6 +38,7 @@ export const screenPadding = {
     vertical: 16,
 };
 export const colors = {
+    blue:"#000fff",
 	primary: '#fc3c44',
 	background: '#000',
 	text: '#fff',
