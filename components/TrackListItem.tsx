@@ -6,10 +6,17 @@ import {
   VStack,
   HStack,
   Image,
+  Center,
+  Icon,
+  Box,
 } from "@/components/ui";
 import { Track, useActiveTrack, useIsPlaying } from "react-native-track-player";
 import { unknownTrackImageSource } from "@/constants/image";
-import colors from "tailwindcss/colors";
+import PlayingBars from "./PlayingBar";
+import { Play } from "lucide-react-native";
+import { BlurView } from 'expo-blur';
+import { iconColor } from "@/constants/tokens";
+import { useSelector } from "react-redux";
 
 export type TracksListItemProps = {
   track: Track;
@@ -22,43 +29,38 @@ export const TracksListItem = ({
 }: TracksListItemProps) => {
   const { playing } = useIsPlaying();
   const isActiveTrack = useActiveTrack()?.url === track.url;
+  const reverseTheme = useSelector((state: any) => state.isDarkMode ? "light" : "dark");
 
   return (
     // onPress={() => handleTrackSelect(track)}
     <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2">
       <HStack space="md" className="gap-4 items-center pr-5">
-        <HStack className="relative">
+        <Center className="relative">
           <Image
             source={
               track.artwork ? { uri: track.artwork } : unknownTrackImageSource
             }
-            className={`w-12 h-12 rounded ${
-              isActiveTrack ? "opacity-60" : "opacity-100"
-            }`}
+            className={`w-12 h-12 rounded`}
             alt="track artwork"
           />
-          {isActiveTrack &&
-            (playing ? (
-              <Spinner
-                className="absolute top-[14px] left-[14px]"
-                size="small"
-                color={colors.black}
-              />
+          
+          {isActiveTrack ? (
+            <>
+            <BlurView className="absolute w-full h-full" tint={reverseTheme} intensity={80}/>
+            {playing ? (
+              <PlayingBars color={iconColor.activeLight} />
             ) : (
-              <Ionicons
-                style={{ position: "absolute", top: 14, left: 14 }}
-                name="play"
-                size={24}
-                color="black"
-              />
-            ))}
-        </HStack>
+              <Icon as={Play} className="absolute text-indigo-500 fill-indigo-500" />
+            )}
+            </>
+          ) : null}
+        </Center>
         <HStack className="flex-1 items-center justify-between">
           <VStack className="flex-1 pr-2">
             <Text
               numberOfLines={1}
               className={`text-sm font-semibold ${
-                isActiveTrack ? "text-primary" : "text-foreground"
+                isActiveTrack ? "text-indigo-500" : "text-foreground"
               }`}
             >
               {track.title}
