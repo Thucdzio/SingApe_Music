@@ -4,6 +4,7 @@ import TrackPlayer, {
   RatingType,
   RepeatMode,
   State,
+  AppKilledPlaybackBehavior,
 } from "react-native-track-player";
 
 const setupPlayer = async () => {
@@ -26,6 +27,9 @@ const setupPlayer = async () => {
       Capability.SkipToPrevious,
       Capability.Stop,
     ],
+    android: {
+      appKilledPlaybackBehavior: AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification
+    }
   });
 
   await TrackPlayer.setVolume(0.3);
