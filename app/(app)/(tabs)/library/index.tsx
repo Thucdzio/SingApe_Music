@@ -70,7 +70,7 @@ export default function Library() {
 
 
   return (
-    <KeyboardAvoidingComponent>
+    <ScrollView>
       {newHeader()}
       
       <Box className="flex-1 w-full h-full bg-background-0 p-6">
@@ -129,7 +129,15 @@ export default function Library() {
                 createdBy={`Người tạo ${item}`}
                 type={`Thể loại ${item}`}
                 image={`https://picsum.photos/200/300?random=${item}`}
-                onPress={() => router.push(`/playlist/${item}`)}
+                onPress={() => router.push({
+                  pathname: `/library/playlist/[id]`,
+                  params: {
+                    id: item,
+                    image: `https://picsum.photos/200/300?random=${item}`,
+                    title: `Playlist ${item}`,
+                    createdBy: `Người tạo ${item}`,
+                  },
+                })}
               />
             )}
             scrollEnabled={false}
@@ -139,6 +147,6 @@ export default function Library() {
             />
         </VStack>
       </Box>
-    </KeyboardAvoidingComponent>
+    </ScrollView>
   );
 }
