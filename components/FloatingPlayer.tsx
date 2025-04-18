@@ -56,6 +56,7 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
               uri: displayedTrack.artwork ?? unknownTrackImageSource,
             }}
             className="w-16 h-16 rounded-xl m-2"
+            alt="track artwork"
           />
           <MovingText
             text={displayedTrack.title ?? ""}
