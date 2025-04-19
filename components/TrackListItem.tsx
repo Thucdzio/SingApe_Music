@@ -30,7 +30,10 @@ export const TracksListItem = ({
         <HStack className="relative">
           <Image
             source={
-              track.artwork ? { uri: track.artwork } : unknownTrackImageSource
+              typeof track.artwork === "string" &&
+              track.artwork.startsWith("http")
+                ? { uri: track.artwork }
+                : unknownTrackImageSource
             }
             className={`w-12 h-12 rounded ${
               isActiveTrack ? "opacity-60" : "opacity-100"

@@ -27,6 +27,7 @@ const PlayerScreen = () => {
   const { imageColors } = usePlayerBackground(
     activeTrack?.artwork ?? unknownTrackImageSource
   );
+  console.log(activeTrack?.artwork ?? unknownTrackImageSource);
 
   const { top, bottom } = useSafeAreaInsets();
   const { isFavorite, toggleFavorite } = useTrackPlayerFavorite();
@@ -79,7 +80,9 @@ const PlayerScreen = () => {
             <VStack className="h-[70px]">
               <HStack className="justify-between items-center">
                 <PlayerShareButton
-                  message={`${activeTrack.artist} - ${activeTrack.title}`}
+                  title={activeTrack.title}
+                  artist={activeTrack.artist}
+                  image={activeTrack.artwork}
                   url={activeTrack.url}
                 />
                 <Center className="flex-1 overflow-hidden">
