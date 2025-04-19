@@ -1,6 +1,7 @@
 import { useContext, createContext, type PropsWithChildren, useState } from 'react';
 import { AuthError } from 'expo-auth-session';
 import { setStorageItemAsync, useStorageState } from './useStorageState';
+import { supabase } from '@/lib/supabase';
 
 export type AuthUser = {
   id: string;
@@ -19,16 +20,20 @@ export type SignInParams = {
 const AuthContext = createContext<{
   user?: AuthUser | null;
   signIn: (params: SignInParams) => Promise<void>;
+  signUp: (params: SignInParams) => Promise<void>;
   signOut: () => void;
   session?: string | null;
   loading?: boolean;
+  setLoading: (loading: boolean) => void;
   error?: AuthError | null;
 }>({
   user: null,
   signIn: async () => Promise.resolve(),
+  signUp: async () => Promise.resolve(),
   signOut: () => null,
   session: null,
   loading: true,
+  setLoading: () => {},
   error: null,
 });
 
@@ -52,26 +57,36 @@ export function AuthProvider({ children }: PropsWithChildren) {
   
   const signIn = async ({ email, password }: SignInParams) => {
     setLoading(true);
-    try {
-      const response = true;
-      setSession('session_token');
-      const responseUser = {
-        id: '123',
-        email: email,
-        name: 'John Doe',
-        picture: 'https://example.com/johndoe.jpg',
-        provider: 'local',
-        exp: new Date().toISOString(),
-      }
-      setUser(responseUser);
-    } catch (error) {
-      console.error('Sign-in error:', error);
-      setUser(null);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      throw error;
+    }
+  }
+
+  const signUp = async ({ email, password }: SignInParams) => {
+    setLoading(true);
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    })
+    
+    if (error) {
+      throw error;
+    }
+    if (!session) {
+      throw new Error('No session returned from sign up');
     }
     setLoading(false);
   }
 
   const signOut = async () => {
+    await supabase.auth.signOut();
     setStorageItemAsync('session', null);
     setSession(null);
     setUser(null);
@@ -82,9 +97,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
       value={{ 
         user,
         signIn,
+        signUp,
         signOut,
         session,
         loading,
+        setLoading,
         error: null, // Handle error state as needed
       }}>
       {children}

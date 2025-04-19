@@ -2,28 +2,39 @@ import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Link, router } from "expo-router";
-import { Box } from "@/components/ui/box";
 import { Stack } from "expo-router";
 import { useSelector } from "react-redux";
-import { FormControl, FormControlError, FormControlErrorText, FormControlLabel, FormControlLabelText } from "@/components/ui/form-control";
-import { HStack, Input } from "@/components/ui";
+import {
+  FormControl,
+  FormControlError,
+  FormControlErrorText,
+  FormControlLabel,
+  FormControlLabelText,
+} from "@/components/ui/form-control";
+import { Center, HStack, Input, Spinner } from "@/components/ui";
 import { InputField } from "@/components/ui/input";
 import { useRef, useState } from "react";
 import { Divider } from "@/components/ui/divider";
-import { Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, View } from "react-native";
+import {
+  Alert,
+  Keyboard,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { useAuth } from "@/context/auth";
-import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
+import { supabase } from "@/lib/supabase";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Heading } from "@/components/ui/heading";
 
 const header = () => {
-  const isDarkMode = useSelector((state: any) =>
-    state.isDarkMode
-  );
+  const isDarkMode = useSelector((state: any) => state.isDarkMode);
   return (
     <Stack.Screen
       options={{
         headerShown: true,
-        headerTitle: "Đăng ký",
+        headerTitle: "",
         headerTransparent: true,
         headerTintColor: isDarkMode ? "#fafafa" : "#000",
       }}
@@ -32,131 +43,215 @@ const header = () => {
 };
 
 export default function Register() {
-  const { signIn } = useAuth(); 
-  const [isInvalid, setIsInvalid] = useState(false);
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [isInvalidRePassword, setIsInvalidRePassword] = useState(false);
+  const { signUp, loading, setLoading } = useAuth();
 
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const repasswordRef = useRef("");
 
   const handleEmailChange = (text: string) => {
+    if (isInvalidEmail) {
+      setIsInvalidEmail(false);
+    }
     emailRef.current = text;
   };
   const handlePasswordChange = (text: string) => {
+    if (isInvalidPassword) {
+      setIsInvalidPassword(false);
+    }
+    if (text.length < 6) {
+      setPasswordError("Mật khẩu phải có ít nhất 6 ký tự");
+    } else {
+      setPasswordError("");
+    }
     passwordRef.current = text;
   };
+
   const handleRePasswordChange = (text: string) => {
-    if (isInvalid) {
-      setIsInvalid(false);
+    if (isInvalidRePassword) {
+      setIsInvalidRePassword(false);
     }
     repasswordRef.current = text;
   };
 
-  const handleRegister = () => {
+  async function signUpWithEmail() {
     try {
-      if (passwordRef.current !== repasswordRef.current) {
-        setIsInvalid(true);
+      if (emailRef.current === "") {
+        setIsInvalidEmail(true);
         return;
       }
-      signIn({
+      if (passwordRef.current === "") {
+        setPasswordError("Vui lòng nhập mật khẩu");
+        setIsInvalidPassword(true);
+        return;
+      }
+      if (passwordRef.current.length < 6) {
+        setPasswordError("Mật khẩu phải có ít nhất 6 ký tự");
+        setIsInvalidPassword(true);
+        return;
+      }
+      if (
+        repasswordRef.current === "" ||
+        passwordRef.current !== repasswordRef.current
+      ) {
+        setIsInvalidRePassword(true);
+        return;
+      }
+      await signUp({
         email: emailRef.current,
         password: passwordRef.current,
       });
-      router.dismissAll();
-      router.replace("/(tabs)");
-      console.log("Sign Up button pressed");
-    } catch (error) {
-      console.error("Error signing up:", error);
+      setLoading(false);
+      router.push("/login");
+    } catch (error: any) {
+      console.log(error);
+      var errorMessage = error.message;
+      if (errorMessage.includes("registered")) {
+        errorMessage = "Email đã được đăng ký";
+      }
+      Alert.alert("Đăng ký không thành công", errorMessage, [
+        {
+          text: "Đóng",
+          onPress: () => setLoading(false),
+        },
+      ]);
+    }
+  }
+
+  if (loading) {
+    return (
+      <View className="w-full h-full items-center bg-background-0 justify-center">
+        {header()}
+        <LoadingOverlay />
+      </View>
+    );
+  }
+
+  const signUpWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "https://your-redirect-url.com",
+      },
+    });
+    if (error) {
+      Alert.alert("Lỗi", error.message);
     }
   };
 
-  const handleGoogle = () => {
-    console.log("Sign Up button pressed");
+  const handleGoogle = async () => {
+    try {
+      console.log("handleGoogle");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} accessible={false}>
-    <View className="flex-1 items-center h-full bg-background-0">
-      {header()}
-      {/* <KeyboardAvoidingComponent> */}
-      
-      <VStack className="flex-1 justify-center items-center w-full max-w-md bg-transparent p-4">
-        <VStack space="md" className="bg-none w-full">  
-          <FormControl isRequired={true}>
-            <FormControlLabel>
-              <FormControlLabelText>Email</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="text"
-                placeholder="Enter your email"
-                onChangeText={handleEmailChange}
-              ></InputField>
-            </Input>
-          </FormControl>
-          <FormControl isRequired={true}>
-            <FormControlLabel>
-              <FormControlLabelText>Mật khẩu</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="password"
-                placeholder="Enter your password"
-                onChangeText={handlePasswordChange}
-              ></InputField>
-            </Input>
-          </FormControl>
-          <FormControl 
-            isRequired={true}
-            isInvalid={isInvalid}
-          >
-            <FormControlLabel>
-              <FormControlLabelText>Nhập lại mật khẩu</FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type="password"
-                placeholder="Enter your password"
-                onChangeText={handleRePasswordChange}
-              ></InputField>
-            </Input>
-            <FormControlError>
-              <FormControlErrorText>
-                Mật khẩu không khớp
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
-          <Button
-            onPress={handleRegister}
-            variant="solid"
-            className="mt-4"
-          >
-            <ButtonText>Đăng ký</ButtonText>
-          </Button>
-        </VStack>
-        <HStack className="w-full justify-between items-center mt-2">
-          <Divider className="w-1/3" />
-          <Text className="text-primary-100">Hoặc</Text>
-          <Divider className="w-1/3" />
-        </HStack>
-        <Button
-          onPress={handleGoogle}
-          variant="outline"
-          className="mt-2 w-full data-[active=true]:bg-background-300"
-        >
-          <ButtonText>Đăng ký với Google</ButtonText>
-          <AntDesign name="googleplus" size={24} className="color-primary-100"/>
-        </Button>
-        <VStack className="w-full justify-center items-center mt-4">
-          <Text className="text-primary-100">Bạn đã có tài khoản?</Text>
-          <Link href="/(auth)/login" className="text-primary-100 font-bold">
-            Đăng nhập
-          </Link>
-        </VStack>
-      </VStack>
-      
-      {/* </KeyboardAvoidingComponent> */}
-    </View>
-    </TouchableWithoutFeedback>
+    <SafeAreaView className="flex-1 bg-background-0">
+      <TouchableWithoutFeedback
+        onPress={() => Keyboard.dismiss()}
+        accessible={false}
+      >
+        <View className="flex-1 items-center h-full bg-background-0">
+          {header()}
+          {/* <KeyboardAvoidingComponent> */}
+
+          <VStack className="flex-1 items-center w-full max-w-md bg-transparent p-4">
+            <Center className="h-32">
+              <Heading className="text-primary-500 font-bold text-4xl mt-4">
+                Đăng ký
+              </Heading>
+            </Center>
+            <VStack space="md" className="bg-none w-full">
+              <FormControl isRequired={true} isInvalid={isInvalidEmail}>
+                <FormControlLabel>
+                  <FormControlLabelText>Email</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="text"
+                    placeholder="Enter your email"
+                    onChangeText={handleEmailChange}
+                  ></InputField>
+                </Input>
+                <FormControlError>
+                  <FormControlErrorText>
+                    Vui lòng nhập email
+                  </FormControlErrorText>
+                </FormControlError>
+              </FormControl>
+              <FormControl isRequired={true} isInvalid={isInvalidPassword}>
+                <FormControlLabel>
+                  <FormControlLabelText>Mật khẩu</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="password"
+                    placeholder="Enter your password"
+                    onChangeText={handlePasswordChange}
+                  ></InputField>
+                </Input>
+                <FormControlError>
+                  <FormControlErrorText>{passwordError}</FormControlErrorText>
+                </FormControlError>
+              </FormControl>
+              <FormControl isRequired={true} isInvalid={isInvalidRePassword}>
+                <FormControlLabel>
+                  <FormControlLabelText>Nhập lại mật khẩu</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="password"
+                    placeholder="Enter your password"
+                    onChangeText={handleRePasswordChange}
+                  ></InputField>
+                </Input>
+                <FormControlError>
+                  <FormControlErrorText>
+                    Mật khẩu không khớp
+                  </FormControlErrorText>
+                </FormControlError>
+              </FormControl>
+              <Button
+                onPress={signUpWithEmail}
+                variant="solid"
+                className="mt-4"
+              >
+                <ButtonText>Đăng ký</ButtonText>
+              </Button>
+            </VStack>
+            <HStack className="w-full justify-between items-center mt-2">
+              <Divider className="w-1/3" />
+              <Text className="text-primary-100">Hoặc</Text>
+              <Divider className="w-1/3" />
+            </HStack>
+            <Button
+              onPress={handleGoogle}
+              variant="outline"
+              className="mt-2 w-full data-[active=true]:bg-background-300"
+            >
+              <ButtonText>Đăng ký với Google</ButtonText>
+              <AntDesign
+                name="googleplus"
+                size={24}
+                className="color-primary-100"
+              />
+            </Button>
+            <VStack className="w-full justify-center items-center mt-4">
+              <Text className="text-primary-100">Bạn đã có tài khoản?</Text>
+              <Link href="/(auth)/login" className="text-primary-100 font-bold">
+                Đăng nhập
+              </Link>
+            </VStack>
+          </VStack>
+          {/* </KeyboardAvoidingComponent> */}
+        </View>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }

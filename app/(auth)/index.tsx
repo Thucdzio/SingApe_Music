@@ -8,6 +8,7 @@ import { VStack } from "@/components/ui/vstack";
 import { router, Stack } from "expo-router";
 import store from "@/store/store";
 import { toggleTheme } from "@/store/slices";
+import { SafeAreaView } from "react-native";
 
 export default function AuthenticateOption() {
   const handleLogin = () => {
@@ -23,8 +24,8 @@ export default function AuthenticateOption() {
     store.dispatch(toggleTheme());
   };
   return (
-    <Box className="flex-1 bg-background-0">
-    <VStack className="flex-1 justify-center items-center p-4">
+    <SafeAreaView className="flex-1 bg-background-0 p-4">
+    <VStack className="flex-1 justify-center items-center">
       <Image
         size="lg"
         source={
@@ -39,7 +40,8 @@ export default function AuthenticateOption() {
       <Text className="text-primary-100 text-2lg mb-4">
         Tạo playlist và chia sẻ với bạn bè
       </Text>
-      <Box className="bg-none w-full max-w-md">
+    </VStack>
+    <VStack space="md" className="bg-none w-full p-4 bottom-10">
         <Button
           onPress={handleRegister}
           variant="solid"
@@ -56,12 +58,8 @@ export default function AuthenticateOption() {
         >
           <ButtonText>Đăng nhập</ButtonText>
         </Button>
-        <Button onPress={handleChangeTheme}>
-          <ButtonText>Change Theme</ButtonText>
-        </Button>
-      </Box>
-    </VStack>
-    </Box>
+      </VStack>
+    </SafeAreaView>
   );
 }
 

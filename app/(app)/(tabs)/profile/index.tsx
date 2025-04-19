@@ -13,6 +13,7 @@ import { ButtonIcon, ButtonText } from "@/components/ui/button";
 import { useAuth } from "@/context/auth";
 import { VirtualHeader } from "@/components/VirtualHeader";
 import { BellIcon, Icon } from "@/components/ui/icon";
+import { supabase } from "@/lib/supabase";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
@@ -47,10 +48,11 @@ const header = () => {
 };
 
 export default function Profile() {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/(auth)" as Href);
   };
 
   const handleSetting = () => {
