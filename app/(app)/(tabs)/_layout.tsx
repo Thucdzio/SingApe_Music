@@ -1,53 +1,58 @@
-import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
-import { Tabs } from "expo-router";
+import { useRouter, Tabs, Redirect, Stack } from "expo-router";
 import { useAuth } from "../../../context/auth";
-import { Text } from "@react-navigation/elements";
 import { FontAwesome } from "@expo/vector-icons";
-import { StyleSheet } from "react-native";
-import { useColorScheme } from "nativewind";
+import { backgroundColor, iconColor, iconSize, textColor } from "@/constants/tokens";
+import { useSelector } from "react-redux";
+import { Icon } from "@/components/ui/icon";
+import { Compass, Library, UserRound } from "lucide-react-native";
+import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
+import { FloatingPlayer } from "@/components/FloatingPlayer";
+import { View } from "react-native";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
-  const colorScheme = useColorScheme();
-  console.log("Color scheme: ", colorScheme.colorScheme);
+  const isDarkMode = useSelector((state: any) => state.isDarkMode);
 
   if (!session) {
-    return (
-      <HStack>
-        <Text>Not logged in</Text>
-      </HStack>
-    );
+    return <Redirect href="/(auth)" />;
   }
-
+  console.log("TabsNavigation Rendered");
+  console.log("Rendering FloatingPlayer");
   return (
+    <View style={{ flex: 1}}>
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
+          bottom: 0,
           borderTopWidth: 0,
           height: 50,
-          paddingBottom: 10,
-          paddingTop: 10,
-          backgroundColor: colorScheme.colorScheme === "dark" ? "#000000" : "#ffffff",
+          backgroundColor: isDarkMode ? backgroundColor.dark : backgroundColor.light,
         },
-        tabBarActiveTintColor: colorScheme.colorScheme === "dark" ? "#fdfdfd" : "#0d0d0d",
-        tabBarInactiveTintColor: colorScheme.colorScheme === "dark" ? "#bababa" : "#333333",
+        tabBarLabelPosition: "below-icon",
+        tabBarActiveTintColor: isDarkMode ? iconColor.activeLight :  iconColor.activeDark,
+        tabBarInactiveTintColor: isDarkMode ? iconColor.light : iconColor.dark,
       }}
     >
       <Tabs.Screen name="(songs)" options={{ 
-        title: "Home", 
-        tabBarIcon: ({color}) => <FontAwesome name="home" size={24} color={color}/>
-      }} />
-      <Tabs.Screen name="profile" options={{ 
-        title: "Profile",
-        tabBarIcon: ({color}) => <FontAwesome name="user" size={24} color={color} />
+        title: "Khám phá", 
+        tabBarIcon: ({color}) => <Icon as={Compass} color={color}/>
       }} />
       <Tabs.Screen name="library" options={{ 
-        title: "Library",
-        tabBarIcon: ({color}) => <FontAwesome name="music" size={24} color={color} />
+        title: "Thư viện",
+        tabBarIcon: ({color}) => <Icon as={Library} color={color} />
+      }} />
+      <Tabs.Screen name="profile" options={{ 
+        title: "Cá nhân",
+        popToTopOnBlur: true,
+        tabBarIcon: ({color}) => <Icon as={UserRound} color={color} />,
+      }} />
+      <Tabs.Screen name="settings" options={{ 
+        href: null,
       }} />
     </Tabs>
+    <FloatingPlayer />
+    </View>
   );
 }

@@ -1,11 +1,17 @@
-import GetStarted from "./(auth)/index";
+import { useAuth } from "@/context/auth";
+import AuthenticateOption from "./(auth)/index";
+import { Redirect } from "expo-router";
 
 export default function Login() {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('Login screen loaded');
+  const { session, loading, error } = useAuth();
+
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Login screen loaded");
   }
 
-  return (
-    <GetStarted/>
-  )
+  if (session) {
+    return <Redirect href="/(tabs)" />;
+  }
+
+  return <Redirect href="/(auth)" />;
 }

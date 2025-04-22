@@ -6,19 +6,14 @@ export default function AuthLayout() {
         screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: "#000000" },
+            animation: "fade_from_bottom",
+            animationDuration: 1000,
+            gestureEnabled: true,
         }}
     >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="register" options={{ 
-          headerShown: true, 
-          headerTitle: "",
-          headerTransparent: true,
-          }} />
-        <Stack.Screen name="login" options={{ 
-          headerShown: true, 
-          headerTitle: "",
-          headerTransparent: true,
-          }} />
+        <Stack.Screen name="index" />
+        <Stack.Screen name="register"  />
+        <Stack.Screen name="login" />
     </Stack>
   );
 }
