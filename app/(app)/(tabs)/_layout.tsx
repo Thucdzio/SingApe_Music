@@ -48,7 +48,9 @@ export default function TabsNavigation() {
         popToTopOnBlur: true,
         tabBarIcon: ({color}) => <Icon as={UserRound} color={color} />,
       }} />
-
+      <Tabs.Screen name="settings" options={{ 
+        href: null,
+      }} />
     </Tabs>
     <FloatingPlayer />
     </View>
