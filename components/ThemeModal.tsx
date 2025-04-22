@@ -13,7 +13,6 @@ interface ThemeModalProps {
 }
 
 export const ThemeModal = ({isOpen, onClose}: ThemeModalProps) => {
-
     return (
         <Modal
             isOpen={isOpen}

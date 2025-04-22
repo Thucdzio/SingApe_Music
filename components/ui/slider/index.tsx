@@ -19,7 +19,7 @@ export const UISlider = createSlider({
   Track: Pressable,
   FilledTrack: View,
   ThumbInteraction: View,
-});
+}); 
 
 cssInterop(UISlider.Track, { className: 'style' });
 

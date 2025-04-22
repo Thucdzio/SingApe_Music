@@ -5,15 +5,13 @@ import { Redirect } from "expo-router";
 export default function Login() {
   const { session, loading, error } = useAuth();
 
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('Login screen loaded');
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Login screen loaded");
   }
 
   if (session) {
-    // return <Redirect href="/home" />;
+    return <Redirect href="/(tabs)" />;
   }
-  
-  return (
-    <Redirect href="/(auth)" />
-  )
+
+  return <Redirect href="/(auth)" />;
 }
