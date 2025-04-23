@@ -15,12 +15,7 @@ import { Center, HStack, Input, Spinner } from "@/components/ui";
 import { InputField } from "@/components/ui/input";
 import { useRef, useState } from "react";
 import { Divider } from "@/components/ui/divider";
-import {
-  Alert,
-  Keyboard,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { useAuth } from "@/context/auth";
 import { supabase } from "@/lib/supabase";
@@ -43,12 +38,14 @@ const header = () => {
 };
 
 export default function Register() {
+  const [isInvalidName, setIsInvalidName] = useState(false);
   const [isInvalidEmail, setIsInvalidEmail] = useState(false);
   const [isInvalidPassword, setIsInvalidPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [isInvalidRePassword, setIsInvalidRePassword] = useState(false);
   const { signUp, loading, setLoading } = useAuth();
 
+  const nameRef = useRef("");
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const repasswordRef = useRef("");
@@ -59,6 +56,7 @@ export default function Register() {
     }
     emailRef.current = text;
   };
+
   const handlePasswordChange = (text: string) => {
     if (isInvalidPassword) {
       setIsInvalidPassword(false);
@@ -76,6 +74,10 @@ export default function Register() {
       setIsInvalidRePassword(false);
     }
     repasswordRef.current = text;
+  };
+
+  const handleNameChange = (text: string) => {
+    nameRef.current = text;
   };
 
   async function signUpWithEmail() {
@@ -168,6 +170,18 @@ export default function Register() {
               </Heading>
             </Center>
             <VStack space="md" className="bg-none w-full">
+              <FormControl isRequired={true} isInvalid={isInvalidEmail}>
+                <FormControlLabel>
+                  <FormControlLabelText>Tên của bạn</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="text"
+                    placeholder="Enter your name"
+                    onChangeText={handleNameChange}
+                  ></InputField>
+                </Input>
+              </FormControl>
               <FormControl isRequired={true} isInvalid={isInvalidEmail}>
                 <FormControlLabel>
                   <FormControlLabelText>Email</FormControlLabelText>

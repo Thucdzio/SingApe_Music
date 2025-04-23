@@ -74,7 +74,7 @@ function RootNavigator() {
         }}
       />
       <Stack.Screen
-        name="(app)/(tabs)"
+        name="(app)"
         options={{
           headerShown: false,
         }}

@@ -26,6 +26,7 @@ import { Heading } from "@/components/ui/heading";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
+  console.log("--------------------------------");
   return (
     <Stack.Screen
       options={{
@@ -127,7 +128,7 @@ export default function Login() {
               </Heading>
             </Center>
             <VStack space="md" className="bg-none w-full">
-              <FormControl isRequired={true} isInvalid={false}>
+              <FormControl isRequired={true} isInvalid={isInvalidEmail}>
                 <FormControlLabel>
                   <FormControlLabelText>Email</FormControlLabelText>
                 </FormControlLabel>
@@ -144,7 +145,7 @@ export default function Login() {
                   </FormControlErrorText>
                 </FormControlError>
               </FormControl>
-              <FormControl isRequired={true}>
+              <FormControl isRequired={true} isInvalid={isInvalidPassword}>
                 <FormControlLabel>
                   <FormControlLabelText>Mật khẩu</FormControlLabelText>
                 </FormControlLabel>
