@@ -33,7 +33,6 @@ import { Heading } from "@/components/ui/heading";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
-  const isDarkMode = useSelector((state: any) => state.isDarkMode);
   return (
     <Stack.Screen
       options={{
@@ -115,6 +114,7 @@ export default function Register() {
       await signUp({
         email: emailRef.current,
         password: passwordRef.current,
+        display_name: nameRef.current,
       });
       setLoading(false);
       router.push("/login");
@@ -165,7 +165,7 @@ export default function Register() {
   const handleGoogleSignUp = async () => {
     try {
       setLoading(true);
-      setError(null);
+      // setError(null);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -174,7 +174,7 @@ export default function Register() {
       if (error) throw error;
     } catch (error: any) {
       console.error("Error signing up with Google:", error);
-      setError(error.message || "Đã xảy ra lỗi khi đăng ký với Google");
+      // setError(error.message || "Đã xảy ra lỗi khi đăng ký với Google");
     } finally {
       setLoading(false);
     }

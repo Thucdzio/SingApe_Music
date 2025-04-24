@@ -24,10 +24,11 @@ import {
 import { ButtonText, Button } from "@/components/ui/button";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
-import { Alert } from "react-native";
-import { Center, Modal, Spinner } from "@/components/ui";
+import { Center, Input, Modal, Spinner } from "@/components/ui";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Heading } from "@/components/ui/heading";
+import { useAuth } from "@/context/auth";
+import { InputField } from "@/components/ui/input";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
