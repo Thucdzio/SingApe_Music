@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+// app/(auth)/login.tsx - File đăng nhập
+import React, { useRef, useState } from "react";
 import { Divider } from "@/components/ui/divider";
 import { HStack } from "@/components/ui/hstack";
-import { View, Text, TouchableWithoutFeedback, Keyboard } from "react-native";
+import {
+  View,
+  Text,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert,
+  TextInput,
+  StyleSheet,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from "@/context/auth";
 import { Link, Stack, useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
-import { Box } from "@/components/ui/box";
-import { Input, InputField } from "@/components/ui/input";
 import { VStack } from "@/components/ui/vstack";
 import {
   FormControl,
@@ -16,7 +21,7 @@ import {
   FormControlLabel,
   FormControlLabelText,
 } from "@/components/ui/form-control";
-import { ButtonText, Button, ButtonIcon } from "@/components/ui/button";
+import { ButtonText, Button } from "@/components/ui/button";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { Alert } from "react-native";
@@ -206,3 +211,19 @@ export default function Login() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    padding: 0,
+    backgroundColor: "#fff",
+  },
+  input: {
+    width: "100%",
+    height: 40,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+});

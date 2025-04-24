@@ -1,3 +1,4 @@
+// app/(auth)/register.tsx - File đăng ký
 import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -15,7 +16,14 @@ import { Center, HStack, Input, Spinner } from "@/components/ui";
 import { InputField } from "@/components/ui/input";
 import { useRef, useState } from "react";
 import { Divider } from "@/components/ui/divider";
-import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import {
+  Alert,
+  Keyboard,
+  TouchableWithoutFeedback,
+  View,
+  TextInput,
+  StyleSheet,
+} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { useAuth } from "@/context/auth";
 import { supabase } from "@/lib/supabase";
@@ -24,6 +32,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Heading } from "@/components/ui/heading";
 
 const header = () => {
+  const isDarkMode = useSelector((state: any) => state.isDarkMode);
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
   return (
     <Stack.Screen
@@ -153,6 +162,24 @@ export default function Register() {
     }
   };
 
+  const handleGoogleSignUp = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error("Error signing up with Google:", error);
+      setError(error.message || "Đã xảy ra lỗi khi đăng ký với Google");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background-0">
       <TouchableWithoutFeedback
@@ -269,3 +296,19 @@ export default function Register() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    padding: 0,
+    backgroundColor: "#fff",
+  },
+  input: {
+    width: "100%",
+    height: 40,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+});
