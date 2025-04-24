@@ -38,6 +38,7 @@
     "@gluestack-ui/switch": "^0.1.29",
     "@gluestack-ui/themed": "^1.1.71",
     "@gluestack-ui/toast": "^1.0.9",
+    "@gorhom/bottom-sheet": "^5.0.0-alpha.11",
     "@legendapp/motion": "^2.4.0",
     "@react-native-aria/focus": "^0.2.9",
     "@react-native-aria/interactions": "^0.2.16",

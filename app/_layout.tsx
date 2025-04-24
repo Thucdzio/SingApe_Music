@@ -11,12 +11,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSetupTrackPlayer } from "@/hooks/useSetupTrackPlayer";
 import { useLogTrackPlayerState } from "@/hooks/useLogTrackPlayerState";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { playbackService } from "@/constants/playbackService";
+import { playbackService } from "@/services/playbackService";
 import TrackPlayer from "react-native-track-player";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 SplashScreen.preventAutoHideAsync();
 TrackPlayer.registerPlaybackService(() => playbackService);
@@ -42,8 +43,11 @@ export default function RootLayout() {
         <GluestackWrapper>
           <SafeAreaProvider>
             <AuthProvider>
-              <RootNavigator />
-              <StatusBar style="auto" />
+              <BottomSheetModalProvider>
+                <RootNavigator />
+                </BottomSheetModalProvider>
+                <StatusBar style="auto" />
+              
             </AuthProvider>
           </SafeAreaProvider>
         </GluestackWrapper>

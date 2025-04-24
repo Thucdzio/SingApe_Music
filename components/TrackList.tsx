@@ -4,7 +4,11 @@ import { FlatList, FlatListProps, Text, View } from "react-native";
 import { TracksListItem } from "../components/TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
 
-export type TracksListProps = Partial<FlatListProps<Track>> & {};
+export type TracksListProps = Partial<FlatListProps<Track>> & {
+  tracks?: Track[];
+  onTrackOptionPress?: (track: Track) => void;
+  children?: React.ReactNode;
+};
 
 export const TrackList = ({ ...flatlistProps }: TracksListProps) => {
   const handleTrackSelect = async (track: Track) => {
@@ -22,9 +26,14 @@ export const TrackList = ({ ...flatlistProps }: TracksListProps) => {
 
   return (
     <FlatList
-      data={Library}
+      data={flatlistProps.tracks || Library}
       renderItem={({ item: track }) => (
-        <TracksListItem track={track} onTrackSelect={handleTrackSelect} />
+        <TracksListItem
+          track={track}
+          onTrackSelect={handleTrackSelect}
+          onRightPress={flatlistProps.onTrackOptionPress}
+          children={flatlistProps.children}
+        />
       )}
       keyExtractor={(item) => item.url}
       {...flatlistProps}

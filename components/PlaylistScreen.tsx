@@ -9,6 +9,8 @@ import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScr
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "tailwindcss/colors";
 import { router } from "expo-router";
+import { useColorScheme } from "nativewind";
+import { backgroundColor } from "@/constants/tokens";
 
 interface PlaylistProps {
   title?: string;
@@ -22,6 +24,7 @@ interface PlaylistProps {
 export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue<number>(0);
+  const colorScheme = useColorScheme();
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -38,7 +41,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
     const backgroundColor = interpolateColor(
       scrollY.value,
       [160, 180],
-      ["transparent", colors.white]
+      ["transparent", (colorScheme.colorScheme === "dark" ? colors.purple[900] : colors.white)],
     );
     return { backgroundColor };
   });
@@ -72,9 +75,9 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
         <LinearGradient
           colors={[
             colors.purple[400],
-            colors.purple[200],
-            colors.purple[50],
-            colors.white,
+            (colorScheme.colorScheme === "dark" ? colors.purple[700] : colors.purple[200]),
+            (colorScheme.colorScheme === "dark" ? colors.purple[900] : colors.purple[50]),
+            (colorScheme.colorScheme === "dark" ? backgroundColor.dark : colors.white),
           ]}
           style={[{ paddingTop: insets.top }]}
         >
@@ -127,7 +130,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
         <TrackList scrollEnabled={false} className="p-4" />
       </Animated.ScrollView>
 
-
+      
       <Animated.View
         className="absolute w-full"
         style={[headerBackgroundAnimatedStyle, { paddingTop: insets.top }]}
@@ -139,13 +142,13 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
             className="bg-transparent rounded-full justify-center h-14 w-14 data-[active=true]:bg-background-200"
             size="md"
           >
-            <ButtonIcon as={ArrowLeft} className="text-black" size="xxl" />
+            <ButtonIcon as={ArrowLeft} className="text-primary-500" size="xxl" />
           </Button>
           <Animated.Text
             style={[scrollHeaderTitleAnimatedStyle]}
-            className="text-black text-2xl font-bold ml-4"
+            className="text-primary-500 text-2xl font-bold ml-4"
           >
-            Playlist
+            Danh sách phát
           </Animated.Text>
         </HStack>
         <Animated.View
