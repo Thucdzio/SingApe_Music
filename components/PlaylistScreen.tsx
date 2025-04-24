@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "tailwindcss/colors";
+import { router } from "expo-router";
 
 interface PlaylistProps {
   title?: string;
@@ -125,12 +126,15 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
         </LinearGradient>
         <TrackList scrollEnabled={false} className="p-4" />
       </Animated.ScrollView>
+
+
       <Animated.View
         className="absolute w-full"
         style={[headerBackgroundAnimatedStyle, { paddingTop: insets.top }]}
       >
         <HStack className="items-center w-full">
           <Button
+            onPress={() => {router.back()}}
             variant="solid"
             className="bg-transparent rounded-full justify-center h-14 w-14 data-[active=true]:bg-background-200"
             size="md"
