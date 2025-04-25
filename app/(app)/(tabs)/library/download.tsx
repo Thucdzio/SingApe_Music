@@ -8,14 +8,6 @@ import * as FileSystem from "expo-file-system";
 import { TrackList } from "@/components/TrackList";
 import { Track } from "react-native-track-player";
 import { Actionsheet, HStack, Image, VStack, Text, Box } from "@/components/ui";
-import {
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicatorWrapper,
-  ActionsheetDragIndicator,
-  ActionsheetItem,
-  ActionsheetItemText,
-} from "@/components/ui/actionsheet";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { CircleArrowDown, Heart } from "lucide-react-native";
 import { unknownTrackImageSource } from "@/constants/image";
@@ -48,6 +40,7 @@ export default function Download() {
           mediaType: MediaLibrary.MediaType.audio,
           first: 100,
         });
+
         const tracks = assets.map((asset) => {
           return {
             id: asset.id,
@@ -99,7 +92,7 @@ export default function Download() {
             handlePresentModalPress();
             setSelectedTrack(track);
           }}
-         
+          className="px-4"
         />
         {/* <TrackActionSheet
           isOpen={openActionsheet}

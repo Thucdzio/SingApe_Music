@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { FlatList, FlatListProps, Text, View } from "react-native";
 import { TracksListItem } from "../components/TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
+import { saveListeningHistory } from "@/services/fileService";
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
   tracks?: Track[];
@@ -15,6 +16,7 @@ export const TrackList = ({ ...flatlistProps }: TracksListProps) => {
     try {
       await TrackPlayer.load(track);
       await TrackPlayer.play();
+      saveListeningHistory(track);
     } catch (error) {
       console.error("Error loading track:", error);
     }

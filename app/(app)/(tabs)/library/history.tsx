@@ -1,47 +1,60 @@
 import CustomHeader from "@/components/CustomHeader";
-import { router, Stack } from "expo-router";
-import { UserRound } from "lucide-react-native";
-import { Text } from "@/components/ui";
-import { SafeAreaView, ScrollView, View } from "react-native";
-import { useEffect, useState } from "react";
-import Animated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
-import { LinearGradient } from "expo-linear-gradient";
-import colors from "tailwindcss/colors";
 import { TrackList } from "@/components/TrackList";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AnimatedHeader } from "@/components/AnimatedHeader";
+import { supabase } from "@/lib/supabase";
+import { getListeningHistory } from "@/services/fileService";
+import { useEffect, useState } from "react";
+import { FlatList } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Track } from "react-native-track-player";
 
 export default function History() {
-  const [data, setData] = useState([]);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch("https://api.example.com/favorites"); // Replace with your API endpoint
-  //       const result = await response.json();
-  //       setData(result);
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchTracks = async () => {
+      setIsLoading(true);
+      try {
+        const history = await getListeningHistory();
+        const track = history.map((item) => {
+          return {
+            id: item.track.id,
+            title: item.track.title || "Unknown Title",
+            artist: item.track.artist || "Unknown Artist",
+            album: item.track.album || "Unknown Album",
+            url: item.track.url,
+            artwork: item.track.artwork || undefined,
+            genre: item.track.genre || undefined,
+          } as Track;
+        });
+        setTracks(track);
+      } catch (error) {
+        console.error("Error fetching tracks:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  //   fetchData();
-  // }, []);
+    fetchTracks();
+  }, []);
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      {/* <AnimatedHeader
-        headerTitle="Lịch sử phát nhạc"
-        bigTitle="Lịch sử phát nhạc"
-        onBackPress={() => router.back()}
-      >
-        <TrackList scrollEnabled={false}/>
-      </AnimatedHeader> */}
+    <SafeAreaView className="flex-1 bg-background-0">
       <CustomHeader
-        title="Lịch sử phát nhạc"
+        title="Lịch sử"
+        showBack={true}
+        centerTitle={false}
+        headerClassName="bg-background-0"
       />
-      
-    </>
+
+      <TrackList
+        tracks={tracks}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 100,
+        }}
+        className="px-4"
+      />
+    </SafeAreaView>
   );
 }
