@@ -9,6 +9,7 @@
     "backgroundColor": "none",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": "false",
+    "jsEngine": "hermes",
     "ios": {
       "supportsTablet": true
     },

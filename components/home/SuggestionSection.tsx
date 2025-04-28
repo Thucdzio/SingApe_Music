@@ -1,67 +1,61 @@
-import React, { useEffect, useState } from "react";
-import { View, Image, FlatList, TouchableOpacity } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { FlatList, TouchableOpacity } from "react-native";
 import { Text, VStack } from "@/components/ui";
 import { supabase } from "@/components/utils/supabase";
 import { downloadSong } from "@/components/DowloadMusic";
-interface Song {
-  id: string;
-  title: string;
-  url: string;
-}
+import { Track } from "react-native-track-player";
+import Library from "@/assets/data/library.json";
+import { useNavigationSearch } from "@/hooks/useNavigationSearch";
+import { useTracks } from "@/store/library";
+import { trackTitleFilter } from "@/helpers/filter";
+import { TracksList } from "../TrackList";
+import { generateTracksListId } from "@/helpers/miscellaneous";
+import { View } from "lucide-react-native";
 
 interface SuggestionSectionProps {
-  onPressSong?: (song: Song) => void;
+  onPressSong?: (song: Track) => void;
 }
 
 const SuggestionSection = ({ onPressSong }: SuggestionSectionProps) => {
-  const [suggestedSongs, setSuggestedSongs] = useState<Song[]>([]);
-  const [songs, setSongs] = useState<any[]>([]);
+  const [suggestedSongs, setSuggestedSongs] = useState<Track[]>([]);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
       const { data, error } = await supabase
         .from("songs")
-        .select("id, title, url")
+        .select("id, title, url") // lấy đủ fields chuẩn Track
         .limit(10);
 
       if (error) {
         console.error("Lỗi khi fetch songs từ Supabase:", error.message);
-      } else {
-        setSuggestedSongs(data as Song[]);
+      } else if (data) {
+        setSuggestedSongs(data as Track[]);
       }
     };
 
     fetchSuggestions();
   }, []);
-  console.log(suggestedSongs);
+  const search = useNavigationSearch({
+    searchBarOptions: {
+      placeholder: "Find in songs",
+    },
+  });
+
+  const tracks = useTracks();
+
+  const filteredTracks = useMemo(() => {
+    if (!search) return tracks;
+
+    return tracks.filter(trackTitleFilter(search));
+  }, [search, tracks]);
+
   return (
-    <VStack space="md" className="mb-4">
-      <Text className="text-xl font-bold">Gợi ý cho bạn</Text>
-      <FlatList
-        data={suggestedSongs}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 16 }}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => downloadSong(item.url, item.title)}
-            style={{ width: 120 }}
-          >
-            {/* <Image
-              source={{ uri: item.thumbnail }}
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: 12,
-                marginBottom: 8,
-              }}
-            /> */}
-            <Text numberOfLines={2} className="text-sm font-medium">
-              {item.title}
-            </Text>
-          </TouchableOpacity>
-        )}
+    <VStack className="p-4">
+      <Text className="text-2xl font-bold mb-2">Gợi ý cho bạn</Text>
+      <TracksList
+        id={generateTracksListId("songs", search)}
+        tracks={filteredTracks}
+        scrollEnabled={false}
       />
     </VStack>
   );

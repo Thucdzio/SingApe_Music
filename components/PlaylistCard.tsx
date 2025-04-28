@@ -1,5 +1,4 @@
 import { Box, HStack, VStack } from "./ui";
-import { Card } from "./ui/card";
 import { Pressable } from "./ui/pressable";
 import { Image } from "./ui/image";
 import { Text } from "./ui/text";
@@ -20,7 +19,9 @@ export const Playlist = ({ ...props }) => {
           />
           <VStack className="w-full h-full items-start justify-start gap-1 pt-2">
             <Text className="text-lg font-semibold">{props.title}</Text>
-            <Text className="text-sm text-gray-500">{props.type} ✦ {props.createdBy}</Text>
+            <Text className="text-sm text-gray-500">
+              {props.type} ✦ {props.createdBy}
+            </Text>
           </VStack>
         </HStack>
       </Box>

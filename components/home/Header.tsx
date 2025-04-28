@@ -17,7 +17,7 @@ const HeaderHome = () => {
   return (
     <>
       <HStack className="flex-row justify-between items-center">
-        <Text className="text-3xl font-bold">Khám phá</Text>
+        <Text className="text-2xl font-bold">Khám phá</Text>
         <HStack className="flex-row space-x-2">
           <Feather name="mic" size={24} color="black" />
           <Feather

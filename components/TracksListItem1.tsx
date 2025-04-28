@@ -16,7 +16,7 @@ export type TracksListItemProps = {
   onTrackSelect: (track: Track) => void;
 };
 
-export const TracksListItem = ({
+export const TracksListItem1 = ({
   track,
   onTrackSelect: handleTrackSelect,
 }: TracksListItemProps) => {
@@ -25,7 +25,10 @@ export const TracksListItem = ({
   console.log("Track :", track);
   return (
     // onPress={() => handleTrackSelect(track)}
-    <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2 ">
+    <Pressable
+      onPress={() => handleTrackSelect(track)}
+      className="px-0 py-2 flex-1"
+    >
       <HStack space="md" className="gap-4 items-center pr-5">
         <HStack className="relative">
           <Image

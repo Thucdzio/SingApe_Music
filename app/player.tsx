@@ -2,7 +2,6 @@ import { MovingText } from "../components/MovingText";
 import { PlayerControls } from "../components/PlayerControls";
 import { PlayerProgressBar } from "../components/PlayerProgressbar";
 import { PlayerRepeatToggle } from "../components/PlayerRepeatToggle";
-import { PlayerVolumeBar } from "../components/PlayerVolumeBar";
 import { unknownTrackImageSource } from "@/constants/image";
 import { colors, fontSize } from "@/constants/tokens";
 import { usePlayerBackground } from "@/hooks/usePlayerBackground";
@@ -20,7 +19,7 @@ import { Image, Pressable } from "react-native";
 import { PlayerShuffleToggle } from "@/components/PlayerShuffleToggle";
 import { PlayerShareButton } from "@/components/PlayerShareButton";
 import { router } from "expo-router";
-import { AddToPlaylist } from "@/components/AddToPlaylistModal";
+import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
 
 const PlayerScreen = () => {
   const activeTrack = useActiveTrack();
@@ -39,7 +38,7 @@ const PlayerScreen = () => {
       </Center>
     );
   }
-  console.log("id : " + activeTrack.id);
+
   return (
     <LinearGradient
       style={{ flex: 1 }}
@@ -119,7 +118,8 @@ const PlayerScreen = () => {
               <PlayerControls style={{ marginTop: 10 }} iconSize={48} />
               <PlayerRepeatToggle size={30} style={{ paddingTop: 10 }} />
             </HStack>
-            <AddToPlaylist />
+
+            <AddToPlaylistButton track={activeTrack}></AddToPlaylistButton>
           </VStack>
         </VStack>
       </Box>
