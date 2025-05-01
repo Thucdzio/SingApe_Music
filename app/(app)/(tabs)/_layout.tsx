@@ -21,8 +21,7 @@ export default function TabsNavigation() {
   if (!session) {
     return <Redirect href="/(auth)" />;
   }
-  console.log("TabsNavigation Rendered");
-  console.log("Rendering FloatingPlayer");
+
   return (
     <View style={{ flex: 1 }}>
       <Tabs

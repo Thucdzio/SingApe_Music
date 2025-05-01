@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
 import { Text, VStack } from "@/components/ui";
 import { supabase } from "@/components/utils/supabase";
-import { downloadSong } from "@/components/DowloadMusic";
 import { Track } from "react-native-track-player";
 import Library from "@/assets/data/library.json";
 import { useNavigationSearch } from "@/hooks/useNavigationSearch";
@@ -10,7 +9,6 @@ import { useTracks } from "@/store/library";
 import { trackTitleFilter } from "@/helpers/filter";
 import { TracksList } from "../TrackList";
 import { generateTracksListId } from "@/helpers/miscellaneous";
-import { View } from "lucide-react-native";
 
 interface SuggestionSectionProps {
   onPressSong?: (song: Track) => void;

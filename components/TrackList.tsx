@@ -58,7 +58,7 @@ export const TracksList = ({
   if (!tracks || tracks.length === 0) {
     return <Text>No tracks available</Text>;
   }
-  console.log("Tracks in TracksList:", tracks);
+
   return (
     <FlatList
       data={tracks.slice(0, 5)}

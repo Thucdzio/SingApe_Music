@@ -39,7 +39,6 @@ export const AddToPlaylistModal = ({
 
   const handleConfirm = () => {
     console.log("Selected playlists:", selected);
-    console.log("Track:", track);
     selected.forEach((playlistName) => {
       console.log(`Adding to ${playlistName}:`, track);
       addToPlaylist(track, playlistName);

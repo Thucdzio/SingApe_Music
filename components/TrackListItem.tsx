@@ -22,7 +22,7 @@ export const TracksListItem = ({
 }: TracksListItemProps) => {
   const { playing } = useIsPlaying();
   const isActiveTrack = useActiveTrack()?.url === track.url;
-  console.log("Track :", track);
+
   return (
     // onPress={() => handleTrackSelect(track)}
     <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2 ">
