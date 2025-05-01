@@ -10,7 +10,7 @@ export default function App() {
       setSession(data.session);
       if (data.session) {
         setUser(data.session.user);
-        router.replace("/(app)");
+        router.replace("/(app)/(tabs)/(songs)");
         console.log("getSession-supabase success");
       } else {
         console.log("getSession-supabase no session");
@@ -25,7 +25,7 @@ export default function App() {
       if (session) {
         console.log("onAuthStateChange-supabase success", session);
         setUser(session.user);
-        router.replace("/(app)");
+        router.replace("/(app)/(tabs)/(songs)");
       } else {
         console.log("onAuthStateChange-supabase no session");
         setUser(null);

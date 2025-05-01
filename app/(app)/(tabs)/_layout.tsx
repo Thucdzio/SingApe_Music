@@ -4,7 +4,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { backgroundColor, iconColor, iconSize, textColor } from "@/constants/tokens";
 import { useSelector } from "react-redux";
 import { Icon } from "@/components/ui/icon";
-import { Compass, Library, UserRound } from "lucide-react-native";
+import { ChartNoAxesColumn, Compass, Library, UserRound } from "lucide-react-native";
 import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
 import { FloatingPlayer } from "@/components/FloatingPlayer";
 import { View } from "react-native";
@@ -47,6 +47,9 @@ export default function TabsNavigation() {
         title: "Cá nhân",
         popToTopOnBlur: true,
         tabBarIcon: ({color}) => <Icon as={UserRound} color={color} />,
+      }} />
+      <Tabs.Screen name="trending" options={{
+        tabBarIcon: ({color}) => <Icon as={ChartNoAxesColumn} color={color} />,
       }} />
     </Tabs>
     <FloatingPlayer />

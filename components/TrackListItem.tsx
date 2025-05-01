@@ -30,7 +30,6 @@ import {
   ActionsheetItemText,
 } from "./ui/actionsheet";
 import { ScrollView } from "react-native-gesture-handler";
-import { BottomSheetBackdrop, BottomSheetContent, BottomSheetDragIndicator, BottomSheetItem, BottomSheetItemText, BottomSheetPortal, BottomSheetTrigger } from "./ui/bottomsheet";
 import BottomSheet from "@gorhom/bottom-sheet";
 
 export type TracksListItemProps = {
@@ -57,8 +56,7 @@ export const TracksListItem = ({
   };
 
   return (
-    // onPress={() => handleTrackSelect(track)}
-    <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2">
+    <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2 w-full">
       <HStack space="md" className="gap-4 items-center">
         <Center className="relative">
           <Image
@@ -88,9 +86,10 @@ export const TracksListItem = ({
           ) : null}
         </Center>
         <HStack className="flex-1 items-center justify-between">
-          <VStack className="flex-1 pr-2">
+          <VStack className="flex-1">
             <Text
               numberOfLines={1}
+              ellipsizeMode="tail"
               className={`text-sm font-semibold ${
                 isActiveTrack ? "text-indigo-500" : "text-foreground"
               }`}
@@ -117,12 +116,6 @@ export const TracksListItem = ({
               />
             </Button>
         </HStack>
-
-        {/* <StopPropagation>
-          <TrackShortcutsMenu track={track}>
-            <Entypo name="dots-three-horizontal" size={18} color="#999" />
-          </TrackShortcutsMenu>
-        </StopPropagation> */}
       </HStack>
     </Pressable>
   );

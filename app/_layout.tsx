@@ -84,6 +84,12 @@ function RootNavigator() {
         }}
       />
       <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="player"
         options={{
           headerShown: false,
