@@ -9,6 +9,8 @@ import { useSelector } from "react-redux";
 import { Feather } from "@expo/vector-icons";
 import { HStack, VStack } from "@/components/ui";
 import Library from "@/assets/data/library.json";
+import TrackPlayer from "react-native-track-player";
+import { useSetupTrackPlayer } from "@/hooks/useSetupTrackPlayer";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
@@ -21,8 +23,32 @@ const header = () => {
   );
 };
 const SearchScreen = () => {
-  const handleSelectSong = (song: any) => {
+  const isInitialized = useRef(false);
+  useSetupTrackPlayer({
+    onLoad: () => {
+      console.log("TrackPlayer setup hoàn tất");
+      isInitialized.current = true;
+    },
+  });
+  const handleSelectSong = async (song: any) => {
     console.log("Selected song:", song);
+    if (isInitialized.current) {
+      await TrackPlayer.reset();
+    }
+    TrackPlayer.add(song)
+      .then(() => {
+        router.push("/player");
+        TrackPlayer.play()
+          .then(() => {
+            console.log("Playback started");
+          })
+          .catch((error) => {
+            console.error("Error playing track:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error adding track:", error);
+      });
   };
 
   return (

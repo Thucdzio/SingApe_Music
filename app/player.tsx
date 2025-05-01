@@ -7,6 +7,7 @@ import { colors, fontSize } from "@/constants/tokens";
 import { usePlayerBackground } from "@/hooks/usePlayerBackground";
 import { useTrackPlayerFavorite } from "@/hooks/useTrackPlayerFavorite";
 import {
+  AntDesign,
   Feather,
   FontAwesome,
   MaterialCommunityIcons,
@@ -20,6 +21,8 @@ import { PlayerShuffleToggle } from "@/components/PlayerShuffleToggle";
 import { PlayerShareButton } from "@/components/PlayerShareButton";
 import { router } from "expo-router";
 import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
+import AudioQualitySwitcher from "@/components/AudioQualitySelector";
+import { downloadSong } from "@/components/DowloadMusic";
 
 const PlayerScreen = () => {
   const activeTrack = useActiveTrack();
@@ -119,7 +122,27 @@ const PlayerScreen = () => {
               <PlayerRepeatToggle size={30} style={{ paddingTop: 10 }} />
             </HStack>
 
-            <AddToPlaylistButton track={activeTrack}></AddToPlaylistButton>
+            <HStack space="4xl" className="items-center justify-center">
+              <AddToPlaylistButton track={activeTrack}></AddToPlaylistButton>
+              <AudioQualitySwitcher
+                qualities={[
+                  {
+                    label: "128Kps",
+                    url: "https://example.com/audio/low-quality.mp3",
+                  },
+                  {
+                    label: "360Kps",
+                    url: "https://example.com/audio/medium-quality.mp3",
+                  },
+                ]}
+              ></AudioQualitySwitcher>
+              <AntDesign
+                name="download"
+                size={30}
+                color="white"
+                onPress={() => downloadSong(activeTrack.url, "nhacuatoi.mp3")}
+              />
+            </HStack>
           </VStack>
         </VStack>
       </Box>
