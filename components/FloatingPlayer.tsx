@@ -19,9 +19,6 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
   const activeTrack = useActiveTrack();
   const lastActiveTrack = useLastActiveTrack();
 
-  console.log("Active Track:", activeTrack);
-  console.log("Last Active Track:", lastActiveTrack);
-
   const displayedTrack = activeTrack ?? lastActiveTrack;
 
   const handlePress = () => {

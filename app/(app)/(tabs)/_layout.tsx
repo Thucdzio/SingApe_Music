@@ -9,7 +9,7 @@ import {
 } from "@/constants/tokens";
 import { useSelector } from "react-redux";
 import { Icon } from "@/components/ui/icon";
-import { Compass, Library, UserRound, Settings } from "lucide-react-native";
+import { ChartNoAxesColumn, Compass, Library, UserRound, Settings } from "lucide-react-native";
 import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
 import { FloatingPlayer } from "@/components/FloatingPlayer";
 import { View } from "react-native";
@@ -74,7 +74,10 @@ export default function TabsNavigation() {
             tabBarIcon: ({ color }) => <Icon as={Settings} color={color} />,
           }}
         />
-      </Tabs>
+        <Tabs.Screen name="trending" options={{
+        tabBarIcon: ({color}) => <Icon as={ChartNoAxesColumn} color={color} />,
+      }} />
+    </Tabs>
       <FloatingPlayer />
     </View>
   );

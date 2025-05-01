@@ -6,6 +6,7 @@ import { saveListeningHistory } from "@/services/fileService";
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
   tracks?: Track[];
+  onTrackSelect?: (track: Track) => void;
   onTrackOptionPress?: (track: Track) => void;
   children?: React.ReactNode;
 };
@@ -15,6 +16,7 @@ export const TrackList = (props: TracksListProps) => {
 
   const handleTrackSelect = async (track: Track) => {
     try {
+      flatlistProps.onTrackSelect?.(track);
       console.log("Selected track:", track);
       await TrackPlayer.load(track);
       await TrackPlayer.play();
