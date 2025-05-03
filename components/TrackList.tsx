@@ -1,7 +1,6 @@
-import Library from "../assets/data/library.json";
 import React, { useEffect } from "react";
 import { FlatList, FlatListProps, Text, View } from "react-native";
-import { TracksListItem } from "../components/TrackListItem";
+import { TracksListItem } from "./TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
 import { saveListeningHistory } from "@/services/fileService";
 
@@ -11,9 +10,12 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {
   children?: React.ReactNode;
 };
 
-export const TrackList = ({ ...flatlistProps }: TracksListProps) => {
+export const TrackList = (props: TracksListProps) => {
+  const { tracks, onTrackOptionPress, ...flatlistProps } = props;
+
   const handleTrackSelect = async (track: Track) => {
     try {
+      console.log("Selected track:", track);
       await TrackPlayer.load(track);
       await TrackPlayer.play();
       saveListeningHistory(track);
@@ -22,22 +24,23 @@ export const TrackList = ({ ...flatlistProps }: TracksListProps) => {
     }
   };
 
-  if (!Library || Library.length === 0) {
+  // If no tracks are provided or the array is empty, show a message
+  if (!tracks || tracks.length === 0) {
     return <Text>No tracks available</Text>;
   }
 
   return (
     <FlatList
-      data={flatlistProps.tracks || Library}
+      data={tracks}
       renderItem={({ item: track }) => (
         <TracksListItem
           track={track}
           onTrackSelect={handleTrackSelect}
-          onRightPress={flatlistProps.onTrackOptionPress}
-          children={flatlistProps.children}
+          onRightPress={onTrackOptionPress}
+          children={props.children}
         />
       )}
-      keyExtractor={(item) => item.url}
+      keyExtractor={(item) => item.id || item.url}
       {...flatlistProps}
     />
   );

@@ -1,7 +1,7 @@
-import { AuthError } from 'expo-auth-session';
-import { setStorageItemAsync, useStorageState } from './useStorageState';
-import { supabase } from '@/lib/supabase';
-import { Session, User } from '@supabase/supabase-js';
+import { AuthError } from "expo-auth-session";
+import { setStorageItemAsync, useStorageState } from "./useStorageState";
+import { supabase } from "@/lib/supabase";
+import { Session, User } from "@supabase/supabase-js";
 import {
   useContext,
   createContext,
@@ -57,7 +57,7 @@ export function useAuth() {
   const value = useContext(AuthContext);
 
   if (!value) {
-    throw new Error('useSession must be wrapped in a <AuthProvider />');
+    throw new Error("useSession must be wrapped in a <AuthProvider />");
   }
 
   return value;
@@ -71,42 +71,75 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const signIn = async ({ email, password }: SignInParams) => {
     setLoading(true);
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      throw error;
+    setError(null);
+    try {
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setError(error as any);
+        return;
+      }
+      if (!data.session) {
+        setError({
+          name: "AuthSessionMissing",
+          message: "No session returned from sign in",
+        } as any);
+        return;
+      }
+      setSession(data.session);
+      setUser(data.session.user);
+    } catch (error) {
+      console.error("Sign-in error:", error);
+      setError({
+        name: "AuthUnknown",
+        message: "Unknown error during sign in",
+      } as any);
+    } finally {
+      setLoading(false);
     }
-    if (!data.session) {
-      throw new Error('No session returned from sign in');
-    }
-    setSession(data.session);
-    setUser(data.session.user);
-  }
+  };
 
   const signUp = async ({ email, password, display_name }: SignUpParams) => {
     setLoading(true);
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: { display_name: name },
+    setError(null);
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: { display_name: display_name },
+        },
+      });
+      console.log("session", session);
+
+      if (error) {
+        setError(error as any);
+        return;
       }
-    })
-    console.log('session', session);
-    
-    if (error) {
-      throw error;
+      if (!session) {
+        setError({
+          name: "AuthSessionMissing",
+          message: "No session returned from sign up",
+        } as any);
+        return;
+      }
+      setSession(session);
+      setUser(session.user);
+    } catch (error) {
+      console.error("Sign-up error:", error);
+      setError({
+        name: "AuthUnknown",
+        message: "Unknown error during sign up",
+      } as any);
+    } finally {
+      setLoading(false);
     }
-    if (!session) {
-      throw new Error('No session returned from sign up');
-    }
-    setLoading(false);
-  }
+  };
 
   //   try {
   //     const { data, error } = await supabase.auth.signInWithPassword({
