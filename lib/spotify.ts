@@ -56,7 +56,7 @@ export const fetchChart = async (): Promise<Chart> => {
 export const fetchHome = async () => {
     const response = await fetch(KOYEB_API_URL + "zingmp3/home");
     const data = await response.json();
-    return data;
+    return data.data;
 }
 
 export const fetchSong = async (encodeId: string) => {

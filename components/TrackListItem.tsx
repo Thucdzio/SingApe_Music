@@ -31,6 +31,7 @@ import {
 } from "./ui/actionsheet";
 import { ScrollView } from "react-native-gesture-handler";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { useWindowDimensions } from "react-native";
 
 export type TracksListItemProps = {
   track: Track;
@@ -51,12 +52,14 @@ export const TracksListItem = ({
     state.isDarkMode ? "light" : "dark"
   );
 
+  const windowWidth = useWindowDimensions().width - 32;
+
   const handleOptionPress = (track: Track) => {
     onRightPress?.(track);
   };
 
   return (
-    <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2 w-full">
+    <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2 w-full" style={{ maxWidth: windowWidth }}>
       <HStack space="md" className="gap-4 items-center">
         <Center className="relative">
           <Image

@@ -1,3 +1,4 @@
+import { MyTrack } from '@/types/zing.types';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { Track } from 'react-native-track-player';
