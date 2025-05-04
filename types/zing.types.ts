@@ -1,0 +1,86 @@
+import { Track } from "react-native-track-player";
+
+export interface Album {
+    encodeId: string;
+    title: string;
+    thumbnail: string;
+    link: string;
+    isIndie: boolean;
+    releaseDate: string;
+}
+
+export interface Artists {
+    id: string;
+    name: string;
+    link: string;
+    spotlight: string;
+    alias: string;
+    thumbnailM: string;
+    thumbnail: string;
+    isOA: boolean;
+    playlistId: string;
+}
+
+export interface ExtendedTrack {
+    encodeId: string;
+    title: string;
+    alias: string;
+    artists: Artists[];
+    album: Album;
+    isWorldWide: boolean;
+    thumbnailM: string;
+    link: string;
+    thumbnail: string;
+    duration: number;
+    releaseDate: string;
+    distributor: string;
+    hasLyric: boolean;
+    weeklyRanking: number;
+    score: number;
+    rakingStatus: number;
+}
+
+export interface MyTrack extends Track {
+    id: string;
+    score: number;
+    description: string;
+    sortDescription: string;
+    rakingStatus: number;
+    weeklyRanking: number;
+}
+
+export interface RegionChart {
+    banner: string;
+    playlistId: string;
+    chartId: number;
+    country: string;
+    week: string;
+    items: ExtendedTrack[];
+}
+
+export interface Chart {
+    weekChart: {
+        vn: RegionChart;
+        us: RegionChart;
+        korea: RegionChart;
+    };
+    RTChart: {
+        promotes: ExtendedTrack[];
+        items: ExtendedTrack[];
+    };
+    newRelease: ExtendedTrack[];
+}
+
+export interface Home {
+    items: {
+        sectionId: string;
+        sectionType: string;
+        title: string;
+        link: string;
+        items: ExtendedTrack[] | {
+            all: ExtendedTrack[];
+            vPop: ExtendedTrack[];
+            others: ExtendedTrack[];
+        };
+    }[];
+}
