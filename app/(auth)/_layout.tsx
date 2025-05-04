@@ -1,6 +1,11 @@
-import { Stack } from "expo-router";
+import { useAuth } from "@/context/auth";
+import { router, Stack } from "expo-router";
 
 export default function AuthLayout() {
+  const { session } = useAuth();
+  if (session) {
+    return router.replace("/(app)/(tabs)/(songs)");
+  }
   return (
     <Stack
         screenOptions={{

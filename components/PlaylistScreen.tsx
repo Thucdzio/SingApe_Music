@@ -74,13 +74,13 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
       >
         <LinearGradient
           colors={[
-            colors.purple[400],
-            (colorScheme.colorScheme === "dark" ? colors.purple[700] : colors.purple[200]),
-            (colorScheme.colorScheme === "dark" ? colors.purple[900] : colors.purple[50]),
-            (colorScheme.colorScheme === "dark" ? backgroundColor.dark : colors.white),
+            colors.purple[500],
+            (colorScheme.colorScheme === "dark" ? colors.purple[600] : colors.purple[200]),
+            (colorScheme.colorScheme === "dark" ? colors.purple[800] : colors.purple[50]),
+            (colorScheme.colorScheme === "dark" ? colors.black : colors.white),
           ]}
           style={[{ paddingTop: insets.top }]}
-        >
+        />
           <VStack className="bg-transparent">
             <Box className="w-full justify-center items-center mt-4">
               <Image
@@ -126,7 +126,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
               </HStack>
             </HStack>
           </VStack>
-        </LinearGradient>
+        {/* </LinearGradient> */}
         <TrackList scrollEnabled={false} className="p-4" />
       </Animated.ScrollView>
 
@@ -139,7 +139,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
           <Button
             onPress={() => {router.back()}}
             variant="solid"
-            className="bg-transparent rounded-full justify-center h-14 w-14 data-[active=true]:bg-background-200"
+            className="bg-transparent rounded-full justify-center h-14 w-14 data-[active=true]:bg-transparent"
             size="md"
           >
             <ButtonIcon as={ArrowLeft} className="text-primary-500" size="xxl" />

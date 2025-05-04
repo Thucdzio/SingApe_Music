@@ -154,7 +154,7 @@ export default function Songs() {
                       key={artist.id}
                       variant="outline"
                       className="w-[48%] mb-2"
-                      onPress={() => router.push(`/artists/${artist.id}`)}
+                      onPress={() => router.push(`/artists/${artist.id}` as Href)}
                     >
                       <ButtonText>{artist.name}</ButtonText>
                     </Button>
@@ -169,7 +169,7 @@ export default function Songs() {
                 variant="solid"
                 onPress={() => {
                   console.log("press buttons");
-                  router.push("/artists");
+                  router.push("/artists" as Href);
                 }}
               >
                 <ButtonText>Xem tất cả nghệ sĩ</ButtonText>

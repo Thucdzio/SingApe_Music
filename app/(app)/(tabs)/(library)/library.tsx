@@ -139,7 +139,7 @@ export default function Library() {
                 type={`Thể loại ${item}`}
                 image={`https://picsum.photos/200/300?random=${item}`}
                 onPress={() => router.push({
-                  pathname: `/library/playlist/[id]`,
+                  pathname: `/playlist/[id]`,
                   params: {
                     id: item,
                     image: `https://picsum.photos/200/300?random=${item}`,
