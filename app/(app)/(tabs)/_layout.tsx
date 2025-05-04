@@ -9,15 +9,22 @@ import {
 } from "@/constants/tokens";
 import { useSelector } from "react-redux";
 import { Icon } from "@/components/ui/icon";
-import { ChartNoAxesColumn, Compass, Library, UserRound, Settings } from "lucide-react-native";
+import {
+  ChartNoAxesColumn,
+  Compass,
+  Library,
+  UserRound,
+  Settings,
+} from "lucide-react-native";
 import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
 import { FloatingPlayer } from "@/components/FloatingPlayer";
 import { View } from "react-native";
 import { useEffect } from "react";
+import { useColorScheme } from "nativewind";
 
 export default function TabsNavigation() {
   const { session } = useAuth();
-  const isDarkMode = useSelector((state: any) => state.isDarkMode);
+  const {colorScheme} = useColorScheme();
   if (!session) {
     // router.replace("/(auth)");
   }
@@ -32,15 +39,15 @@ export default function TabsNavigation() {
             bottom: 0,
             borderTopWidth: 0,
             height: 50,
-            backgroundColor: isDarkMode
+            backgroundColor: colorScheme === "dark"
               ? backgroundColor.dark
               : backgroundColor.light,
           },
           tabBarLabelPosition: "below-icon",
-          tabBarActiveTintColor: isDarkMode
+          tabBarActiveTintColor: colorScheme === "dark"
             ? iconColor.activeLight
             : iconColor.activeDark,
-          tabBarInactiveTintColor: isDarkMode
+          tabBarInactiveTintColor: colorScheme === "dark"
             ? iconColor.light
             : iconColor.dark,
         }}
@@ -53,10 +60,25 @@ export default function TabsNavigation() {
           }}
         />
         <Tabs.Screen
-          name="library"
+          name="(library)"
           options={{
             title: "Thư viện",
             tabBarIcon: ({ color }) => <Icon as={Library} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="debug"
+          options={{
+            title: "Debug",
+            tabBarIcon: ({ color }) => <Icon as={Settings} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="trending"
+          options={{
+            tabBarIcon: ({ color }) => (
+              <Icon as={ChartNoAxesColumn} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
@@ -67,17 +89,7 @@ export default function TabsNavigation() {
             tabBarIcon: ({ color }) => <Icon as={UserRound} color={color} />,
           }}
         />
-        <Tabs.Screen
-          name="debug"
-          options={{
-            title: "Debug",
-            tabBarIcon: ({ color }) => <Icon as={Settings} color={color} />,
-          }}
-        />
-        <Tabs.Screen name="trending" options={{
-        tabBarIcon: ({color}) => <Icon as={ChartNoAxesColumn} color={color} />,
-      }} />
-    </Tabs>
+      </Tabs>
       <FloatingPlayer />
     </View>
   );

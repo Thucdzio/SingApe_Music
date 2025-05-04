@@ -60,7 +60,7 @@ export default function Library() {
   }
 
   const handleHistory = () => {
-    router.push("/library/history" as Href);
+    router.push("/history" as Href);
   }
 
   const handleFollow = () => {
@@ -78,7 +78,7 @@ export default function Library() {
         headerClassName="px-4"
       />
       
-      <Box className="flex-1 w-full h-full bg-background-0 p-6">
+      <Box className="flex-1 w-full h-full bg-background-0 px-4">
         <VStack className="flex-1 w-max-md gap-2">
           <Heading className="justify-self-start text-2xl font-bold mt-4 mb-2">
             Bài hát

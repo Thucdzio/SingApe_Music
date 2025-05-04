@@ -3,6 +3,7 @@ import { FlatList, FlatListProps, Text, View } from "react-native";
 import { TracksListItem } from "./TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
 import { saveListeningHistory } from "@/services/fileService";
+import Library from "assets/data/library.json";
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
   tracks?: Track[];
@@ -26,14 +27,9 @@ export const TrackList = (props: TracksListProps) => {
     }
   };
 
-  // If no tracks are provided or the array is empty, show a message
-  if (!tracks || tracks.length === 0) {
-    return <Text>No tracks available</Text>;
-  }
-
   return (
     <FlatList
-      data={tracks}
+      data={tracks || Library}
       renderItem={({ item: track }) => (
         <TracksListItem
           track={track}

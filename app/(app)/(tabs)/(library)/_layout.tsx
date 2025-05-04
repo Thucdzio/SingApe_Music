@@ -12,7 +12,6 @@ export default function LibraryLayout() {
       <Stack.Screen name="favorite" options={{ headerShown: false }} />
       <Stack.Screen name="download" options={{ headerShown: false }} />
       <Stack.Screen name="follow" options={{ headerShown: false }} />
-      <Stack.Screen name="history" options={{ headerShown: false }} />
     </Stack>
   );
 }

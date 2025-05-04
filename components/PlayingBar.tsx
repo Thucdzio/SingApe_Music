@@ -6,12 +6,18 @@ export default function PlayingBars({
   height = 16,
   color = 'rgb(34,197,94)', // Tailwind green-500
   barCount = 3,
+  wapperWidth = 20,
+  wapperHeight = 20,
   className="absolute",
+  running = true,
 }: {
   width?: number;
   height?: number;
+  wapperWidth?: number;
+  wapperHeight?: number;
   color?: string;
   barCount?: number;
+  running?: boolean;
   className?: string;
 }) {
   const bars = Array.from({ length: barCount }, () => useRef(new Animated.Value(0)).current);
@@ -36,12 +42,23 @@ export default function PlayingBars({
     ).start();
   };
 
+  const animateReset = (bar: Animated.Value) => {
+    Animated.timing(bar, {
+      toValue: 0,
+      duration: 600,
+      useNativeDriver: false,
+      easing: Easing.inOut(Easing.ease),
+    }).start();
+  };
+
   useEffect(() => {
-    bars.forEach((bar, i) => animate(bar, i * 150));
-  }, []);
+    if (!running) bars.forEach((bar) => animateReset(bar));
+    else bars.forEach((bar, i) => animate(bar, i * 150));
+    console.log('Running:', running);
+  }, [running]);
 
   return (
-    <View style={styles.container} className={className}>
+    <View style={[styles.container, {width: wapperWidth, height: wapperHeight}]} className={className}>
       {/* Animated bars */}
       {bars.map((bar, i) => (
         <Animated.View
@@ -68,8 +85,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'center',
-    height: 20,
-    width: 20,
+    justifyContent: 'center'
   },
 });

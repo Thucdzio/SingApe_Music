@@ -9,10 +9,10 @@ export async function convertZingToTrack(track: ExtendedTrack): Promise<MyTrack>
     title: track.title,
     artist: track.artists[0].name,
     artwork: track.thumbnailM,
-    url: "",
+    url: track.link,
     duration: track.duration,
     score: track.score,
     rakingStatus: track.rakingStatus,
-    weeklyRanking: track.weeklyRanking
+    weeklyRanking: track.weeklyRanking,
   };
 }
