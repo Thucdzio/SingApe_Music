@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
 
-import { TrackList } from "@/components/TrackList";
+import { TracksList } from "@/components/TrackList";
 import { Track } from "react-native-track-player";
 import { Actionsheet, HStack, Image, VStack, Text, Box } from "@/components/ui";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
@@ -85,10 +85,11 @@ export default function Download() {
           centerTitle={false}
           headerClassName="bg-background-0 dark:bg-background-0"
         />
-        <TrackList
+        <TracksList
+          id="downloaded"
           tracks={tracks}
           scrollEnabled={false}
-          onTrackOptionPress={(track) => {
+          onTrackOptionPress={(track: Track) => {
             handlePresentModalPress();
             setSelectedTrack(track);
           }}

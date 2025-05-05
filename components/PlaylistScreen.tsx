@@ -3,7 +3,7 @@ import { Image, VStack, Text, HStack, Box, Button } from "./ui";
 import { Heading } from "./ui/heading";
 import { ButtonIcon, ButtonText } from "./ui/button";
 import { ArrowLeft, CirclePlus, EllipsisVertical, Play, Shuffle } from "lucide-react-native";
-import { TrackList } from "./TrackList";
+import { TracksList } from "./TrackList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
@@ -143,7 +143,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
             </HStack>
           </VStack>
         {/* </LinearGradient> */}
-        <TrackList scrollEnabled={false} className="p-4" />
+        <TracksList id={props.title || "random"} tracks={props.tracks || []} scrollEnabled={false} className="p-4" />
       </Animated.ScrollView>
 
       

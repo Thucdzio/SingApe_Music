@@ -5,7 +5,7 @@ import { Text } from "@/components/ui";
 import { ScrollView, View } from "react-native";
 import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TrackList } from "@/components/TrackList";
+import { TracksList } from "@/components/TrackList";
 import { Track } from "react-native-track-player";
 
 export default function Follow() {
@@ -37,10 +37,11 @@ export default function Follow() {
           centerTitle={false}
           headerClassName="bg-background-0 dark:bg-background-0"
         />
-        <TrackList
+        <TracksList
+          id="follow"
           tracks={tracks}
           scrollEnabled={false}
-          onTrackOptionPress={(track) => {
+          onTrackOptionPress={(track: Track) => {
             setSelectedTrack(track);
           }}
         />

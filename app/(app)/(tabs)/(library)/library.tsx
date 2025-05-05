@@ -128,7 +128,6 @@ export default function Library() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 100 }}
             />
-            <PlaylistsScreen />
         </VStack>
       </Box>
     </ScrollView>

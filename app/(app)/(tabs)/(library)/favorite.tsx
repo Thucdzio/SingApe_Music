@@ -5,7 +5,7 @@ import { Text } from "@/components/ui";
 import { ScrollView, View } from "react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TrackList } from "@/components/TrackList";
+import { TracksList } from "@/components/TrackList";
 import { Track } from "react-native-track-player";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
@@ -43,10 +43,11 @@ export default function Favorite() {
           centerTitle={false}
           headerClassName="bg-background-0 dark:bg-background-0"
         />
-        <TrackList
+        <TracksList
+          id="favorite"
           tracks={tracks}
           scrollEnabled={false}
-          onTrackOptionPress={(track) => {
+          onTrackOptionPress={(track: Track) => {
             handlePresentModalPress();
             setSelectedTrack(track);
           }}

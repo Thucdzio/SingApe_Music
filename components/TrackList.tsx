@@ -4,7 +4,6 @@ import { FlatList, FlatListProps, Text, View } from "react-native";
 import { TracksListItem } from "./TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
 import { saveListeningHistory } from "@/services/fileService";
-import Library from "assets/data/library.json";
 import { useQueue } from "@/store/queue";
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
@@ -20,6 +19,9 @@ export const TracksList = ({
   id,
   tracks,
   hideQueueControls = false,
+  onTrackSelect,
+  onTrackOptionPress,
+  children,
   ...flatlistProps
 }: TracksListProps) => {
   const queueOffset = useRef(0);
@@ -40,15 +42,14 @@ export const TracksList = ({
 
       await TrackPlayer.reset();
 
-      flatlistProps.onTrackSelect?.(track);
-
       // we construct the new queue
       await TrackPlayer.add(selectedTrack);
       await TrackPlayer.add(afterTracks);
       await TrackPlayer.add(beforeTracks);
 
+      onTrackSelect?.(tracks[trackIndex]);
       await TrackPlayer.play();
-      saveListeningHistory(track);
+      saveListeningHistory(tracks[trackIndex]);
 
       queueOffset.current = trackIndex;
       setActiveQueueId(id);
@@ -75,7 +76,7 @@ export const TracksList = ({
           track={track}
           onTrackSelect={handleTrackSelect}
           onRightPress={onTrackOptionPress}
-          children={props.children}
+          children={children}
         />
       )}
       keyExtractor={(item) => item.id || item.url}

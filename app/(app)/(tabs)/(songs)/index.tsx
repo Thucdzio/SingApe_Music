@@ -19,7 +19,7 @@ import {
 } from "@/components/ui";
 import { useCallback, useEffect, useState, memo, useMemo } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TrackList } from "@/components/TrackList";
+import { TracksList } from "@/components/TrackList";
 import { getSongs } from "@/services/apiService";
 import { Track, useActiveTrack } from "react-native-track-player";
 import CustomHeader from "@/components/CustomHeader";
@@ -240,7 +240,8 @@ export default function Songs() {
             <ButtonText className="text-primary-500">Xem tất cả</ButtonText>
           </Button>
         </HStack>
-        <TrackList
+        <TracksList
+          id="recent"
           className="px-4 data-[active=true]:no-underline"
           scrollEnabled={false}
           tracks={homeData.recentSection.slice(0, 3)}
@@ -267,7 +268,8 @@ export default function Songs() {
     return (
       <>
         <Heading className={headingStyle}>Dựa trên sở thích của bạn</Heading>
-        <TrackList
+        <TracksList
+          id="recommend"
           className="px-4"
           scrollEnabled={false}
           tracks={tracks}

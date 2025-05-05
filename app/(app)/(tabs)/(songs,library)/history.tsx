@@ -1,5 +1,5 @@
 import CustomHeader from "@/components/CustomHeader";
-import { TrackList } from "@/components/TrackList";
+import { TracksList } from "@/components/TrackList";
 import { supabase } from "@/lib/supabase";
 import { getListeningHistory } from "@/services/fileService";
 import { Stack } from "expo-router";
@@ -53,7 +53,8 @@ export default function History() {
         headerClassName="bg-background-0"
       />
 
-      <TrackList
+      <TracksList
+        id="history"
         tracks={tracks}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
