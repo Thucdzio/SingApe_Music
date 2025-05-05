@@ -17,6 +17,7 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
+import "react-native-url-polyfill/auto";
 
 SplashScreen.preventAutoHideAsync();
 TrackPlayer.registerPlaybackService(() => playbackService);
@@ -85,17 +86,12 @@ function RootNavigator() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="voice"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
-// function BackButton() {
-//   const router = useRouter();
-//   return (
-//     <Feather
-//       name="chevron-down"
-//       size={24}
-//       color="black"
-//       onPress={() => router.back()}
-//     />
-//   );
-// }

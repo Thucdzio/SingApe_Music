@@ -33,12 +33,15 @@ export const TracksListItem = ({
 
   return (
     // onPress={() => handleTrackSelect(track)}
-    <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2">
+    <Pressable onPress={() => handleTrackSelect(track)} className="px-0 py-2 ">
       <HStack space="md" className="gap-4 items-center pr-5">
         <Center className="relative">
           <Image
             source={
-              track.artwork ? { uri: track.artwork } : unknownTrackImageSource
+              typeof track.artwork === "string" &&
+              track.artwork.startsWith("http")
+                ? { uri: track.artwork }
+                : unknownTrackImageSource
             }
             className={`w-12 h-12 rounded`}
             alt="track artwork"

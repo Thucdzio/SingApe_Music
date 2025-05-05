@@ -1,9 +1,14 @@
-import { Stack } from "expo-router";
+import { StackScreenWithSearchBar } from "@/constants/layout";
 
-export default function SongsLayout() {
+import { Stack } from "expo-router";
+import { View } from "react-native";
+
+const SongsScreenLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ title: "Song" }} />
     </Stack>
   );
-}
+};
+
+export default SongsScreenLayout;
