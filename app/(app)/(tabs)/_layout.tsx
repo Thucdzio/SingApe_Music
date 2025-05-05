@@ -90,8 +90,14 @@ export default function TabsNavigation() {
             tabBarIcon: ({ color }) => <Icon as={UserRound} color={color} />,
           }}
         />
-      </Tabs>
-      <FloatingPlayer />
+      <Tabs.Screen
+          name="search"
+          options={{
+            href: null,
+          }}
+        />
+    </Tabs>
+    <FloatingPlayer />
     </View>
   );
 }

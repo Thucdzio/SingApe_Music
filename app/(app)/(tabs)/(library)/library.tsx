@@ -54,7 +54,7 @@ export default function Library() {
       
       <Box className="flex-1 w-full h-full bg-background-0 px-4">
         <VStack className="flex-1 w-max-md gap-2">
-          <Heading className="justify-self-start text-2xl font-bold mt-4 mb-2">
+          <Heading className="justify-self-start text-2xl font-bold mb-2">
             Bài hát
           </Heading>
           <HStack className="w-full items-center justify-center gap-2">
@@ -100,7 +100,7 @@ export default function Library() {
               <ButtonText>Tải xuống</ButtonText>
             </Button>
           </HStack>
-          <Heading className="justify-self-start text-2xl font-bold mt-4 mb-2">
+          <Heading className="justify-self-start text-2xl font-bold mt-4 mb-2 ">
             Playlist
           </Heading>
           <FlatList
@@ -128,6 +128,7 @@ export default function Library() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 100 }}
             />
+            <PlaylistsScreen />
         </VStack>
       </Box>
     </ScrollView>

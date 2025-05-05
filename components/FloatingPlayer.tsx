@@ -49,9 +49,13 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
       >
         <HStack space="4xl" className="flex-1 items-center">
           <Image
-            source={displayedTrack.artwork ? { uri: displayedTrack.artwork } : unknownTrackImageSource}
+            source={
+              typeof displayedTrack.artwork === "string"
+                ? { uri: displayedTrack.artwork }
+                : unknownTrackImageSource
+            }
             className="w-16 h-16 rounded-xl m-2"
-            alt="track artwork"
+            alt={displayedTrack?.title || "Track Artwork"}
           />
           <MovingText
             text={displayedTrack.title ?? ""}

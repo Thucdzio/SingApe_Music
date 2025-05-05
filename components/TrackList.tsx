@@ -1,31 +1,71 @@
-import React, { useEffect } from "react";
+import Library from "../assets/data/library.json";
+import React, { useEffect, useRef } from "react";
 import { FlatList, FlatListProps, Text, View } from "react-native";
 import { TracksListItem } from "./TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
 import { saveListeningHistory } from "@/services/fileService";
 import Library from "assets/data/library.json";
+import { useQueue } from "@/store/queue";
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
-  tracks?: Track[];
+  id: string;
+  tracks: Track[];
+  hideQueueControls?: boolean;
   onTrackSelect?: (track: Track) => void;
   onTrackOptionPress?: (track: Track) => void;
   children?: React.ReactNode;
 };
 
-export const TrackList = (props: TracksListProps) => {
-  const { tracks, onTrackOptionPress, ...flatlistProps } = props;
+export const TracksList = ({
+  id,
+  tracks,
+  hideQueueControls = false,
+  ...flatlistProps
+}: TracksListProps) => {
+  const queueOffset = useRef(0);
+  const { activeQueueId, setActiveQueueId } = useQueue();
 
-  const handleTrackSelect = async (track: Track) => {
-    try {
+  const handleTrackSelect = async (selectedTrack: Track) => {
+    const trackIndex = tracks.findIndex(
+      (track) => track.url === selectedTrack.url
+    );
+
+    if (trackIndex === -1) return;
+
+    const isChangingQueue = id !== activeQueueId;
+
+    if (isChangingQueue) {
+      const beforeTracks = tracks.slice(0, trackIndex);
+      const afterTracks = tracks.slice(trackIndex + 1);
+
+      await TrackPlayer.reset();
+
       flatlistProps.onTrackSelect?.(track);
-      console.log("Selected track:", track);
-      await TrackPlayer.load(track);
+
+      // we construct the new queue
+      await TrackPlayer.add(selectedTrack);
+      await TrackPlayer.add(afterTracks);
+      await TrackPlayer.add(beforeTracks);
+
       await TrackPlayer.play();
       saveListeningHistory(track);
-    } catch (error) {
-      console.error("Error loading track:", error);
+
+      queueOffset.current = trackIndex;
+      setActiveQueueId(id);
+    } else {
+      const nextTrackIndex =
+        trackIndex - queueOffset.current < 0
+          ? tracks.length + trackIndex - queueOffset.current
+          : trackIndex - queueOffset.current;
+
+      await TrackPlayer.skip(nextTrackIndex);
+      TrackPlayer.play();
     }
   };
+
+  if (!tracks || tracks.length === 0) {
+    return <Text>No tracks available</Text>;
+  }
 
   return (
     <FlatList
