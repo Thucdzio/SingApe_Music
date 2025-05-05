@@ -6,7 +6,6 @@ import { Box } from "@/components/ui/box";
 import { ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
-import { VirtualHeader } from "@/components/VirtualHeader";
 import { fontSize, textColor } from "@/constants/tokens";
 import { Href, router, Stack } from "expo-router";
 import {
@@ -20,31 +19,6 @@ import {
 import { useLayoutEffect, useState } from "react";
 import { ScrollView, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSelector } from "react-redux";
-
-// const header = () => {
-//   const isDarkMode = useSelector((state: any) => state.isDarkMode);
-//   return (
-//     <Stack.Screen
-//       options={{
-//         headerShown: false,
-//         headerTitle: "Thư viện",
-//         headerTitleStyle: {
-//           fontSize: fontSize.xl,
-//         },
-//         headerTintColor: isDarkMode ? textColor.light : textColor.dark,
-//         headerTransparent: true,
-//         headerSearchBarOptions: {
-//           headerIconColor: isDarkMode ? textColor.light : textColor.dark,
-//           hideNavigationBar: true,
-//           onOpen: () => {
-//             router.push("/search");
-//           },
-//         },
-//       }}
-//     />
-//   );
-// };
 
 export default function Library() {
   const [data, setData] = useState([]);
@@ -52,11 +26,11 @@ export default function Library() {
   const [error, setError] = useState(null);
 
   const handleFavorite = () => {
-    router.push("/library/favorite" as Href);
+    router.push("/favorite" as Href);
   }
 
   const handleDownload = () => {
-    router.push("/library/download" as Href);
+    router.push("/download" as Href);
   }
 
   const handleHistory = () => {
@@ -64,7 +38,7 @@ export default function Library() {
   }
 
   const handleFollow = () => {
-    router.push("/library/follow" as Href);
+    router.push("/follow" as Href);
   }
 
   return (
