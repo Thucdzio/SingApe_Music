@@ -116,23 +116,7 @@ export default function Library() {
           <Heading className="justify-self-start text-2xl font-bold mt-4 mb-2 ">
             Playlist
           </Heading>
-          {/* <FlatList
-            data={[...Array(10).keys()]}
-            keyExtractor={(item) => item.toString()}
-            renderItem={({ item }) => (
-              <Playlist
-                title={`Playlist ${item}`}
-                createdBy={`Người tạo ${item}`}
-                type={`Thể loại ${item}`}
-                image={`https://picsum.photos/200/300?random=${item}`}
-                onPress={() => router.push(`/library/playlist/${item}`)}
-              />
-            )}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }}
-          /> */}
+
           <PlaylistsScreen />
         </VStack>
       </Box>

@@ -1,22 +1,26 @@
 import { HStack, Button, Icon } from "@/components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import TrackPlayer, { Track } from "react-native-track-player";
-import { Pressable, ViewProps } from "react-native";
+import { Alert, Pressable, ViewProps } from "react-native";
 import { ButtonText } from "./ui/button";
 import { Download, Plus } from "lucide-react-native";
+import { downloadSong } from "./DowloadMusic";
+import { AddSongModal } from "./AddSongModal";
+import { useState } from "react";
+import Library from "../assets/data/library.json";
+import { usePlaylists } from "@/store/library";
 type QueueControlsProps = {
   tracks: Track[];
+  playlist: string;
 } & ViewProps;
 
 export const QueueControls = ({
   tracks,
+  playlist,
   style,
   ...viewProps
 }: QueueControlsProps) => {
-  const handlePlay = async () => {
-    await TrackPlayer.setQueue(tracks);
-    await TrackPlayer.play();
-  };
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const handleShufflePlay = async () => {
     const shuffledTracks = [...tracks].sort(() => Math.random() - 0.5);
@@ -25,10 +29,24 @@ export const QueueControls = ({
   };
 
   const handleDownload = async () => {
-    console.log("Downloading");
+    Alert.alert("Starting playlist download...");
+
+    const results = await Promise.all(
+      tracks.map(async (track) => {
+        const title = `${track.title ?? "nhacuatoi"}.mp3`;
+        return await downloadSong(track.url, title);
+      })
+    );
+    console.log("ket qua :", results);
+    const downloadedCount = results.filter(Boolean).length;
+
+    Alert.alert(
+      "Download Completed",
+      `Đã tải ${downloadedCount}/${tracks.length} bài hát thành công.`
+    );
   };
   const handleAddSong = async () => {
-    console.log("Adding");
+    setShowAddModal(true);
   };
   return (
     <HStack
@@ -36,12 +54,11 @@ export const QueueControls = ({
       style={style}
       {...viewProps}
     >
-      {/* Nút download bên trái */}
       <Pressable
         onPress={handleDownload}
         className="px-3 py-2 rounded-full bg-muted-foreground/10"
       >
-        <Download size={24} color="#666" />
+        <Download size={24} color="#000" />
       </Pressable>
       <Button
         variant="outline"
@@ -56,25 +73,14 @@ export const QueueControls = ({
         onPress={handleAddSong}
         className="p-3 py-2 rounded-full bg-muted-foreground/10"
       >
-        <Plus size={24} color="#666" />
+        <Plus size={24} color="#000" />
       </Pressable>
+      <AddSongModal
+        visible={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        allTracks={Library}
+        playlistName={playlist}
+      />
     </HStack>
   );
 };
-
-{
-  /* <Button
-        variant="outline"
-        className="flex-1 flex-row items-center justify-center bg-muted-foreground/10 rounded-lg px-4 py-3"
-        onPress={handlePlay}
-      >
-        <Icon as={Ionicons} size="md" className="text-primary mr-2" />
-        <ButtonText className="text-primary font-semibold text-lg">
-          Play
-        </ButtonText>
-      </Button> */
-}
-
-{
-  /* Shuffle Button */
-}

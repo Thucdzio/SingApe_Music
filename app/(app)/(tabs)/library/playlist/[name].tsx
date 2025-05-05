@@ -1,5 +1,5 @@
 import { PlaylistTracksList } from "@/components/PlaylistTracksList";
-import { Text } from "@/components/ui";
+import { Text, VStack } from "@/components/ui";
 import { screenPadding } from "@/constants/tokens";
 import { usePlaylists } from "@/store/library";
 import { Redirect, Stack, useLocalSearchParams } from "expo-router";
@@ -33,8 +33,8 @@ const PlaylistScreen = () => {
   }
   console.log(playlist);
   return (
-    <View
-      className="flex-1"
+    <VStack
+      className="flex-1 pb-20 "
       style={{
         paddingHorizontal: screenPadding.horizontal,
         paddingVertical: 8,
@@ -42,7 +42,7 @@ const PlaylistScreen = () => {
     >
       {PlaylistHeader()}
       <PlaylistTracksList playlist={playlist} />
-    </View>
+    </VStack>
   );
 };
 

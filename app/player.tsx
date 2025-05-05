@@ -16,7 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveTrack } from "react-native-track-player";
 import { Box, VStack, HStack, Text, Spinner, Center } from "@/components/ui";
-import { Image, Pressable } from "react-native";
+import { Alert, Image, Pressable } from "react-native";
 import { PlayerShuffleToggle } from "@/components/PlayerShuffleToggle";
 import { PlayerShareButton } from "@/components/PlayerShareButton";
 import { router } from "expo-router";
@@ -140,7 +140,12 @@ const PlayerScreen = () => {
                 name="download"
                 size={30}
                 color="white"
-                onPress={() => downloadSong(activeTrack.url, "nhacuatoi.mp3")}
+                onPress={() => {
+                  const result = downloadSong(activeTrack.url, "nhacuatoi.mp3");
+                  if (result !== null) {
+                    Alert.alert("Tải thành công", "Nhạc đã được tải về.");
+                  }
+                }}
               />
             </HStack>
           </VStack>

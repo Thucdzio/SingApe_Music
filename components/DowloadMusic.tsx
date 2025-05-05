@@ -21,13 +21,10 @@ export const downloadSong = async (url: string, filename: string) => {
 
       if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
         Alert.alert("Lỗi", "Cần cấp quyền để tải nhạc.");
-        return;
+        return null;
       }
-
-      // Với Android 11 trở lên, yêu cầu quyền MANAGE_EXTERNAL_STORAGE
     }
 
-    // Đường dẫn lưu trữ tệp
     const path =
       Platform.OS === "android"
         ? `${RNFS.ExternalStorageDirectoryPath}/Download/${filename}` // Lưu vào thư mục Download trên Android
@@ -43,12 +40,14 @@ export const downloadSong = async (url: string, filename: string) => {
     const result = await download.promise;
 
     if (result.statusCode === 200) {
-      Alert.alert("Tải thành công", "Nhạc đã được tải về.");
+      return path;
     } else {
       Alert.alert("Lỗi", "Không thể tải nhạc.");
+      return null;
     }
   } catch (error) {
     console.error("Download error:", error);
     Alert.alert("Lỗi", "Đã có lỗi xảy ra khi tải nhạc.");
+    return null;
   }
 };

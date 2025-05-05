@@ -1,6 +1,4 @@
-import { colors } from "@/constants/tokens";
 import { Playlist } from "@/helpers/types";
-import { AntDesign } from "@expo/vector-icons";
 
 // Gluestack UI
 import { Box, Text, Pressable, Image, HStack, VStack } from "@/components/ui";
@@ -32,34 +30,5 @@ export const PlaylistListItem = ({
         </HStack>
       </Box>
     </Pressable>
-
-    // <Pressable
-    //   onPress={onPress}
-    //   className="flex-row items-center px-4 py-2 active:opacity-80 border border-black-500"
-    // >
-    //   <HStack className="flex-1 items-center justify-between">
-    //     <HStack className="items-center gap-x-3 ">
-    //       <Image
-    //         source={{
-    //           uri: playlist.artworkPreview,
-    //         }}
-    //         className="w-[70px] h-[70px] border rounded-[8px]"
-    //         alt="art-preview"
-    //       />
-    //       <Box className="flex-1">
-    //         <Text numberOfLines={1} className="text-base font-semibold">
-    //           {playlist.name}
-    //         </Text>
-    //       </Box>
-    //     </HStack>
-
-    //     <AntDesign
-    //       name="right"
-    //       size={16}
-    //       color="black"
-    //       style={{ opacity: 0.5 }}
-    //     />
-    //   </HStack>
-    // </Pressable>
   );
 };

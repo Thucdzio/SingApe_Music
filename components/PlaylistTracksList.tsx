@@ -49,7 +49,11 @@ export const PlaylistTracksList = ({ playlist }: { playlist: Playlist }) => {
             {playlist.name}
           </Text>
           {search.length === 0 && (
-            <QueueControls className="pt-6" tracks={playlist.tracks} />
+            <QueueControls
+              className="pt-6"
+              tracks={playlist.tracks}
+              playlist={playlist.name}
+            />
           )}
         </VStack>
       }
