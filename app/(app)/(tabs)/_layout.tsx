@@ -19,7 +19,7 @@ import {
 import { KeyboardAvoidingComponent } from "@/components/KeyboardAvoiding";
 import { FloatingPlayer } from "@/components/FloatingPlayer";
 import { View } from "react-native";
-import { useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { useColorScheme } from "nativewind";
 
 export default function TabsNavigation() {
@@ -33,6 +33,7 @@ export default function TabsNavigation() {
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
+          lazy: true,
           headerShown: false,
           tabBarStyle: {
             position: "absolute",
