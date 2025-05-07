@@ -21,6 +21,13 @@ export interface Artists {
     playlistId: string;
 }
 
+export interface Playlist {
+    song: {
+        items: ExtendedTrack[];
+    }
+    artists: Artists[];
+}
+
 export interface ExtendedTrack {
     encodeId: string;
     title: string;
@@ -38,15 +45,18 @@ export interface ExtendedTrack {
     weeklyRanking: number;
     score: number;
     rakingStatus: number;
+    streamingStatus: number;
+    streamPrivileges: number[];
 }
 
 export interface MyTrack extends Track {
     id: string;
     score: number;
-    description: string;
-    sortDescription: string;
+    description?: string;
+    sortDescription?: string;
     rakingStatus: number;
     weeklyRanking: number;
+    createdBy?: string;
 }
 
 export interface RegionChart {

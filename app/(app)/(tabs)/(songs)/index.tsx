@@ -28,7 +28,7 @@ import { MyTrack, Home, ExtendedTrack } from "@/types/zing.types";
 import { fetchHome } from "@/lib/spotify";
 import { convertZingToTrack } from "@/helpers/convert";
 import { TracksListItem } from "@/components/TrackListItem";
-import { playTrack } from "@/services/playbackService";
+import { playPlaylist, playTrack, playPlaylistFromIndex, playPlaylistFromTrack, generateTracksListId } from "@/services/playbackService";
 import { getListeningHistory } from "@/services/fileService";
 import { getAllSongs, getSongsByArtistId, Song } from "@/lib/api/songs";
 import { getAllArtists, Artist } from "@/lib/api/artists";
@@ -163,7 +163,7 @@ export default function Songs() {
       //     : []
       // );
 
-      const recentSection = getListeningHistory();
+      const recentSection = await getListeningHistory();
       // setRecentSection(
       //   (await recentSection).map((song) => {
       //     return song.track;
@@ -187,7 +187,7 @@ export default function Songs() {
       setHomeData({
         tracks,
         chillSection: Array.isArray(chillSection) ? await handleData(chillSection) : [],
-        recentSection: (await getListeningHistory()).map((song) => song.track),
+        recentSection: (recentSection.map((song) => song.track)),
         top100Section: Array.isArray(top100Section) ? await handleData(top100Section) : [],
         newReleaseSection: Array.isArray(newReleaseSection)
           ? await handleData(newReleaseSection)
@@ -205,7 +205,9 @@ export default function Songs() {
 
   const handleData = async (data: ExtendedTrack[]) => {
     const tracks = await Promise.all(
-      data.map((song) => {
+      data.filter((song: ExtendedTrack) => (
+        !song.streamPrivileges || song.streamPrivileges.includes(1)
+      )).map((song: any) => {
         return convertZingToTrack(song);
       })
     );
@@ -342,15 +344,17 @@ export default function Songs() {
   );
 }
 
-interface AlbumListProps {
-  horizontal?: boolean;
+interface ColumnWiseFlatListProps {
   data: MyTrack[];
+  onTrackSelect?: (track: MyTrack) => void;
+  onTrackOptionPress?: (track: MyTrack) => void;
 }
 
-const ColumnWiseFlatList = ({ data }: { data: MyTrack[] }) => {
+const ColumnWiseFlatList = ({ data, onTrackOptionPress, onTrackSelect }: ColumnWiseFlatListProps) => {
   const screenWidth = useWindowDimensions().width - 32;
   const snapInterval = screenWidth + 14; // 16 is the width of the separator
   const numCols = 3;
+
   const transformedData = useMemo((() => {
     const columns: MyTrack[][] = [];
     for (let i = 0; i < data.length; i += numCols) {
@@ -358,19 +362,19 @@ const ColumnWiseFlatList = ({ data }: { data: MyTrack[] }) => {
     }
     return columns;
   }), [data]);
-  const Column = memo(({ items }: { items: MyTrack[] }) => (
+  const Column = ({ items }: { items: MyTrack[] }) => (
     <VStack style={{ width: screenWidth }}>
       {items.map((item, i) => (
         <TracksListItem
           key={i}
           track={item}
           onTrackSelect={(item: any) => {
-            console.log("Track pressed:", item);
+            playPlaylistFromTrack(data, item);
           }}
         />
       ))}
     </VStack>
-  ));
+  );
   const _renderitem = useCallback(({ item }: any) => <Column items={item} />, []);
   return (
     <FlatList
@@ -393,6 +397,11 @@ const ColumnWiseFlatList = ({ data }: { data: MyTrack[] }) => {
   );
 };
 
+interface AlbumListProps {
+  horizontal?: boolean;
+  data: MyTrack[];
+}
+
 const AlbumList = ({ horizontal, data, ...props }: AlbumListProps) => {
   return (
     <FlatList
@@ -412,7 +421,10 @@ const AlbumList = ({ horizontal, data, ...props }: AlbumListProps) => {
 
 const AlbumListItem = ({ item }: { item: MyTrack }) => {
   return (
-    <Link href={`/albums/${item.id}` as Href}>
+    <Link href={{
+      pathname: '/albums/[id]',
+      params: item
+    }}>
       <VStack className="w-40">
         <Image
           source={{ uri: item.artwork }}

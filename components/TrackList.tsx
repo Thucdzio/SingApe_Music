@@ -5,11 +5,13 @@ import { TracksListItem } from "./TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
 import { saveListeningHistory } from "@/services/fileService";
 import { useQueue } from "@/store/queue";
+import { fetchSong } from "@/lib/spotify";
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
   id: string;
   tracks: Track[];
   hideQueueControls?: boolean;
+  variant?: "album" | "playlist";
   onTrackSelect?: (track: Track) => void;
   onTrackOptionPress?: (track: Track) => void;
   children?: React.ReactNode;
@@ -22,6 +24,7 @@ export const TracksList = ({
   onTrackSelect,
   onTrackOptionPress,
   children,
+  variant = "playlist",
   ...flatlistProps
 }: TracksListProps) => {
   const queueOffset = useRef(0);
@@ -47,7 +50,6 @@ export const TracksList = ({
       await TrackPlayer.add(afterTracks);
       await TrackPlayer.add(beforeTracks);
 
-      onTrackSelect?.(tracks[trackIndex]);
       await TrackPlayer.play();
       saveListeningHistory(tracks[trackIndex]);
 
@@ -77,6 +79,7 @@ export const TracksList = ({
           onTrackSelect={handleTrackSelect}
           onRightPress={onTrackOptionPress}
           children={children}
+          variant={variant}
         />
       )}
       keyExtractor={(item) => item.id || item.url}

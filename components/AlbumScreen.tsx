@@ -3,7 +3,7 @@ import { Image, VStack, Text, HStack, Box, Button } from "./ui";
 import { Heading } from "./ui/heading";
 import { ButtonIcon, ButtonText } from "./ui/button";
 import { ArrowLeft, CirclePlus, EllipsisVertical, Play, Shuffle } from "lucide-react-native";
-import { TrackList } from "./TrackList";
+import { TracksList } from "./TrackList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
@@ -12,8 +12,11 @@ import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { backgroundColor } from "@/constants/tokens";
 import { Track } from "react-native-track-player";
+import { unknownTrackImageSource } from "@/constants/image";
+import GradientBackground from "./Gradient";
 
 interface AlbumProps {
+  id: string;
   title?: string;
   description?: string;
   imageUrl?: string;
@@ -24,9 +27,11 @@ interface AlbumProps {
   onShufflePress?: () => void;
   onAddToPlaylistPress?: () => void;
   onOptionsPress?: () => void;
+
+  children?: React.ReactNode;
 }
 
-export const PlaylistScreen = ({ ...props }: AlbumProps) => {
+export const AlbumScreen = ({ ...props }: AlbumProps) => {
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue<number>(0);
   const colorScheme = useColorScheme();
@@ -71,13 +76,35 @@ export const PlaylistScreen = ({ ...props }: AlbumProps) => {
     return { transform: [{ translateY }] };
   });
 
+  const handleOnPlayPress = () => {
+    props.onPlayPress?.();
+  }
+
+  const handleOnShufflePress = () => {
+    props.onShufflePress?.();
+  }
+
+  const handleOnAddToPlaylistPress = () => {
+    props.onAddToPlaylistPress?.();
+  }
+
+  const handleOnOptionsPress = () => {
+    props.onOptionsPress?.();
+  }
+
+  const handleOnTrackPress = (track: Track) => {
+    props.onTrackPress?.(track);
+  }
+
+  console.log("AlbumScreen props", props.tracks);
+
   return (
     <View className="flex-1">
       <Animated.ScrollView
         className="flex-1 w-full bg-transparent"
         onScroll={scrollHandler}
       >
-        <LinearGradient
+        {/* <LinearGradient
           colors={[
             colors.purple[500],
             (colorScheme.colorScheme === "dark" ? colors.purple[600] : colors.purple[200]),
@@ -85,11 +112,12 @@ export const PlaylistScreen = ({ ...props }: AlbumProps) => {
             (colorScheme.colorScheme === "dark" ? colors.black : colors.white),
           ]}
           style={[{ paddingTop: insets.top }]}
-        />
+        > */}
+        {/* <GradientBackground /> */}
           <VStack className="bg-transparent">
             <Box className="w-full justify-center items-center mt-4">
               <Image
-                source={{ uri: "https://picsum.photos/200/300?random=3" }}
+                source={props.imageUrl ? { uri: props.imageUrl } : unknownTrackImageSource}
                 className="w-48 h-48 rounded-lg"
                 alt="Playlist Image"
                 resizeMode="cover"
@@ -142,8 +170,16 @@ export const PlaylistScreen = ({ ...props }: AlbumProps) => {
               </HStack>
             </HStack>
           </VStack>
-        {/* </LinearGradient> */}
-        <TrackList scrollEnabled={false} className="p-4" />
+          
+        <TracksList 
+        id={props.id}
+        tracks={props.tracks || []}
+        onTrackSelect={handleOnTrackPress}
+        scrollEnabled={false} 
+        className="p-4"
+        />
+        
+        {props.children}
       </Animated.ScrollView>
 
       

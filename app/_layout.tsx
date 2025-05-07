@@ -20,6 +20,7 @@ import {
 } from "react-native-reanimated";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useDoubleBackExit } from "@/hooks/useDoubleBackExit";
+import { useTrackHistoryLogger } from "@/hooks/useTrackHistoryLogger";
 
 SplashScreen.preventAutoHideAsync();
 TrackPlayer.registerPlaybackService(() => playbackService);
@@ -36,6 +37,8 @@ export default function RootLayout() {
   useSetupTrackPlayer({
     onLoad: handelTrackPlayerLoaded,
   });
+
+  useTrackHistoryLogger();
 
   const navigation = useNavigation() as NavigationProp<any>;
   useDoubleBackExit(navigation);
