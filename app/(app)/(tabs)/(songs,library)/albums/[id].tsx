@@ -43,6 +43,7 @@ import { Track } from "react-native-track-player";
 export default function Album() {
   const item = useLocalSearchParams<MyTrack>();
   const [data, setData] = useState<MyTrack[]>([]);
+  console.log(item)
 
   const fetchAlbum = async () => {
     // const response = await getAlbumById(item.id);
@@ -82,12 +83,13 @@ export default function Album() {
         id={item.id}
         imageUrl={item.artwork}
         title={item.title}
-        createdBy={item.createdBy}
+        artists={item.artists}
         tracks={data}
+        releaseDate={item.releaseDate}
         onPlayPress={onPlayPress}
         onShufflePress={onShufflePress}
         onAddToPlaylistPress={() => {}}
-        onOptionsPress={() => {}} 
+        onOptionPress={() => {}} 
         onTrackPress={onTrackPress}
       />
     </View>

@@ -8,6 +8,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { TracksList } from "@/components/TrackList";
 import { Track } from "react-native-track-player";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { getFavorites } from "@/services/fileService";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 
 export default function Favorite() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,24 +23,42 @@ export default function Favorite() {
   }, []);
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   try {
-    //     const response = await fetch("https://api.example.com/favorites"); // Replace with your API endpoint
-    //     const result = await response.json();
-    //     setData(result);
-    //   } catch (error) {
-    //     console.error("Error fetching data:", error);
-    //   }
-    // };
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getFavorites();
+        setTracks(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // fetchData();
+    fetchData();
   }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="bg-background-0 dark:bg-background-0 flex-1">
+        <LoadingOverlay 
+          isUnder={true}
+        />
+        <CustomHeader
+          title="Yêu thích"
+          showBack={true}
+          centerTitle={false}
+          headerClassName="bg-background-0 dark:bg-background-0"
+        />
+      </SafeAreaView>
+    )
+  }
 
   return (
     <SafeAreaView className="bg-background-0 dark:bg-background-0 flex-1">
       <ScrollView className="bg-background-0 dark:bg-background-0">
         <CustomHeader
-          title="Đã tải"
+          title="Yêu thích"
           showBack={true}
           centerTitle={false}
           headerClassName="bg-background-0 dark:bg-background-0"
@@ -46,17 +66,16 @@ export default function Favorite() {
         <TracksList
           id="favorite"
           tracks={tracks}
+          className="px-4"
           scrollEnabled={false}
+          ListFooterComponent={
+            <View className="h-28" />
+          }
           onTrackOptionPress={(track: Track) => {
             handlePresentModalPress();
             setSelectedTrack(track);
           }}
         />
-        {/* <TrackActionSheet
-                  isOpen={openActionsheet}
-                  onClose={() => setOpenActionsheet(false)}
-                  track={selectedTrack as Track}
-                /> */}
       </ScrollView>
     </SafeAreaView>
   );

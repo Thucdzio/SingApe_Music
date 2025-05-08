@@ -57,6 +57,7 @@ export default function TabsNavigation() {
           name="(songs)"
           options={{
             title: "Khám phá",
+            popToTopOnBlur: true,
             tabBarIcon: ({ color }) => <Icon as={Compass} color={color} />,
           }}
         />
@@ -64,6 +65,7 @@ export default function TabsNavigation() {
           name="(library)"
           options={{
             title: "Thư viện",
+            popToTopOnBlur: true,
             tabBarIcon: ({ color }) => <Icon as={Library} color={color} />,
           }}
         />

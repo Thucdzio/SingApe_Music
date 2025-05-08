@@ -17,7 +17,7 @@ import {
   Image,
   Box,
 } from "@/components/ui";
-import { useCallback, useEffect, useState, memo, useMemo } from "react";
+import { useCallback, useEffect, useState, memo, useMemo, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TracksList } from "@/components/TrackList";
 import { getSongs } from "@/services/apiService";
@@ -29,14 +29,21 @@ import { fetchHome } from "@/lib/spotify";
 import { convertZingToTrack } from "@/helpers/convert";
 import { TracksListItem } from "@/components/TrackListItem";
 import { playPlaylist, playTrack, playPlaylistFromIndex, playPlaylistFromTrack, generateTracksListId } from "@/services/playbackService";
-import { getListeningHistory } from "@/services/fileService";
+import { addSongToFavorite, checkIfSongInFavorites, getListeningHistory, removeSongFromFavorite } from "@/services/fileService";
 import { getAllSongs, getSongsByArtistId, Song } from "@/lib/api/songs";
 import { getAllArtists, Artist } from "@/lib/api/artists";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { Divider } from "@/components/ui/divider";
+import { unknownTrackImageSource } from "@/constants/image";
+import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
+import { CircleArrowDown, CirclePlus, Heart } from "lucide-react-native";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const haveFloatingPlayer = useActiveTrack();
+  const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
 
   const [homeData, setHomeData] = useState<{
     tracks: Track[];
@@ -54,6 +61,7 @@ export default function Songs() {
     albumHotSection: [],
   });
 
+  const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const numCols = 3;
@@ -69,9 +77,9 @@ export default function Songs() {
   const navigation = useNavigation();
 
   // Load data when component mounts
-  useEffect(() => {
-    loadData();
-  }, []);
+  // useEffect(() => {
+  //   loadData();
+  // }, []);
 
   // Function to load data from Supabase
   const loadData = async () => {
@@ -96,6 +104,12 @@ export default function Songs() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOnOptionsPress = (item: MyTrack) => {
+    handlePresentModalPress();
+    favoriteState();
+    setSelectedItem(item);
   };
 
   const handleSearch = (text: string) => {
@@ -124,23 +138,23 @@ export default function Songs() {
   const fetchSongs = async () => {
     setIsLoading(true);
     try {
-      const myData = await getSongs();
-      const tracks = myData.map(
-        (song) =>
-          ({
-            id: song.id,
-            title: song.title ?? undefined,
-            artist: song.song_artists
-              .map((sa: any) => sa.artists.name)
-              .join(", "),
-            album: song.albums?.title ?? undefined,
-            url: song.url || "",
-            genre: song.song_genres.map((sa: any) => sa.genres.name).join(", "),
-            artwork: song.cover_url || "",
-          } as Track)
-      );
+      // const myData = await getSongs();
+      // const tracks = myData.map(
+      //   (song) =>
+      //     ({
+      //       id: song.id,
+      //       title: song.title ?? undefined,
+      //       artist: song.song_artists
+      //         .map((sa: any) => sa.artists.name)
+      //         .join(", "),
+      //       album: song.albums?.title ?? undefined,
+      //       url: song.url || "",
+      //       genre: song.song_genres.map((sa: any) => sa.genres.name).join(", "),
+      //       artwork: song.cover_url || "",
+      //     } as Track)
+      // );
 
-      setTracks(tracks);
+      // setTracks(tracks);
 
       const zingData: Home = await fetchHome();
       // setData(zingData);
@@ -219,8 +233,56 @@ export default function Songs() {
     fetchSongs();
   });
   return () => task.cancel();
-
   }, []);
+
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetRef.current?.present();
+  }, []);
+  const handleCloseModalPress = useCallback(() => {
+    bottomSheetRef.current?.close();
+  }, []);
+
+  const favoriteState = async () => {
+    if (selectedItem) {
+      const isFavorite = await checkIfSongInFavorites(selectedItem);
+      setIsFavorite(isFavorite);
+    }
+  }
+
+  const handleAddToPlaylistPress = async () => {
+    if (selectedItem) {
+      handleCloseModalPress();
+      router.push({
+        pathname: "/addToPlaylist",
+        params: selectedItem
+      });
+    }
+  }
+
+  const handleFavoritePress = async () => {
+    if (selectedItem) {
+      try {
+        if (await checkIfSongInFavorites(selectedItem)) {
+          await removeSongFromFavorite(selectedItem);
+        } else {
+          await addSongToFavorite(selectedItem);
+        }
+      } catch (error) {
+        console.error("Error playing playlist:", error);
+      }
+    }
+  };
+
+  const handleDownloadPress = async () => {
+    if (selectedItem) {
+      try {
+        
+      } catch (error) {
+        console.error("Error playing playlist:", error);
+      }
+    }
+  };
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -276,7 +338,7 @@ export default function Songs() {
           scrollEnabled={false}
           tracks={tracks}
           onTrackOptionPress={(track) => {
-            console.log("Track pressed:", track);
+            handleOnOptionsPress(track as MyTrack);
           }}
         />
       </>
@@ -338,6 +400,52 @@ export default function Songs() {
           {renderTop100Section()}
           {renderChillSection()}
         </VStack>
+        <MyBottomSheet
+          bottomSheetRef={bottomSheetRef}
+        >
+          <HStack space="md">
+          <Image
+            source={
+              selectedItem?.artwork
+                ? { uri: selectedItem.artwork }
+                : unknownTrackImageSource
+            }
+            className="rounded"
+            size="sm"
+            alt="track artwork"
+          />
+          <VStack className="flex-1 pl-2">
+            <Text className="text-xl font-medium text-primary-500">
+              {selectedItem?.title}
+            </Text>
+            <Text className="text-md text-gray-500">
+              {selectedItem?.artist}
+            </Text>
+          </VStack>
+        </HStack>
+        <Box className="w-full my-4">
+          <Divider />
+        </Box>
+        <VStack space="md" className="w-full">
+          <ButtonBottomSheet
+            onPress={handleAddToPlaylistPress}
+            buttonIcon={CirclePlus}
+            buttonText="Thêm vào danh sách phát"
+          />
+          <ButtonBottomSheet
+            onPress={handleFavoritePress}
+            stateChangable={true}
+            fillIcon={isFavorite}
+            buttonIcon={Heart}
+            buttonText="Thêm vào yêu thích"
+          />
+          <ButtonBottomSheet
+            onPress={handleDownloadPress}
+            buttonIcon={CircleArrowDown}
+            buttonText="Tải xuống"
+          />
+        </VStack>
+        </MyBottomSheet>
         <Box className="h-28" />
       </ScrollView>
     </SafeAreaView>
@@ -423,7 +531,7 @@ const AlbumList = ({ horizontal, data, ...props }: AlbumListProps) => {
 const AlbumListItem = ({ item }: { item: MyTrack }) => {
   return (
     <Link href={{
-      pathname: '/albums/[id]',
+      pathname: `${item.datatype === "playlist" ? "/playlists" : "/albums"}/[id]`,
       params: item
     }}>
       <VStack className="w-40">

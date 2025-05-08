@@ -1,4 +1,5 @@
 import CustomHeader from "@/components/CustomHeader";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { TracksList } from "@/components/TrackList";
 import { supabase } from "@/lib/supabase";
 import { getListeningHistory } from "@/services/fileService";
@@ -38,6 +39,26 @@ export default function History() {
 
     fetchTracks();
   }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background-0">
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+        />
+        <LoadingOverlay isUnder={true} />
+        <CustomHeader
+          title="Lịch sử"
+          showBack={true}
+          centerTitle={false}
+          headerClassName="bg-background-0"
+        />
+      </SafeAreaView>
+    );
+  }
+
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">

@@ -77,7 +77,7 @@ export default function Profile() {
           <AvatarFallbackText>Lucas</AvatarFallbackText>
           <AvatarImage
             source={{
-              uri: user?.user_metadata.avatar_url ?? "https://ui-avatars.com/api/?length=1&name=" + user?.user_metadata.display_name,
+              uri: user?.user_metadata.avatar_url ?? "https://ui-avatars.com/api/?length=1&bold=true&background=f76806&name=" + user?.user_metadata.display_name,
             }}
           />
         </Avatar>

@@ -2,7 +2,7 @@ import { FlatList, ScrollView, View } from "react-native";
 import { Image, VStack, Text, HStack, Box, Button } from "./ui";
 import { Heading } from "./ui/heading";
 import { ButtonIcon, ButtonText } from "./ui/button";
-import { ArrowLeft, CirclePlus, EllipsisVertical, Heart, Pause, Play, Shuffle } from "lucide-react-native";
+import { ArrowLeft, CirclePlus, EllipsisVertical, Heart, Pause, Pen, Play, Plus, Shuffle } from "lucide-react-native";
 import { TracksList } from "./TrackList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
@@ -15,6 +15,8 @@ import { isPlaying, Track, useActiveTrack, useIsPlaying } from "react-native-tra
 import { useState } from "react";
 import getGradient from "@/helpers/color";
 import { unknownTrackImageSource } from "@/constants/image";
+import { useAuth } from "@/context/auth";
+import { P } from "ts-pattern";
 
 interface PlaylistProps {
   id?: string;
@@ -22,14 +24,33 @@ interface PlaylistProps {
   description?: string;
   imageUrl?: string;
   createdBy?: string;
+  userImage?: string;
   tracks?: Track[];
+  variant?: "library" | "songs"
   onTrackPress?: (track: Track) => void;
   onPlayPress?: () => void;
   onShufflePress?: () => void;
   onAddToPlaylistPress?: () => void;
+  onPlusPress?: () => void;
+  onEditPress?: () => void;
 }
 
-export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
+export const PlaylistScreen = ({ 
+  id,
+  title,
+  description,
+  imageUrl,
+  createdBy,
+  userImage,
+  tracks,
+  variant = "songs",
+  onTrackPress,
+  onPlayPress,
+  onShufflePress,
+  onAddToPlaylistPress,
+  onPlusPress,
+  onEditPress 
+}: PlaylistProps) => {
   const { playing } = useIsPlaying();
 
   const insets = useSafeAreaInsets();
@@ -80,6 +101,59 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
 
   }
 
+  const variantRender = () => {
+    switch (variant) {
+      case "library":
+        return (
+          variantLibrary()
+        );
+      case "songs":
+        return (
+          variantSong()
+        );
+      default:
+        return null;
+    }
+  }
+
+  const variantSong = () => {
+    return (
+      <HStack>
+        <Button
+          variant="solid"
+          className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
+          size="md"
+          onPress={onAddToPlaylistPress}
+        >
+          <ButtonIcon as={CirclePlus} className={buttonIconStyle} />
+        </Button>
+      </HStack>
+    )
+  }
+
+  const variantLibrary = () => {
+    return (
+      <HStack>
+        <Button
+          variant="solid"
+          className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
+          size="md"
+          onPress={onEditPress}
+        >
+          <ButtonIcon as={Pen} className={buttonIconStyle} />
+        </Button>
+        <Button
+          variant="solid"
+          className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
+          size="md"
+          onPress={onPlusPress}
+        >
+          <ButtonIcon as={Plus} className={buttonIconStyle} />
+        </Button>
+      </HStack>
+    )
+  }
+
   return (
     <View className="flex-1">
       <Animated.ScrollView
@@ -87,68 +161,58 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
         onScroll={scrollHandler}
       >
         <LinearGradient
-          colors={getGradient(props.id || "")}
+          colors={getGradient(id || "")}
           style={[{ paddingTop: insets.top }]}
         >
           <VStack className="bg-transparent">
             <Box className="w-full justify-center items-center mt-4">
               <Image
-                source={{ uri: props.imageUrl || unknownTrackImageSource }}
+                source={{ uri: imageUrl || unknownTrackImageSource }}
                 className="w-48 h-48 rounded-lg"
                 alt="Playlist Image"
                 resizeMode="cover"
               />
             </Box>
             <Box className="justify-center items-center mt-4">
-              <Heading>{props.title}</Heading>
-              <Text className="text-gray-500 mt-2">{props.description}</Text>
+              <Heading>{title}</Heading>
+              <Text className="text-gray-500 mt-2">{description}</Text>
             </Box>
-            <Text className="text-gray-500 mt-2">{props.createdBy}</Text>
-            <HStack className="mt-4 space-x-2 justify-between p-4 w-full">
-              <HStack>
-                <Button
-                  variant="solid"
-                  className="rounded-full justify-center bg-transparent data-[active=true]:bg-background-200 h-14 w-14"
-                  size="md"
-                  onPress={props.onAddToPlaylistPress}
-                >
-                  <ButtonIcon as={CirclePlus} className="text-black" />
-                </Button>
-                {/* <Button
-                  variant="solid"
-                  className="rounded-full justify-center bg-transparent data-[active=true]:bg-background-200 h-14 w-14"
-                  size="md"
-                  onPress={props.onOptionsPress}
-                >
-                  <ButtonIcon as={EllipsisVertical} className="text-black" />
-                </Button> */}
-              </HStack>
+            <HStack space="md" className="items-center px-4">
+              <Image
+                source={{ uri: userImage || "https://ui-avatars.com/api/?length=1&bold=true&background=f76806&name=" + createdBy,}}
+                className="w-7 h-7 rounded-full"
+                alt="User"
+                resizeMode="cover"
+              />
+              <Text className="text-gray-500">{createdBy}</Text>
+            </HStack>
+            <HStack className="space-x-2 justify-between pr-4 py-2 w-full">
+              {variantRender()}
               <HStack className="justify-items-end gap-2">
                 <Button
                   variant="solid"
-                  className="rounded-full justify-center bg-transparent data-[active=true]:bg-background-200 h-14 w-14"
+                  className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
                   size="md"
-                  onPress={props.onShufflePress}
+                  onPress={onShufflePress}
                 >
-                  <ButtonIcon as={Shuffle} className="text-black" />
+                  <ButtonIcon as={Shuffle} className={buttonIconStyle} />
                 </Button>
                 <Animated.View
-                  
                 >
                   <Button
                     variant="solid"
                     className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
                     size="md"
-                    onPress={props.onPlayPress}
+                    onPress={onPlayPress}
                   >
-                    <ButtonIcon as={playing ? Pause : Play} className="text-black fill-black" />
+                    <ButtonIcon as={playing ? Pause : Play} className="text-black fill-black w-6 h-6" />
                   </Button>
                 </Animated.View>
               </HStack>
             </HStack>
           </VStack>
         </LinearGradient>
-        <TracksList id={props.title || "random"} tracks={props.tracks || []} scrollEnabled={false} className="p-4" />
+        <TracksList id={title || "random"} tracks={tracks || []} scrollEnabled={false} className="p-4" />
       </Animated.ScrollView>
 
       
@@ -180,7 +244,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
           variant="solid"
           className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
           size="md"
-          onPress={props.onPlayPress}
+          onPress={onPlayPress}
         >
           <ButtonIcon as={playing ? Pause : Play} className="text-black fill-black" />
         </Button>
@@ -189,3 +253,5 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
     </View>
   );
 };
+
+const buttonIconStyle = "text-primary-500 w-6 h-6";

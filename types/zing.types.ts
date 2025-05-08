@@ -47,7 +47,10 @@ export interface ExtendedTrack {
     rakingStatus: number;
     streamingStatus: number;
     streamPrivileges: number[];
+    datatype?: MyTrackType;
 }
+
+export type MyTrackType = "playlist" | "album" | "track" | "artist" | "mv" | "user" | "unknown";
 
 export interface MyTrack extends Track {
     id: string;
@@ -57,6 +60,8 @@ export interface MyTrack extends Track {
     rakingStatus: number;
     weeklyRanking: number;
     createdBy?: string;
+    releaseDate?: string;
+    datatype?: MyTrackType;
 }
 
 export interface RegionChart {

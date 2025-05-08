@@ -21,6 +21,7 @@ import { fontSize, textColor } from "@/constants/tokens";
 import { deletePlaylist, listPlaylists } from "@/services/fileService";
 import { MyTrack } from "@/types/zing.types";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useIsFocused } from "@react-navigation/native";
 import { Href, Link, router, Stack } from "expo-router";
 import {
   ArrowBigDownDash,
@@ -47,6 +48,7 @@ export default function Library() {
   const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const isFocused = useIsFocused();
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
@@ -80,16 +82,16 @@ export default function Library() {
     if (selectedItem) {
       try {
         await deletePlaylist(selectedItem.id);
+        handleCloseModalPress();
       } catch (error) {
         console.error("Error deleting playlist:", error);
       }
-      setData((prevData) => prevData.filter((item) => item.id !== selectedItem.id));
-      handleCloseModalPress();
     }
   }
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!isFocused) return;
       setLoading(true);
       try {
         const listPlaylist = await listPlaylists();
@@ -103,7 +105,7 @@ export default function Library() {
     };
 
     fetchData();
-  }, []);
+  }, [isFocused]);
 
   const handleOnOptionsPress = (item: MyTrack) => {
     handlePresentModalPress();
@@ -183,7 +185,6 @@ export default function Library() {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <PlaylistCard
-                  key={item.id}
                   item={item}
                   type={`Danh sách phát`}
                   onOptionPress={() => handleOnOptionsPress(item)}
@@ -197,38 +198,6 @@ export default function Library() {
           </VStack>
         </Box>
       </ScrollView>
-      <MyBottomSheet bottomSheetRef={bottomSheetRef}>
-        <HStack>
-          <Image
-            source={
-              selectedItem?.artwork
-                ? { uri: selectedItem.artwork }
-                : unknownTrackImageSource
-            }
-            className="rounded"
-            size="sm"
-            alt="track artwork"
-          />
-          <VStack className="flex-1 pl-2">
-            <Text className="text-xl font-medium text-primary-500">
-              {selectedItem?.title}
-            </Text>
-            <Text className="text-sm text-gray-500">
-              {"Danh sách phát"} ✦ {selectedItem?.createdBy}
-            </Text>
-          </VStack>
-        </HStack>
-        <Box className="w-full my-4">
-          <Divider />
-        </Box>
-        <VStack space="md" className="w-full">
-          <ButtonBottomSheet
-            onPress={handleOnDeletePress}
-            buttonIcon={X}
-            buttonText="Xóa danh sách phát"
-          />
-        </VStack>
-      </MyBottomSheet>
     </SafeAreaView>
   );
 }

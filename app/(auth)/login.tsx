@@ -29,7 +29,7 @@ import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Heading } from "@/components/ui/heading";
 import { useAuth } from "@/context/auth";
 import { InputField } from "@/components/ui/input";
-import { supabase } from "../lib/supabase";
+
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
@@ -91,7 +91,7 @@ export default function Login() {
       });
       setLoading(false);
       router.dismissAll();
-      router.replace("/(app)/(tabs)");
+      router.replace("/(app)/(tabs)/(songs)");
     } catch (error: any) {
       console.error(error);
       Alert.alert(

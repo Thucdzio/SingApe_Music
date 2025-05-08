@@ -5,6 +5,7 @@ import { Track } from 'react-native-track-player';
 
 const HISTORY_FILE = FileSystem.documentDirectory + 'listeningHistory.json';
 const PLAYLISTS_DIR = FileSystem.documentDirectory + 'Playlists/';
+const FAVORITES_DIR = FileSystem.documentDirectory + 'Favorites/';
 
 export async function downloadMusic(url: string, filename: string) {
   const localUri = FileSystem.documentDirectory + filename;
@@ -95,16 +96,39 @@ export const createPlaylist = async (username: string, playlistName: string, art
   if (fileInfo.exists) {
     throw new Error('Playlist already exists');
   }
+  const newPlaylist = {
+    id: playlistName,
+    title: playlistName,
+    description: description || '',
+    artwork: artwork || '',
+    createdBy: username,
+    tracks: [],
+  }
   await FileSystem.writeAsStringAsync(filePath, JSON.stringify(
-    {
-      id: playlistName,
-      title: playlistName,
-      description: description || '',
-      artwork: artwork || '',
-      createdBy: username,
-      tracks: [],
-    },
+    newPlaylist
   ));
+  return newPlaylist;
+};
+
+export const createPlaylistWithTracks = async (username: string, playlistName: string, artwork: string, description: string, tracks: MyTrack[]) => {
+  await ensurePlaylistDirExists();
+  const filePath = getPlaylistFilePath(playlistName);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (fileInfo.exists) {
+    throw new Error('Playlist already exists');
+  }
+  const newPlaylist = {
+    id: playlistName,
+    title: playlistName,
+    description: description || '',
+    artwork: artwork || '',
+    createdBy: username,
+    tracks: tracks,
+  }
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(
+    newPlaylist
+  ));
+  return newPlaylist;
 };
 
 export const deletePlaylist = async (playlistName: string) => {
@@ -166,3 +190,61 @@ export const listPlaylists = async () => {
 
   return playlists;
 };
+
+const ensureFavoritesDirExists = async () => {
+  const dirInfo = await FileSystem.getInfoAsync(FAVORITES_DIR);
+  if (!dirInfo.exists) {
+    await FileSystem.makeDirectoryAsync(FAVORITES_DIR, { intermediates: true });
+  }
+}
+
+const getFavoriteFilePath = () => `${FAVORITES_DIR}$songs.json`;
+
+
+export const addSongToFavorite = async (song: MyTrack) => {
+  await ensureFavoritesDirExists();
+  const filePath = getFavoriteFilePath();
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  let favorites: MyTrack[] = [];
+
+  if (fileInfo.exists) {
+    const content = await FileSystem.readAsStringAsync(filePath);
+    favorites = JSON.parse(content);
+  }
+
+  favorites.push(song);
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(favorites));
+}
+
+export const removeSongFromFavorite = async (song: MyTrack) => {
+  const filePath = getFavoriteFilePath();
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    throw new Error('Favorites do not exist');
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  const favorites = JSON.parse(content);
+  const updatedFavorites = favorites.filter((track: MyTrack) => track.id !== song.id);
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(updatedFavorites));
+}
+
+export const getFavorites = async () => {
+  const filePath = getFavoriteFilePath();
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    throw new Error('Favorites do not exist');
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  return JSON.parse(content);
+}
+
+export const checkIfSongInFavorites = async (song: MyTrack): Promise<boolean> => {
+  const filePath = getFavoriteFilePath();
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    return false;
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  const favorites = JSON.parse(content);
+  return favorites.some((track: MyTrack) => track.id === song.id);
+}

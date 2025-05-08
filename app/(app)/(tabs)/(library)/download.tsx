@@ -1,5 +1,12 @@
 import CustomHeader from "@/components/CustomHeader";
-import { FlatList, Pressable, ScrollView, Touchable, View, StyleSheet } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  Touchable,
+  View,
+  StyleSheet,
+} from "react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
@@ -13,7 +20,11 @@ import { CircleArrowDown, Heart } from "lucide-react-native";
 import { unknownTrackImageSource } from "@/constants/image";
 import { getMusicInfo } from "@/services/metadataService";
 import { Divider } from "@/components/ui/divider";
-import BottomSheet, { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import colors from "tailwindcss/colors";
 import { useColorScheme, vars } from "nativewind";
 import { backgroundColor } from "@/constants/tokens";
@@ -49,8 +60,7 @@ export default function Download() {
             album: "Unknown Album",
             url: asset.uri,
           };
-        }
-        );
+        });
 
         setTracks(tracks);
         setIsLoading(false);
@@ -59,19 +69,18 @@ export default function Download() {
         console.log("Permission to access media library was denied");
       }
     })();
-    
   }, []);
 
   if (isLoading) {
     return (
-      <SafeAreaView className="bg-background-0 flex-1 items-center justify-center">
+      <SafeAreaView className="bg-transparent flex-1">
+        <LoadingOverlay isUnder={true} />
         <CustomHeader
           title="Đã tải"
           showBack={true}
           centerTitle={false}
           headerClassName="bg-background-0"
         />
-        <LoadingOverlay />
       </SafeAreaView>
     );
   }
@@ -101,7 +110,7 @@ export default function Download() {
           track={selectedTrack as Track}
         /> */}
       </ScrollView>
-      <TrackBottomSheet track={selectedTrack} bottomSheetRef={bottomSheetRef}/>
+      <TrackBottomSheet track={selectedTrack} bottomSheetRef={bottomSheetRef} />
     </SafeAreaView>
   );
 }
@@ -114,19 +123,19 @@ interface TrackBottomSheetProps {
 const TrackBottomSheet = ({ ...props }: TrackBottomSheetProps) => {
   const colorMode = useColorScheme();
 
-  const snapPoints = useMemo(() => ['50%', '90%'], []);
+  const snapPoints = useMemo(() => ["50%", "90%"], []);
 
   const renderBackdrop = useCallback(
-		(backdropprops: any) => (
-			<BottomSheetBackdrop
-				{...backdropprops}
-				disappearsOnIndex={-1}
+    (backdropprops: any) => (
+      <BottomSheetBackdrop
+        {...backdropprops}
+        disappearsOnIndex={-1}
         appearsOnIndex={0}
         pressBehavior="close"
-			/>
-		),
-		[]
-	);
+      />
+    ),
+    []
+  );
 
   return (
     <BottomSheetModal
@@ -135,16 +144,21 @@ const TrackBottomSheet = ({ ...props }: TrackBottomSheetProps) => {
       enablePanDownToClose={true}
       backdropComponent={renderBackdrop}
       enableDynamicSizing={false}
-      backgroundStyle={{ 
-        backgroundColor: colorMode.colorScheme === "dark" ? backgroundColor.dark : backgroundColor.light,
+      backgroundStyle={{
+        backgroundColor:
+          colorMode.colorScheme === "dark"
+            ? backgroundColor.dark
+            : backgroundColor.light,
       }}
     >
-      <BottomSheetView
-        className="p-4"
-      >
-      <HStack>
+      <BottomSheetView className="p-4">
+        <HStack>
           <Image
-            source={props.track?.artwork ? { uri: props.track.artwork } : unknownTrackImageSource}
+            source={
+              props.track?.artwork
+                ? { uri: props.track.artwork }
+                : unknownTrackImageSource
+            }
             className="rounded"
             size="md"
             alt="track artwork"
@@ -159,7 +173,7 @@ const TrackBottomSheet = ({ ...props }: TrackBottomSheetProps) => {
           </VStack>
         </HStack>
         <Box className="w-full my-4">
-          <Divider/>
+          <Divider />
         </Box>
         <VStack space="md" className="w-full">
           <Button onPress={() => {}} size="md" className={buttonStyle}>

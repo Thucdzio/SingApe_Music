@@ -5,9 +5,10 @@ import { convertZingToTrack } from "@/helpers/convert";
 import { likeSong } from "@/lib/api";
 import { fetchPlaylist } from "@/lib/spotify";
 import { createPlaylist, getPlaylist, listPlaylists } from "@/services/fileService";
+import { generateTracksListId, playPlaylist } from "@/services/playbackService";
 import { MyTrack, Playlist } from "@/types/zing.types";
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 
@@ -15,7 +16,8 @@ export default function Playlists() {
   const item = useLocalSearchParams<MyTrack>();
   const [data, setData] = useState<MyTrack[]>([]);
   const { user } = useAuth();
-  console.log("item", item);
+  const variant = useSegments().find((segment) => segment === "(songs)") ? "songs" : "library";
+  
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
@@ -37,22 +39,25 @@ export default function Playlists() {
     )
   }
 
+  const handleOnPlayPress = () => {
+    playPlaylist(data, generateTracksListId(item.title || "Unknown", item.id));    
+  }
+
+  const handleOnShufflePress = () => {
+    playPlaylist(data.sort(() => Math.random() - 0.5), generateTracksListId(item.title || "Unknown", item.id));    
+  }
+
   useEffect(() => {
     const fetchAlbum = async () => {
-      // const response = await getAlbumById(item.id);
-      // const response: Playlist = await fetchPlaylist(item.id);
-      // setData(await Promise.all(response.song.items.map(async (track) => {
-      //   return convertZingToTrack(track)
-      // })));
-      if (item.id.length !== 8) {
-        const response = await getPlaylist(item.id);
-        setData(response.tracks);
-      } else {
+      if (item.id.length === 8) {
         const response: Playlist = await fetchPlaylist(item.id);
         setData(await Promise.all(response.song.items.map(async (track) => {
           return convertZingToTrack(track)
         })));
-      }
+      } else {
+        const response = await getPlaylist(item.id);
+        setData(response.tracks);
+      } 
     }
     fetchAlbum();
   }, []);
@@ -71,11 +76,13 @@ export default function Playlists() {
         imageUrl={item.artwork}
         title={item.title}
         createdBy={item.createdBy}
-        tracks={[]}
+        userImage={user?.user_metadata.avatar_url}
+        tracks={data}
+        variant={variant}
         onTrackPress={(trackId) => console.log(trackId)}
-        onPlayPress={() => {}}
-        onShufflePress={() => {}}
-        onAddToPlaylistPress={() => handleAddToPlaylistPress()}
+        onPlayPress={handleOnPlayPress}
+        onShufflePress={handleOnShufflePress}
+        onAddToPlaylistPress={handleAddToPlaylistPress}
       />
     </View>
   );

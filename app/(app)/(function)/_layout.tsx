@@ -5,6 +5,7 @@ export default function Layout() {
         <Stack>
             <Stack.Screen name="editProfile" options={{ headerShown: false }} />
             <Stack.Screen name="createPlaylist" options={{ headerShown: false }} />
+            <Stack.Screen name="addToPlaylist" options={{ headerShown: false }} />
         </Stack>
     );
 }
