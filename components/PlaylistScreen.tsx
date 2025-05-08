@@ -2,7 +2,7 @@ import { FlatList, ScrollView, View } from "react-native";
 import { Image, VStack, Text, HStack, Box, Button } from "./ui";
 import { Heading } from "./ui/heading";
 import { ButtonIcon, ButtonText } from "./ui/button";
-import { ArrowLeft, CirclePlus, EllipsisVertical, Play, Shuffle } from "lucide-react-native";
+import { ArrowLeft, CirclePlus, EllipsisVertical, Heart, Pause, Play, Shuffle } from "lucide-react-native";
 import { TracksList } from "./TrackList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
@@ -11,9 +11,13 @@ import colors from "tailwindcss/colors";
 import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { backgroundColor } from "@/constants/tokens";
-import { Track } from "react-native-track-player";
+import { isPlaying, Track, useActiveTrack, useIsPlaying } from "react-native-track-player";
+import { useState } from "react";
+import getGradient from "@/helpers/color";
+import { unknownTrackImageSource } from "@/constants/image";
 
 interface PlaylistProps {
+  id?: string;
   title?: string;
   description?: string;
   imageUrl?: string;
@@ -23,10 +27,11 @@ interface PlaylistProps {
   onPlayPress?: () => void;
   onShufflePress?: () => void;
   onAddToPlaylistPress?: () => void;
-  onOptionsPress?: () => void;
 }
 
 export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
+  const { playing } = useIsPlaying();
+
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue<number>(0);
   const colorScheme = useColorScheme();
@@ -71,6 +76,10 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
     return { transform: [{ translateY }] };
   });
 
+  const handleAddToPlaylistPress = () => {
+
+  }
+
   return (
     <View className="flex-1">
       <Animated.ScrollView
@@ -78,27 +87,23 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
         onScroll={scrollHandler}
       >
         <LinearGradient
-          colors={[
-            colors.purple[500],
-            (colorScheme.colorScheme === "dark" ? colors.purple[600] : colors.purple[200]),
-            (colorScheme.colorScheme === "dark" ? colors.purple[800] : colors.purple[50]),
-            (colorScheme.colorScheme === "dark" ? colors.black : colors.white),
-          ]}
+          colors={getGradient(props.id || "")}
           style={[{ paddingTop: insets.top }]}
-        />
+        >
           <VStack className="bg-transparent">
             <Box className="w-full justify-center items-center mt-4">
               <Image
-                source={{ uri: "https://picsum.photos/200/300?random=3" }}
+                source={{ uri: props.imageUrl || unknownTrackImageSource }}
                 className="w-48 h-48 rounded-lg"
                 alt="Playlist Image"
                 resizeMode="cover"
               />
             </Box>
             <Box className="justify-center items-center mt-4">
-              <Heading>Playlist Screen</Heading>
-              <Text className="text-gray-500 mt-2">Author</Text>
+              <Heading>{props.title}</Heading>
+              <Text className="text-gray-500 mt-2">{props.description}</Text>
             </Box>
+            <Text className="text-gray-500 mt-2">{props.createdBy}</Text>
             <HStack className="mt-4 space-x-2 justify-between p-4 w-full">
               <HStack>
                 <Button
@@ -109,14 +114,14 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
                 >
                   <ButtonIcon as={CirclePlus} className="text-black" />
                 </Button>
-                <Button
+                {/* <Button
                   variant="solid"
                   className="rounded-full justify-center bg-transparent data-[active=true]:bg-background-200 h-14 w-14"
                   size="md"
                   onPress={props.onOptionsPress}
                 >
                   <ButtonIcon as={EllipsisVertical} className="text-black" />
-                </Button>
+                </Button> */}
               </HStack>
               <HStack className="justify-items-end gap-2">
                 <Button
@@ -136,13 +141,13 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
                     size="md"
                     onPress={props.onPlayPress}
                   >
-                    <ButtonIcon as={Play} className="text-black fill-black" />
+                    <ButtonIcon as={playing ? Pause : Play} className="text-black fill-black" />
                   </Button>
                 </Animated.View>
               </HStack>
             </HStack>
           </VStack>
-        {/* </LinearGradient> */}
+        </LinearGradient>
         <TracksList id={props.title || "random"} tracks={props.tracks || []} scrollEnabled={false} className="p-4" />
       </Animated.ScrollView>
 
@@ -177,7 +182,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
           size="md"
           onPress={props.onPlayPress}
         >
-          <ButtonIcon as={Play} className="text-black fill-black" />
+          <ButtonIcon as={playing ? Pause : Play} className="text-black fill-black" />
         </Button>
         </Animated.View>
       </Animated.View>

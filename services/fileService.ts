@@ -1,9 +1,10 @@
-import { MyTrack } from '@/types/zing.types';
+import { Album, MyTrack } from '@/types/zing.types';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { Track } from 'react-native-track-player';
 
 const HISTORY_FILE = FileSystem.documentDirectory + 'listeningHistory.json';
+const PLAYLISTS_DIR = FileSystem.documentDirectory + 'Playlists/';
 
 export async function downloadMusic(url: string, filename: string) {
   const localUri = FileSystem.documentDirectory + filename;
@@ -58,7 +59,7 @@ export async function saveListeningHistory(track: Track) {
   } catch (error) {
     console.log('No existing history file found, creating a new one.');
   }
-  history = history.filter((item: any) => item.track.url !== track.url); 
+  history = history.filter((item: any) => item.track.id !== track.id); 
   history.unshift({ track, timestamp: new Date().toISOString() });
   history = history.slice(0, 50);
   await FileSystem.writeAsStringAsync(historyFileUri, JSON.stringify(history));
@@ -77,3 +78,91 @@ export async function getListeningHistory(): Promise<Array<{ track: Track; times
     return [];
   }
 }
+
+const ensurePlaylistDirExists = async () => {
+  const dirInfo = await FileSystem.getInfoAsync(PLAYLISTS_DIR);
+  if (!dirInfo.exists) {
+    await FileSystem.makeDirectoryAsync(PLAYLISTS_DIR, { intermediates: true });
+  }
+};
+
+const getPlaylistFilePath = (playlistId: string) => `${PLAYLISTS_DIR}${playlistId}.json`;
+
+export const createPlaylist = async (username: string, playlistName: string, artwork: string, description: string) => {
+  await ensurePlaylistDirExists();
+  const filePath = getPlaylistFilePath(playlistName);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (fileInfo.exists) {
+    throw new Error('Playlist already exists');
+  }
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(
+    {
+      id: playlistName,
+      title: playlistName,
+      description: description || '',
+      artwork: artwork || '',
+      createdBy: username,
+      tracks: [],
+    },
+  ));
+};
+
+export const deletePlaylist = async (playlistName: string) => {
+  const filePath = getPlaylistFilePath(playlistName);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    console.log('Playlist does not exist:', filePath);
+    throw new Error('Playlist does not exist');
+  }
+  await FileSystem.deleteAsync(filePath);
+};
+
+export const addSongToPlaylist = async (playlistName: string, song: MyTrack) => {
+  const filePath = getPlaylistFilePath(playlistName);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    throw new Error('Playlist does not exist');
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  const playlist = JSON.parse(content);
+  playlist.tracks.push(song);
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(playlist));
+};
+
+export const removeSongFromPlaylist = async (playlistName: string, song: MyTrack) => {
+  const filePath = getPlaylistFilePath(playlistName);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    throw new Error('Playlist does not exist');
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  const playlist = JSON.parse(content);
+  playlist.tracks = playlist.tracks.filter((track: MyTrack) => track.id !== song.id);
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(playlist));
+};
+
+export const getPlaylist = async (playlistName: string) => {
+  const filePath = getPlaylistFilePath(playlistName);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    throw new Error('Playlist does not exist');
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  return JSON.parse(content);
+};
+
+export const listPlaylists = async () => {
+  await ensurePlaylistDirExists();
+  const files = await FileSystem.readDirectoryAsync(PLAYLISTS_DIR);
+
+  const jsonFiles = files.filter((file) => file.endsWith('.json'));
+
+  const playlists = await Promise.all(
+    jsonFiles.map(async (file) => {
+      const content = await FileSystem.readAsStringAsync(PLAYLISTS_DIR + file);
+      return JSON.parse(content);
+    })
+  );
+
+  return playlists;
+};

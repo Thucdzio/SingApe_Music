@@ -1,5 +1,5 @@
 import { trackTitleFilter } from "@/helpers/filter";
-import { generateTracksListId } from "@/helpers/miscellaneous";
+import { generateTracksListId } from "@/services/playbackService";
 import { Playlist } from "@/helpers/types";
 import { useNavigationSearch } from "@/hooks/useNavigationSearch";
 import { TracksList } from "./TrackList";

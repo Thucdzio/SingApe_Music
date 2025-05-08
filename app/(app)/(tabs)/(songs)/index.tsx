@@ -362,6 +362,7 @@ const ColumnWiseFlatList = ({ data, onTrackOptionPress, onTrackSelect }: ColumnW
     }
     return columns;
   }), [data]);
+
   const Column = ({ items }: { items: MyTrack[] }) => (
     <VStack style={{ width: screenWidth }}>
       {items.map((item, i) => (
