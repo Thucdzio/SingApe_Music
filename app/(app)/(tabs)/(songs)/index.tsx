@@ -30,9 +30,53 @@ import { convertZingToTrack } from "@/helpers/convert";
 import { TracksListItem } from "@/components/TrackListItem";
 import { playTrack } from "@/services/playbackService";
 import { getListeningHistory } from "@/services/fileService";
-import { getAllSongs, getSongsByArtistId, Song } from "@/lib/api/songs";
-import { getAllArtists, Artist } from "@/lib/api/artists";
+import { getAllSongs, getSongsByArtistId } from "@/lib/api/song.api";
+import { getAllArtists } from "@/lib/api/artist.api";
+import { Song, Artist } from "@/lib/supabase";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { getSongMp3Url } from "@/lib/api/storage.api";
+
+// Move playSong function outside of the component so it can be accessed by child components
+const playSong = async (song: Song | MyTrack) => {
+  try {
+    // Show loading or feedback to user could be added here
+
+    // Get the song URL from storage
+    const url = await getSongMp3Url(song.id);
+
+    if (!url) {
+      console.error("Could not get song URL from storage");
+      // Consider showing an error toast/notification here
+      return;
+    }
+
+    // Create a track object with all the necessary information
+    const track: Track = {
+      id: song.id,
+      title: song.title || "Unknown Title",
+      artist:
+        "artist_names" in song
+          ? song.artist_names
+          : "artist" in song
+          ? song.artist
+          : "Unknown Artist",
+      url,
+      artwork:
+        "thumbnail_url" in song
+          ? song.thumbnail_url
+          : "artwork" in song
+          ? song.artwork
+          : "https://via.placeholder.com/400",
+      duration: song.duration || 0,
+    };
+
+    // Play the track
+    await playTrack(track);
+  } catch (error) {
+    console.error("Error playing song:", error);
+    // Show error toast/notification
+  }
+};
 
 export default function Songs() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -115,7 +159,7 @@ export default function Songs() {
         title: song.title || "Unknown Title",
         artist: "Various Artists",
         url: song.url || fallbackUrl,
-        artwork: song.cover_url || "https://via.placeholder.com/400",
+        artwork: song.thumbnail_url || "https://via.placeholder.com/400",
         duration: 0,
       };
     });
@@ -124,20 +168,21 @@ export default function Songs() {
   const fetchSongs = async () => {
     setIsLoading(true);
     try {
-      const myData = await getSongs();
-      const tracks = myData.map(
-        (song) =>
-          ({
+      const myData = await getAllSongs();
+      const tracks = await Promise.all(
+        myData.map(async (song) => {
+          const songUrl = await getSongMp3Url(song.id);
+          return {
             id: song.id,
             title: song.title ?? undefined,
-            artist: song.song_artists
-              .map((sa: any) => sa.artists.name)
-              .join(", "),
-            album: song.albums?.title ?? undefined,
-            url: song.url || "",
-            genre: song.song_genres.map((sa: any) => sa.genres.name).join(", "),
-            artwork: song.cover_url || "",
-          } as Track)
+            artist: song.artist_names || "Unknown Artist",
+            // Use a fallback for album name
+            album: "Unknown Album",
+            url: songUrl || "",
+            genre: "", // You can add a genre property to your Song type if needed
+            artwork: song.thumbnail_url || "",
+          } as Track;
+        })
       );
 
       setTracks(tracks);
@@ -186,15 +231,21 @@ export default function Songs() {
 
       setHomeData({
         tracks,
-        chillSection: Array.isArray(chillSection) ? await handleData(chillSection) : [],
+        chillSection: Array.isArray(chillSection)
+          ? await handleData(chillSection)
+          : [],
         recentSection: (await getListeningHistory()).map((song) => song.track),
-        top100Section: Array.isArray(top100Section) ? await handleData(top100Section) : [],
+        top100Section: Array.isArray(top100Section)
+          ? await handleData(top100Section)
+          : [],
         newReleaseSection: Array.isArray(newReleaseSection)
           ? await handleData(newReleaseSection)
           : newReleaseSection?.all
           ? await handleData(newReleaseSection.all)
           : [],
-        albumHotSection: Array.isArray(albumHotSection) ? await handleData(albumHotSection) : [],
+        albumHotSection: Array.isArray(albumHotSection)
+          ? await handleData(albumHotSection)
+          : [],
       });
     } catch (error) {
       console.error("Error fetching songs:", error);
@@ -214,10 +265,9 @@ export default function Songs() {
 
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
-    fetchSongs();
-  });
-  return () => task.cancel();
-
+      fetchSongs();
+    });
+    return () => task.cancel();
   }, []);
 
   const onRefresh = useCallback(() => {
@@ -300,7 +350,6 @@ export default function Songs() {
       </>
     );
   };
-
   const renderNewReleaseSection = () => {
     return (
       <>
@@ -349,27 +398,28 @@ const ColumnWiseFlatList = ({ data }: { data: MyTrack[] }) => {
   const screenWidth = useWindowDimensions().width - 32;
   const snapInterval = screenWidth + 14; // 16 is the width of the separator
   const numCols = 3;
-  const transformedData = useMemo((() => {
+  const transformedData = useMemo(() => {
     const columns: MyTrack[][] = [];
     for (let i = 0; i < data.length; i += numCols) {
       columns.push(data.slice(i, i + numCols));
     }
     return columns;
-  }), [data]);
+  }, [data]);
   const Column = memo(({ items }: { items: MyTrack[] }) => (
     <VStack style={{ width: screenWidth }}>
       {items.map((item, i) => (
         <TracksListItem
           key={i}
           track={item}
-          onTrackSelect={(item: any) => {
-            console.log("Track pressed:", item);
-          }}
+          onTrackSelect={(track) => playSong(track as MyTrack)}
         />
       ))}
     </VStack>
   ));
-  const _renderitem = useCallback(({ item }: any) => <Column items={item} />, []);
+  const _renderitem = useCallback(
+    ({ item }: any) => <Column items={item} />,
+    []
+  );
   return (
     <FlatList
       data={transformedData}

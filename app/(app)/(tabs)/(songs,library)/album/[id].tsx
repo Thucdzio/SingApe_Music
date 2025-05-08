@@ -34,7 +34,6 @@ import { Heading } from "@/components/ui/heading";
 import { TrackList } from "@/components/TrackList";
 import { AlbumScreen } from "@/components/AlbumScreen";
 
-
 export default function Album() {
   const { id, image, title, createdBy } = useLocalSearchParams();
 

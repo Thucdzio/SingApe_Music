@@ -7,10 +7,9 @@ import {
   Image,
 } from "react-native";
 import { useLocalSearchParams, Stack, useRouter } from "expo-router";
-import { getSongsByArtistId } from "@/lib/api/songs";
-import { getArtistById } from "@/lib/api/artists";
-import { Song } from "@/lib/api/songs";
-import { Artist } from "@/lib/api/artists";
+import { getSongsByArtistId } from "@/lib/api/song.api";
+import { getArtistById } from "@/lib/api/artist.api"; // Đúng tên file API
+import { Song, Artist } from "@/lib/supabase"; 
 import { Track } from "react-native-track-player";
 import { TrackList } from "@/components/TrackList";
 import CustomHeader from "@/components/CustomHeader";
