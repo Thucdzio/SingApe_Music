@@ -230,7 +230,7 @@ export default function Songs() {
 
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
-    fetchSongs();
+    // fetchSongs();
   });
   return () => task.cancel();
   }, []);

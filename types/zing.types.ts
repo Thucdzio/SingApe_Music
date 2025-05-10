@@ -9,8 +9,9 @@ export interface Album {
     releaseDate: string;
 }
 
-export interface Artists {
+export interface Artist {
     id: string;
+    encodeId: string;
     name: string;
     link: string;
     spotlight: string;
@@ -19,20 +20,21 @@ export interface Artists {
     thumbnail: string;
     isOA: boolean;
     playlistId: string;
+    totalFollow: number;
 }
 
 export interface Playlist {
     song: {
         items: ExtendedTrack[];
     }
-    artists: Artists[];
+    artists: Artist[];
 }
 
 export interface ExtendedTrack {
     encodeId: string;
     title: string;
     alias: string;
-    artists: Artists[];
+    artists: Artist[];
     album: Album;
     isWorldWide: boolean;
     thumbnailM: string;
@@ -98,4 +100,11 @@ export interface Home {
             others: ExtendedTrack[];
         };
     }[];
+}
+
+export interface SearchResult {
+    top: ExtendedTrack;
+    artists: Artist[];
+    songs: ExtendedTrack[];
+    playlists: ExtendedTrack[];
 }

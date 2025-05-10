@@ -1,5 +1,6 @@
 import TrackPlayer, { Event, Track } from "react-native-track-player";
 import { useQueue } from "@/store/queue";
+import { fetchSong } from "@/lib/spotify";
 
 export const playbackService = async () => {
   TrackPlayer.addEventListener(Event.RemotePlay, () => {
@@ -29,6 +30,9 @@ export const generateTracksListId = (trackListName: string, search?: string) => 
 
 export const playTrack = async (track: Track) => {
   try {
+    if (track.id.length === 8) {
+      track.url = await fetchSong(track.id);
+    }
     const { activeQueueId, setActiveQueueId } = useQueue();
     if (activeQueueId === track.id) {
       return;
@@ -45,6 +49,14 @@ export const playTrack = async (track: Track) => {
 
 export const playPlaylist = async (tracks: Track[], id: string) => {
   try {
+    tracks = await Promise.all(
+      tracks.map(async (track) => {
+        if (track.id.length === 8) {
+          track.url = await fetchSong(track.id);
+        }
+        return track;
+      })
+    );
     if (!tracks || tracks.length === 0) return;
     const { activeQueueId, setActiveQueueId } = useQueue();
     if (activeQueueId === id) {

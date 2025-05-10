@@ -34,39 +34,59 @@ import { supabase } from "./supabase";
 // };
 
 const KOYEB_API_URL = "https://yielding-leia-vietnam-national-university-83340bf5.koyeb.app/"
+// const KOYEB_API_URL = "http://192.168.1.2:25565/";
 
 export const getSpotifyToken = async () => {
-    const response = await fetch(`${KOYEB_API_URL}spotify-token`);
-    const { access_token } = await response.json();
-    return access_token;
+  const response = await fetch(`${KOYEB_API_URL}spotify-token`);
+  const { access_token } = await response.json();
+  return access_token;
 };
 
-export const fetchTop100Tracks = async () => {
-    const response = await fetch(KOYEB_API_URL + "zingmp3/top100");
-    const data = await response.json();
-    return data;
+export const fetchSearch = async (query: string) => {
+  const response = await fetch(KOYEB_API_URL + "zingmp3/search?keyword=" + query);
+  const data = await response.json();
+  return data.data;
 }
+
+export const fetchTop100Tracks = async () => {
+  const response = await fetch(KOYEB_API_URL + "zingmp3/top100");
+  const data = await response.json();
+  return data;
+};
 
 export const fetchChart = async (): Promise<Chart> => {
-    const response = await fetch(KOYEB_API_URL + "zingmp3/chart");
-    const data = await response.json();
-    return data.data;
-}
+  const response = await fetch(KOYEB_API_URL + "zingmp3/chart");
+  const data = await response.json();
+  return data.data;
+};
 
 export const fetchHome = async () => {
-    const response = await fetch(KOYEB_API_URL + "zingmp3/home");
-    const data = await response.json();
-    return data.data;
-}
+  const response = await fetch(KOYEB_API_URL + "zingmp3/home");
+  const data = await response.json();
+  return data.data;
+};
 
 export const fetchSong = async (encodeId: string) => {
-    try {
+  try {
     const response = await fetch(KOYEB_API_URL + "zingmp3/song/" + encodeId);
     const data = await response.json();
-    console.log("Song data:", data);
-    return data;
-    } catch (error) {
-        console.error("Error fetching song URL:", error);
-        throw error;
-    }
-}
+    return data.data["128"];
+  } catch (error) {
+    console.error("Error fetching song URL:", error);
+    throw error;
+  }
+};
+
+export const fetchPlaylist = async (encodeId: string) => {
+  try {
+    const response = await fetch(
+      KOYEB_API_URL + "zingmp3/playlist/" + encodeId
+    );
+    const data = await response.json();
+    console.log("Playlist data:", data);
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching playlist:", error);
+    throw error;
+  }
+};

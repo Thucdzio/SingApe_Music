@@ -95,7 +95,6 @@ export default function Library() {
       setLoading(true);
       try {
         const listPlaylist = await listPlaylists();
-        console.log("listPlaylist", listPlaylist);
         setData(listPlaylist);
       } catch (error) {
         console.error("Error fetching data:", error);

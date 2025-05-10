@@ -8,6 +8,7 @@ import { unknownTrackImageSource } from "@/constants/image";
 import { ButtonIcon } from "./ui/button";
 import { EllipsisVertical } from "lucide-react-native";
 import { useWindowDimensions } from "react-native";
+import { star } from "@/constants/text";
 
 export const PlaylistCard = ({ item, type, onOptionPress }: { item: MyTrack, type: string, onOptionPress: () => void }) => {
   return (
@@ -30,7 +31,7 @@ export const PlaylistCard = ({ item, type, onOptionPress }: { item: MyTrack, typ
           <VStack className="flex-1 w-full gap-1">
             <Text className="text-lg font-semibold">{item.title}</Text>
             <Text className="text-sm text-gray-500">
-              {type} ✦ {item.createdBy}
+              {type} {star} {item.createdBy}
             </Text>
           </VStack>
           {/* <Pressable className="rounded-full w-10 h-10 items-center justify-center"

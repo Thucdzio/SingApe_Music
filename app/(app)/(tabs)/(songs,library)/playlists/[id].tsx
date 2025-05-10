@@ -8,7 +8,8 @@ import { createPlaylist, getPlaylist, listPlaylists } from "@/services/fileServi
 import { generateTracksListId, playPlaylist } from "@/services/playbackService";
 import { MyTrack, Playlist } from "@/types/zing.types";
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Stack, useLocalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
+import { router, Stack, useLocalSearchParams, usePathname, useRouter, useSegments } from "expo-router";
+import { navigate } from "expo-router/build/global-state/routing";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 
@@ -27,6 +28,10 @@ export default function Playlists() {
   const handleOnOptionsPress = () => {
     if (user && item.id) {
     }
+  }
+
+  const handleOnPlusPress = () => {
+    router.navigate("/search");
   }
 
   const handleAddToPlaylistPress = async () => {
@@ -83,6 +88,7 @@ export default function Playlists() {
         onPlayPress={handleOnPlayPress}
         onShufflePress={handleOnShufflePress}
         onAddToPlaylistPress={handleAddToPlaylistPress}
+        onPlusPress={handleOnPlusPress}
       />
     </View>
   );

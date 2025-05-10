@@ -79,7 +79,8 @@ export const TracksListItem = ({
           source={
             track.artwork ? { uri: track.artwork } : unknownTrackImageSource
           }
-          className={`w-12 h-12 rounded`}
+          className={`rounded`}
+          size="sm"
           alt="track artwork"
         />
 
@@ -111,7 +112,7 @@ export const TracksListItem = ({
   return (
     <Pressable
       onPress={() => handleTrackSelect(track)}
-      className="px-0 py-2 w-full"
+      className="px-0 w-full"
       style={{ maxWidth: windowWidth }}
     >
       <HStack space="md" className="gap-4 items-center">
@@ -123,7 +124,7 @@ export const TracksListItem = ({
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                className={`text-sm font-semibold ${
+                className={`text-lg font-medium ${
                   isActiveTrack ? "text-indigo-500" : "text-foreground"
                 }`}
               >
@@ -131,7 +132,7 @@ export const TracksListItem = ({
               </Text>
             </HStack>
             {track.artist && (
-              <Text numberOfLines={1} className="text-muted text-[14px] mt-1">
+              <Text numberOfLines={1} className="text-gray-500 text-sm mt-1">
                 {track.artist}
               </Text>
             )}

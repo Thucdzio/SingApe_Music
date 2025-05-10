@@ -9,12 +9,12 @@ export async function convertZingToTrack(track: ExtendedTrack): Promise<MyTrack>
   } else if (track.link.includes("/playlist")) {
     track.datatype = "playlist";
   } else {
-    try {
-      const song = await fetchSong(track.encodeId);
-      track.link = song;
-    } catch (error) {
-      console.error("Error fetching song:", error);
-    }
+    // try {
+    //   const song = await fetchSong(track.encodeId);
+    //   track.link = song;
+    // } catch (error) {
+    //   console.error("Error fetching song:", error);
+    // }
     track.datatype = "track";
   }
 

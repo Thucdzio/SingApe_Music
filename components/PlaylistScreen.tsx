@@ -31,6 +31,7 @@ interface PlaylistProps {
   onPlayPress?: () => void;
   onShufflePress?: () => void;
   onAddToPlaylistPress?: () => void;
+  onOptionPress?: () => void;
   onPlusPress?: () => void;
   onEditPress?: () => void;
 }
@@ -48,6 +49,7 @@ export const PlaylistScreen = ({
   onPlayPress,
   onShufflePress,
   onAddToPlaylistPress,
+  onOptionPress,
   onPlusPress,
   onEditPress 
 }: PlaylistProps) => {
@@ -138,6 +140,14 @@ export const PlaylistScreen = ({
           variant="solid"
           className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
           size="md"
+          onPress={onPlusPress}
+        >
+          <ButtonIcon as={Plus} className={buttonIconStyle} />
+        </Button>
+        <Button
+          variant="solid"
+          className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
+          size="md"
           onPress={onEditPress}
         >
           <ButtonIcon as={Pen} className={buttonIconStyle} />
@@ -146,9 +156,9 @@ export const PlaylistScreen = ({
           variant="solid"
           className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
           size="md"
-          onPress={onPlusPress}
+          onPress={onOptionPress}
         >
-          <ButtonIcon as={Plus} className={buttonIconStyle} />
+          <ButtonIcon as={EllipsisVertical} className={buttonIconStyle} />
         </Button>
       </HStack>
     )

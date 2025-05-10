@@ -17,7 +17,7 @@ import getGradient from "@/helpers/color";
 import { unknownTrackImageSource } from "@/constants/image";
 import { useAuth } from "@/context/auth";
 import { P } from "ts-pattern";
-import { Artists, MyTrack } from "@/types/zing.types";
+import { Artist, MyTrack } from "@/types/zing.types";
 import { getTotalDuration } from "@/helpers/calc";
 import { formatDate } from "@/helpers/format";
 
@@ -26,7 +26,7 @@ interface AlbumProps {
   title?: string;
   description?: string;
   imageUrl?: string;
-  artists?: Artists[];
+  artists?: Artist[];
   releaseDate?: string;
   tracks?: MyTrack[];
   variant?: "library" | "songs"

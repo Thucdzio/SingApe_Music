@@ -8,7 +8,7 @@ import { useNavigationSearch } from "@/hooks/useNavigationSearch";
 import { useTracks } from "@/store/library";
 import { trackTitleFilter } from "@/helpers/filter";
 import { TracksList } from "../TrackList";
-import { generateTracksListId } from "@/helpers/miscellaneous";
+import { generateTracksListId } from "@/services/playbackService";
 
 interface SuggestionSectionProps {
   onPressSong?: (song: Track) => void;

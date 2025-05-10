@@ -37,7 +37,6 @@ export default function ListPlaylist() {
     const fetchAlbum = async () => {
       const response = await listPlaylists();
       setData(response);
-      console.log("response", response);
     };
 
     fetchAlbum();
