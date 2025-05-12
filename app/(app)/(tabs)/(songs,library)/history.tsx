@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { getListeningHistory } from "@/services/fileService";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
+import { View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Track } from "react-native-track-player";
@@ -78,6 +79,7 @@ export default function History() {
         id="history"
         tracks={tracks}
         showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={() => <View className="h-3" />}
         contentContainerStyle={{
           paddingBottom: 100,
         }}

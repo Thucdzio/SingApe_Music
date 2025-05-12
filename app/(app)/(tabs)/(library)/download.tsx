@@ -102,6 +102,7 @@ export default function Download() {
             handlePresentModalPress();
             setSelectedTrack(track);
           }}
+          ItemSeparatorComponent={() => <View className="h-3" />}
           className="px-4"
         />
         {/* <TrackActionSheet

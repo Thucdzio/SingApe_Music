@@ -1,13 +1,31 @@
+import { ToggleIcon } from "@/components/buttons/ToggleIcon";
 import CustomHeader from "@/components/CustomHeader";
-import { Box, Button, Icon, Pressable, Text, VStack, Image, Center } from "@/components/ui";
+import { AnimatedIcon } from "@/components/icons/AnimatedIcon";
+import {
+  Box,
+  Button,
+  Icon,
+  Pressable,
+  Text,
+  VStack,
+  Image,
+  Center,
+} from "@/components/ui";
 import { ButtonIcon, ButtonText } from "@/components/ui/button";
-import { getPlaylist, listPlaylists } from "@/services/fileService";
+import { addSongToPlaylist, getPlaylist, listPlaylists } from "@/services/fileService";
 import { MyTrack } from "@/types/zing.types";
 import { router, useLocalSearchParams } from "expo-router";
-import { Check, CheckCircle, Circle, CircleCheck, Search } from "lucide-react-native";
+import {
+  Check,
+  CheckCircle,
+  Circle,
+  CircleCheck,
+  Search,
+} from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import { FadeIn, FadeOut } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ListPlaylist() {
@@ -29,8 +47,18 @@ export default function ListPlaylist() {
     console.log("Tạo playlist với tên:", item);
     router.push({
       pathname: "/createPlaylist",
-      params: item
+      params: item,
     });
+  };
+
+  const handleConfirm = async () => {
+    console.log("Xác nhận thêm vào danh sách phát", selected);
+    await Promise.all(
+      await selected.map(async (playlistId) => {
+        await addSongToPlaylist(playlistId, item);
+      })
+    );
+    router.back();
   }
 
   useEffect(() => {
@@ -52,17 +80,20 @@ export default function ListPlaylist() {
       <ScrollView className="flex-1">
         <VStack space="md" className="px-4 py-2">
           <Center>
-          <Button 
-            variant="solid" 
-            className="h-14 rounded-full mt-2 mb-2 px-4"
-            style={{ width: 170 }}
-            action="primary"
-            onPress={handleCreatePlaylist}
-          >
-            <ButtonText>Tạo danh sách phát</ButtonText>
-          </Button>
+            <Button
+              variant="solid"
+              className="h-14 rounded-full mt-2 mb-2 px-4"
+              style={{ width: 170 }}
+              action="primary"
+              onPress={handleCreatePlaylist}
+            >
+              <ButtonText>Tạo danh sách phát</ButtonText>
+            </Button>
           </Center>
-          <Button variant="outline" className="w-full mt-2 mb-2 px-4 justify-start">
+          <Button
+            variant="outline"
+            className="w-full mt-2 mb-2 px-4 justify-start"
+          >
             <ButtonIcon as={Search} />
             <ButtonText>Tìm kiếm danh sách phát</ButtonText>
           </Button>
@@ -93,26 +124,34 @@ export default function ListPlaylist() {
                       {item.tracks.length} Bài hát
                     </Text>
                   </VStack>
+                  <Center className="w-8">
                   {isSelected ? (
-                    <Icon
-                    as={CircleCheck}
-                    size="xl"
-                    className="text-primary-950 fill-indigo-500 h-7 w-7"
-                  />
+                    <AnimatedIcon
+                      as={CircleCheck}
+                      size="xl"
+                      className="text-background-0 fill-green-500 h-8 w-8 "
+                    />
                   ) : (
-                    <Icon as={Circle} size="xl" className="text-primary-500 h-7 w-7" />
+                    <AnimatedIcon
+                      as={Circle}
+                      size="xl"
+                      className="text-primary-500 h-6 w-6 "
+                    />
                   )}
+                  </Center>
                 </Pressable>
               );
             }}
           />
         </VStack>
       </ScrollView>
-      <Center style={{ position: "absolute", bottom: 20, left: 0, right: 0 }} className="p-4">
-      <Button
+      <Center
+        style={{ position: "absolute", bottom: 20, left: 0, right: 0 }}
+        className="p-4"
+      >
+        <Button
           onPress={() => {
-            console.log("selected", selected);
-            // router.push("/playlist/[id]", { id: selected });
+            handleConfirm();
           }}
           className="w-32 h-14 rounded-full"
           variant="solid"

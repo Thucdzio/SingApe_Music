@@ -1,25 +1,56 @@
 import { FlatList, ScrollView, View } from "react-native";
-import { Image, VStack, Text, HStack, Box, Button } from "./ui";
-import { Heading } from "./ui/heading";
-import { ButtonIcon, ButtonText } from "./ui/button";
-import { ArrowLeft, CircleArrowDown, CirclePlus, EllipsisVertical, Heart, Pause, Pen, Play, Plus, Shuffle } from "lucide-react-native";
-import { TracksList } from "./TrackList";
+import { Image, VStack, Text, HStack, Box, Button } from "./../ui";
+import { Heading } from "./../ui/heading";
+import { ButtonIcon, ButtonText } from "./../ui/button";
+import {
+  ArrowLeft,
+  CircleArrowDown,
+  CircleCheck,
+  CirclePlus,
+  CircleUserRound,
+  CircleX,
+  EllipsisVertical,
+  Heart,
+  Pause,
+  Pen,
+  Play,
+  Plus,
+  Share2,
+  Shuffle,
+} from "lucide-react-native";
+import { TracksList } from "./../TrackList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  interpolateColor,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "tailwindcss/colors";
 import { router } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { backgroundColor } from "@/constants/tokens";
-import { isPlaying, Track, useActiveTrack, useIsPlaying } from "react-native-track-player";
-import { useState } from "react";
-import getGradient from "@/helpers/color";
+import {
+  isPlaying,
+  Track,
+  useActiveTrack,
+  useIsPlaying,
+} from "react-native-track-player";
+import { useCallback, useRef, useState } from "react";
+import { getGradient } from "@/helpers/color";
 import { unknownTrackImageSource } from "@/constants/image";
 import { useAuth } from "@/context/auth";
 import { P } from "ts-pattern";
 import { Artist, MyTrack } from "@/types/zing.types";
 import { getTotalDuration } from "@/helpers/calc";
 import { formatDate } from "@/helpers/format";
+import { MyBottomSheet } from "../bottomSheet/MyBottomSheet";
+import { Divider } from "../ui/divider";
+import ButtonBottomSheet from "../bottomSheet/ButtonBottomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 interface AlbumProps {
   id?: string;
@@ -29,7 +60,8 @@ interface AlbumProps {
   artists?: Artist[];
   releaseDate?: string;
   tracks?: MyTrack[];
-  variant?: "library" | "songs"
+  variant?: "library" | "songs";
+  inUserPlaylist?: boolean;
   onTrackPress?: (track: Track) => void;
   onPlayPress?: () => void;
   onShufflePress?: () => void;
@@ -38,7 +70,7 @@ interface AlbumProps {
   onDownloadPress?: () => void;
 }
 
-export const AlbumScreen = ({ 
+export const AlbumScreen = ({
   id,
   title,
   description,
@@ -53,7 +85,9 @@ export const AlbumScreen = ({
   onAddToPlaylistPress,
   onOptionPress,
   onDownloadPress,
+  inUserPlaylist = false,
 }: AlbumProps) => {
+  const [selectedItem, setSelectedItem] = useState<Track>();
   const { playing } = useIsPlaying();
 
   const insets = useSafeAreaInsets();
@@ -61,7 +95,7 @@ export const AlbumScreen = ({
   const colorScheme = useColorScheme();
 
   const formatedDate = formatDate(releaseDate || "");
-  const artistsName =  "Unknown Artist";
+  const artistsName = "Unknown Artist";
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -78,17 +112,16 @@ export const AlbumScreen = ({
     const backgroundColor = interpolateColor(
       scrollY.value,
       [160, 180],
-      ["transparent", (colorScheme.colorScheme === "dark" ? colors.purple[900] : colors.white)],
+      [
+        "transparent",
+        colorScheme.colorScheme === "dark" ? colors.purple[900] : colors.white,
+      ]
     );
     return { backgroundColor };
   });
 
   const playButtonOpacity = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [225, 226],
-      [0, 1]
-    );
+    const opacity = interpolate(scrollY.value, [225, 226], [0, 1]);
 
     return { opacity };
   });
@@ -103,10 +136,43 @@ export const AlbumScreen = ({
     return { transform: [{ translateY }] };
   });
 
-  const handleAddToPlaylistPress = () => {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetRef.current?.present();
+  }, []);
+  const handleDismissModalPress = useCallback(() => {
+    bottomSheetRef.current?.dismiss();
+  }, []);
 
+  const handleTrackOptionPress = (track: Track) => {
+    handlePresentModalPress();
+    setSelectedItem(track);
+  };
+
+  const handleAddToPlaylistPress = () => {};
+  const handleFavoritePress = () => {
+    if (selectedItem) {
+      setSelectedItem({ ...selectedItem, isFavorite: !selectedItem?.isFavorite });
+    }
+  };
+  const handleDownloadPress = () => {
+    // Handle download action
+  };
+  const handleRemoveFromPlaylistPress = () => {
+    // Handle remove from playlist action
   }
+  const handleArtistPress = () => {
+    handleDismissModalPress();
+    router.navigate({
+      pathname: `/(app)/(tabs)/(${variant})/artists/[id]`,
+      params: { id: selectedItem?.artist ?? "" },
+    });
+  }
+  const handleSharePress = () => {
+    // Handle share action
+  };
 
+  console.log(inUserPlaylist)
   const variantSong = () => {
     return (
       <HStack>
@@ -116,7 +182,10 @@ export const AlbumScreen = ({
           size="md"
           onPress={onAddToPlaylistPress}
         >
-          <ButtonIcon as={CirclePlus} className={buttonIconStyle} />
+          { inUserPlaylist ? (
+            <ButtonIcon as={CircleCheck} className={buttonIconStyle} />
+          )
+          : (<ButtonIcon as={CirclePlus} className={buttonIconStyle} />)}
         </Button>
         <Button
           variant="solid"
@@ -135,13 +204,14 @@ export const AlbumScreen = ({
           <ButtonIcon as={EllipsisVertical} className={buttonIconStyle} />
         </Button>
       </HStack>
-    )
-  }
+    );
+  };
 
   return (
     <View className="flex-1">
       <Animated.ScrollView
         className="flex-1 w-full bg-transparent"
+        showsVerticalScrollIndicator={false}
         onScroll={scrollHandler}
       >
         <LinearGradient
@@ -163,7 +233,9 @@ export const AlbumScreen = ({
             </Box>
             <HStack space="md" className="items-center px-4">
               <Image
-                source={{ uri: artists?.[0]?.thumbnail || unknownTrackImageSource }}
+                source={{
+                  uri: artists?.[0]?.thumbnail || unknownTrackImageSource,
+                }}
                 className="w-7 h-7 rounded-full"
                 alt="User"
                 resizeMode="cover"
@@ -184,37 +256,52 @@ export const AlbumScreen = ({
                 >
                   <ButtonIcon as={Shuffle} className={buttonIconStyle} />
                 </Button>
-                <Animated.View
-                >
+                <Animated.View>
                   <Button
                     variant="solid"
                     className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
                     size="md"
                     onPress={onPlayPress}
                   >
-                    <ButtonIcon as={playing ? Pause : Play} className="text-black fill-black w-6 h-6" />
+                    <ButtonIcon
+                      as={playing ? Pause : Play}
+                      className="text-black fill-black w-6 h-6"
+                    />
                   </Button>
                 </Animated.View>
               </HStack>
             </HStack>
           </VStack>
         </LinearGradient>
-        <TracksList id={title || "random"} tracks={tracks || []} scrollEnabled={false} className="p-4" />
+        <TracksList
+          id={title || "random"}
+          tracks={tracks || []}
+          scrollEnabled={false}
+          className="p-4"
+          ItemSeparatorComponent={() => <View className="h-3" />}
+          onTrackOptionPress={handleTrackOptionPress}
+          onTrackSelect={onTrackPress}
+        />
       </Animated.ScrollView>
 
-      
       <Animated.View
         className="absolute w-full"
         style={[headerBackgroundAnimatedStyle, { paddingTop: insets.top }]}
       >
         <HStack className="items-center w-full">
           <Button
-            onPress={() => {router.back()}}
+            onPress={() => {
+              router.back();
+            }}
             variant="solid"
             className="bg-transparent rounded-full justify-center h-14 w-14 data-[active=true]:bg-transparent"
             size="md"
           >
-            <ButtonIcon as={ArrowLeft} className="text-primary-500" size="xxl" />
+            <ButtonIcon
+              as={ArrowLeft}
+              className="text-primary-500"
+              size="xxl"
+            />
           </Button>
           <Animated.Text
             style={[scrollHeaderTitleAnimatedStyle]}
@@ -225,17 +312,84 @@ export const AlbumScreen = ({
         </HStack>
         <Animated.View
           className="absolute right-4 top-7"
-          style={[playButtonAnimatedStyle, playButtonOpacity, { paddingTop: insets.top }]}
-          >
-        <Button
-          variant="solid"
-          className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
-          size="md"
-          onPress={onPlayPress}
+          style={[
+            playButtonAnimatedStyle,
+            playButtonOpacity,
+            { paddingTop: insets.top },
+          ]}
         >
-          <ButtonIcon as={playing ? Pause : Play} className="text-black fill-black" />
-        </Button>
+          <Button
+            variant="solid"
+            className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
+            size="md"
+            onPress={onPlayPress}
+          >
+            <ButtonIcon
+              as={playing ? Pause : Play}
+              className="text-black fill-black"
+            />
+          </Button>
         </Animated.View>
+
+        <MyBottomSheet bottomSheetRef={bottomSheetRef}>
+          <HStack space="md">
+            <Image
+              source={
+                selectedItem?.artwork
+                  ? { uri: selectedItem.artwork }
+                  : unknownTrackImageSource
+              }
+              className="rounded"
+              size="sm"
+              alt="track artwork"
+            />
+            <VStack className="flex-1 pl-2">
+              <Text className="text-xl font-medium text-primary-500">
+                {selectedItem?.title}
+              </Text>
+              <Text className="text-md text-gray-500">
+                {selectedItem?.artist}
+              </Text>
+            </VStack>
+          </HStack>
+          <Box className="w-full my-4">
+            <Divider />
+          </Box>
+          <VStack space="md" className="w-full">
+            <ButtonBottomSheet
+              onPress={handleAddToPlaylistPress}
+              buttonIcon={CirclePlus}
+              buttonText="Thêm vào danh sách phát"
+            />
+            <ButtonBottomSheet
+              onPress={handleFavoritePress}
+              stateChangable={true}
+              fillIcon={selectedItem?.isFavorite}
+              buttonIcon={Heart}
+              buttonText="Thêm vào yêu thích"
+            />
+            <ButtonBottomSheet
+              onPress={handleDownloadPress}
+              buttonIcon={CircleArrowDown}
+              buttonText="Tải xuống"
+            />
+            <ButtonBottomSheet
+              onPress={handleRemoveFromPlaylistPress}
+              buttonIcon={CircleX}
+              buttonText="Xóa khỏi danh sách phát"
+            />
+            <ButtonBottomSheet
+              onPress={handleArtistPress}
+              buttonIcon={CircleUserRound}
+              buttonText="Chuyển đến nghệ sĩ"
+            />
+            <ButtonBottomSheet
+              onPress={handleSharePress}
+              buttonIcon={Share2}
+              buttonText="Chia sẻ"
+            />
+          </VStack>
+        </MyBottomSheet>
       </Animated.View>
     </View>
   );

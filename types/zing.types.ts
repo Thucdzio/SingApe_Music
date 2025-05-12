@@ -66,6 +66,10 @@ export interface MyTrack extends Track {
     datatype?: MyTrackType;
 }
 
+export interface MyPlaylist extends MyTrack {
+    tracks: MyTrack[];
+}
+
 export interface RegionChart {
     banner: string;
     playlistId: string;

@@ -41,6 +41,7 @@ export default function Follow() {
           id="follow"
           tracks={tracks}
           scrollEnabled={false}
+          ItemSeparatorComponent={() => <View className="h-3" />}
           onTrackOptionPress={(track: Track) => {
             setSelectedTrack(track);
           }}

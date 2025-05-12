@@ -157,46 +157,24 @@ export default function Songs() {
       // setTracks(tracks);
 
       const zingData: Home = await fetchHome();
-      // setData(zingData);
 
       const chillSection = zingData?.items.find(
         (item) => item.title === "Chill"
       )?.items;
-      // setChillSection(
-      //   Array.isArray(chillSection) ? await handleData(chillSection) : []
-      // );
 
       const newReleaseSection = zingData?.items.find(
         (item) => item.sectionType === "new-release"
       )?.items;
-      // setNewReleaseSection(
-      //   Array.isArray(newReleaseSection)
-      //     ? await handleData(newReleaseSection)
-      //     : newReleaseSection?.all
-      //     ? await handleData(newReleaseSection.all)
-      //     : []
-      // );
 
       const recentSection = await getListeningHistory();
-      // setRecentSection(
-      //   (await recentSection).map((song) => {
-      //     return song.track;
-      //   })
-      // );
 
       const top100Section = zingData?.items.find(
         (item) => item.sectionId === "h100"
       )?.items;
-      // setTop100Section(
-      //   Array.isArray(top100Section) ? await handleData(top100Section) : []
-      // );
 
       const albumHotSection = zingData?.items.find(
         (item) => item.sectionId === "hAlbum"
       )?.items;
-      // setAlbumHotSection(
-      //   Array.isArray(albumHotSection) ? await handleData(albumHotSection) : []
-      // );
 
       setHomeData({
         tracks,
@@ -230,7 +208,7 @@ export default function Songs() {
 
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
-    // fetchSongs();
+    fetchSongs();
   });
   return () => task.cancel();
   }, []);
@@ -308,9 +286,10 @@ export default function Songs() {
           id="recent"
           className="px-4 data-[active=true]:no-underline"
           scrollEnabled={false}
+          ItemSeparatorComponent={() => <View className="h-3" />}
           tracks={homeData.recentSection.slice(0, 3)}
           onTrackOptionPress={(track) => {
-            console.log("Track pressed:", track);
+            handleOnOptionsPress(track as MyTrack);
           }}
         />
       </>
@@ -320,7 +299,7 @@ export default function Songs() {
   const renderTop100Section = () => {
     return (
       <>
-        <Heading className={headingStyle}>Top 100</Heading>
+        <Heading className={headingStyle}>Tuyển tập top</Heading>
         <Box className="">
           <AlbumList horizontal={true} data={homeData.top100Section} />
         </Box>
@@ -337,6 +316,7 @@ export default function Songs() {
           className="px-4"
           scrollEnabled={false}
           tracks={tracks}
+          ItemSeparatorComponent={() => <View className="h-3" />}
           onTrackOptionPress={(track) => {
             handleOnOptionsPress(track as MyTrack);
           }}
@@ -348,7 +328,7 @@ export default function Songs() {
   const renderChillSection = () => {
     return (
       <>
-        <Heading className={headingStyle}>Chill</Heading>
+        <Heading className={headingStyle}>Thư giãn</Heading>
         <Box className="">
           <AlbumList horizontal={true} data={homeData.chillSection} />
         </Box>
@@ -372,7 +352,13 @@ export default function Songs() {
       <>
         <Heading className={headingStyle}>Mới phát hành</Heading>
         <Box>
-          <ColumnWiseFlatList data={homeData.newReleaseSection || []} />
+          <ColumnWiseFlatList data={homeData.newReleaseSection || []} 
+            onTrackOptionPress={
+              (track) => {
+                handleOnOptionsPress(track as MyTrack);
+              }
+            }
+          />
         </Box>
       </>
     );
@@ -472,13 +458,16 @@ const ColumnWiseFlatList = ({ data, onTrackOptionPress, onTrackSelect }: ColumnW
   }), [data]);
 
   const Column = ({ items }: { items: MyTrack[] }) => (
-    <VStack style={{ width: screenWidth }}>
+    <VStack style={{ width: screenWidth }} space="md">
       {items.map((item, i) => (
         <TracksListItem
           key={i}
           track={item}
           onTrackSelect={(item: any) => {
             playPlaylistFromTrack(data, item);
+          }}
+          onRightPress={() => {
+            onTrackOptionPress && onTrackOptionPress(item);
           }}
         />
       ))}
@@ -541,7 +530,7 @@ const AlbumListItem = ({ item }: { item: MyTrack }) => {
           className="w-40 h-40 rounded-lg"
         />
         <Text
-          className="text-md font-semibold"
+          className="text-md font-semibold text-primary-500"
           numberOfLines={2}
           ellipsizeMode="tail"
         >

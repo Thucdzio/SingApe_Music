@@ -49,7 +49,7 @@ export const MyBottomSheet = ({
       enableDynamicSizing={false}
       backgroundStyle={{
         backgroundColor:
-          colorScheme === "dark" ? backgroundColor.dark : backgroundColor.light,
+          colorScheme === "dark" ? backgroundColor.minDark : backgroundColor.light,
       }}
     >
       <BottomSheetView className="p-4">

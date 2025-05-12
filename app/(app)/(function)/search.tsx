@@ -170,7 +170,7 @@ export default function SearchScreen() {
   const renderArtistItem = ({ item }: { item: MixedSearchItem }) => {
     const newItem = item as unknown as Artist;
     return (
-      <HStack space="md" className="px-2 items-center">
+      <HStack space="lg" className="px-2 items-center">
         <Image
           source={newItem.thumbnailM}
           className="rounded-full"
@@ -178,7 +178,7 @@ export default function SearchScreen() {
           alt={newItem.name || "Unknown"}
         />
         <HStack space="md">
-          <VStack>
+          <VStack space="xs">
             <Text className="text-base font-semibold text-black dark:text-white">
               {newItem.name}
             </Text>
@@ -204,7 +204,7 @@ export default function SearchScreen() {
   const renderPlaylistItem = ({ item }: { item: MixedSearchItem }) => {
     const newItem = item as unknown as MyTrack;
     return (
-      <HStack space="md" className="px-2 items-center">
+      <HStack space="lg" className="px-2 items-center">
         <Image
           source={newItem.thumbnailM}
           className="rounded-sm"
@@ -212,8 +212,8 @@ export default function SearchScreen() {
           alt={newItem.name || "Unknown"}
         />
         <HStack space="md">
-          <VStack className="w-full">
-            <Text numberOfLines={1} ellipsizeMode="tail" className="text-base font-semibold">
+          <VStack space="xs" className="w-10/12">
+            <Text numberOfLines={1} ellipsizeMode="tail" className="text-base font-semibold text-primary-500">
               {newItem.title}
             </Text>
             <Text className="text-sm text-gray-500 dark:text-gray-400">
@@ -301,6 +301,13 @@ export default function SearchScreen() {
   );
 };
 
+
+
+
+
+
+
+
 interface ListHeaderComponentProps {
   isVisible?: boolean;
   selected: FilterType;
@@ -377,6 +384,13 @@ const ListHeaderComponent = ({
     />
   );
 };
+
+
+
+
+
+
+
 
 interface Props {
   isVisible?: boolean;

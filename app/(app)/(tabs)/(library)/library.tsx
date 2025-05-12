@@ -19,10 +19,12 @@ import { Text } from "@/components/ui/text";
 import { unknownTrackImageSource } from "@/constants/image";
 import { fontSize, textColor } from "@/constants/tokens";
 import { deletePlaylist, listPlaylists } from "@/services/fileService";
+import { useLibraryStore } from "@/store/mylib";
 import { MyTrack } from "@/types/zing.types";
+import { View } from "@gluestack-ui/themed";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { useIsFocused } from "@react-navigation/native";
-import { Href, Link, router, Stack } from "expo-router";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { Href, Link, router, Stack, useFocusEffect } from "expo-router";
 import {
   ArrowBigDownDash,
   Download,
@@ -41,6 +43,8 @@ import {
   useState,
 } from "react";
 import { ScrollView, FlatList } from "react-native";
+import { stat } from "react-native-fs";
+import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Library() {
@@ -49,6 +53,7 @@ export default function Library() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isFocused = useIsFocused();
+  const store = useLibraryStore();
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
@@ -78,33 +83,24 @@ export default function Library() {
     router.push("/createPlaylist" as Href);
   };
 
-  const handleOnDeletePress = async () => {
-    if (selectedItem) {
-      try {
-        await deletePlaylist(selectedItem.id);
-        handleCloseModalPress();
-      } catch (error) {
-        console.error("Error deleting playlist:", error);
-      }
-    }
-  }
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const playlists = await listPlaylists();
+          setData(playlists);
+          store.setPlaylists(playlists);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!isFocused) return;
-      setLoading(true);
-      try {
-        const listPlaylist = await listPlaylists();
-        setData(listPlaylist);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [isFocused]);
+      fetchData();
+    }, [])
+  );
 
   const handleOnOptionsPress = (item: MyTrack) => {
     handlePresentModalPress();
@@ -113,7 +109,7 @@ export default function Library() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
-      <ScrollView>
+      <ScrollView className="flex-1">
         <CustomHeader
           title="Thư viện"
           showBack={false}
@@ -170,29 +166,40 @@ export default function Library() {
               </Button>
             </HStack>
             <HStack className="items-center gap-2">
-              <Heading className="text-2xl font-bold">Playlist</Heading>
+              <Heading className="text-2xl font-bold">Danh sách phát</Heading>
               <Pressable
                 onPress={createPlaylist}
                 className="rounded-full w-10 h-10 data-[active=true]:bg-background-100 items-center justify-center"
               >
-                <Icon as={Plus} className="text-black fill-black" />
+                <Icon as={Plus} className="fill-primary-500" />
               </Pressable>
             </HStack>
             <Divider className="w-full" />
-            <FlatList
+            <Animated.FlatList
               data={data}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id.toString()}
+              layout={LinearTransition}
               renderItem={({ item }) => (
-                <PlaylistCard
-                  item={item}
-                  type={`Danh sách phát`}
-                  onOptionPress={() => handleOnOptionsPress(item)}
-                />
+                <Pressable
+                  onPress={() => {
+                    router.push({
+                      pathname: "/playlists/[id]",
+                      params: item,
+                    });
+                  }}
+                >
+                  <PlaylistCard
+                    item={item}
+                    type="Danh sách phát"
+                    onOptionPress={() => handleOnOptionsPress(item)}
+                  />
+                </Pressable>
               )}
+              ItemSeparatorComponent={() => <View className="h-3" />}
               scrollEnabled={false}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 100 }}
+              removeClippedSubviews={false}
             />
           </VStack>
         </Box>

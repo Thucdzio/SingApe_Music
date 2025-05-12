@@ -83,7 +83,6 @@ export const fetchPlaylist = async (encodeId: string) => {
       KOYEB_API_URL + "zingmp3/playlist/" + encodeId
     );
     const data = await response.json();
-    console.log("Playlist data:", data);
     return data.data;
   } catch (error) {
     console.error("Error fetching playlist:", error);

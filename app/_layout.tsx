@@ -3,11 +3,9 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
-import { Provider, useSelector } from "react-redux";
 import { AuthProvider } from "../context/auth";
 import { useCallback, useEffect, useState } from "react";
 import { ModeType } from "@/components/ui/gluestack-ui-provider/types";
-import store from "@/store/store";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSetupTrackPlayer } from "@/hooks/useSetupTrackPlayer";
 import { useLogTrackPlayerState } from "@/hooks/useLogTrackPlayerState";
@@ -21,6 +19,9 @@ import {
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useDoubleBackExit } from "@/hooks/useDoubleBackExit";
 import { useTrackHistoryLogger } from "@/hooks/useTrackHistoryLogger";
+import { ThemeProvider, useTheme } from "@/components/ui/ThemeProvider";
+import { AlertModalProvider } from "@/context/modal";
+import { AlertProvider } from "@/context/alert";
 
 SplashScreen.preventAutoHideAsync();
 TrackPlayer.registerPlaybackService(() => playbackService);
@@ -45,33 +46,30 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <Provider store={store}>
+      <ThemeProvider>
         <GluestackWrapper>
-          <SafeAreaProvider>
-            <AuthProvider>
-              <BottomSheetModalProvider>
-                <RootNavigator />
-                </BottomSheetModalProvider>
-                <StatusBar style="auto" />
-              
-            </AuthProvider>
-          </SafeAreaProvider>
+          <AlertModalProvider>
+            <AlertProvider>
+              <SafeAreaProvider>
+                <AuthProvider>
+                  <BottomSheetModalProvider>
+                    <RootNavigator />
+                  </BottomSheetModalProvider>
+                  <StatusBar style="auto" />
+                </AuthProvider>
+              </SafeAreaProvider>
+            </AlertProvider>
+          </AlertModalProvider>
         </GluestackWrapper>
-      </Provider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }
 
 function GluestackWrapper({ children }: { children: React.ReactNode }) {
-  const theme = useSelector((state: any) =>
-    state.isDarkMode ? "dark" : "light"
-  );
+  const { theme } = useTheme();
 
-  return (
-    <GluestackUIProvider mode={theme as ModeType}>
-      {children}
-    </GluestackUIProvider>
-  );
+  return <GluestackUIProvider mode={theme}>{children}</GluestackUIProvider>;
 }
 
 function RootNavigator() {

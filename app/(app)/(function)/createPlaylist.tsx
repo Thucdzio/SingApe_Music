@@ -24,6 +24,7 @@ export default function createPlaylistScreen() {
         const res = await createPlaylist (
           user?.user_metadata.display_name,
           playlistName,
+          playlistName,
           unknownTrackImageSource,
           "Danh sách phát của " + user?.user_metadata.display_name
         );
@@ -31,13 +32,13 @@ export default function createPlaylistScreen() {
       const res = await createPlaylistWithTracks(
         user?.user_metadata.display_name,
         playlistName,
+        playlistName,
         unknownTrackImageSource,
         "Danh sách phát của " + user?.user_metadata.display_name,
         [item]
       );
-      router.back();
     }
-      
+    router.back();
     } catch (error) {
       console.log("Error creating playlist:", error);
     }

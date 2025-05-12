@@ -1,4 +1,4 @@
-import { PlaylistScreen } from "@/components/PlaylistScreen";
+import { PlaylistScreen } from "@/components/screens/PlaylistScreen";
 import { Stack, useLocalSearchParams } from "expo-router";
 import {
   Box,
@@ -30,20 +30,24 @@ import {
   Play,
   Shuffle,
 } from "lucide-react-native";
-import { AlbumScreen } from "@/components/AlbumScreen";
+import { AlbumScreen } from "@/components/screens/AlbumScreen";
 import { MyTrack, Playlist } from "@/types/zing.types";
 import { useEffect, useState } from "react";
-import { getAlbumById } from "@/lib/api";
+import { checkPlaylistExists, createPlaylist, createPlaylistWithTracks } from "@/services/fileService";
 import { fetchPlaylist } from "@/lib/spotify";
 import { convertZingToTrack } from "@/helpers/convert";
 import { generateTracksListId, playPlaylist, playTrack } from "@/services/playbackService";
 import { Track } from "react-native-track-player";
+import supabase from "@/lib/supabase";
+import { useAuth } from "@/context/auth";
+import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
 
 
 export default function Album() {
   const item = useLocalSearchParams<MyTrack>();
   const [data, setData] = useState<MyTrack[]>([]);
-  console.log(item)
+  const [isInUserPlaylist, setIsInUserPlaylist] = useState(false);
+  const { user } = useAuth();
 
   const fetchAlbum = async () => {
     // const response = await getAlbumById(item.id);
@@ -51,6 +55,7 @@ export default function Album() {
     setData(await Promise.all(response.song.items.map(async (track) => {
       return convertZingToTrack(track)
     })));
+    setIsInUserPlaylist(await checkPlaylistExists(item.id));
   }
 
   useEffect(() => {
@@ -71,6 +76,21 @@ export default function Album() {
     playTrack(track);
   }
 
+  const onAddToPlaylistPress = async () => {
+    await createPlaylistWithTracks(
+      user?.user_metadata?.display_name ?? "Unknown User",
+      item.id ?? "Unknown Album",
+      item.title ?? "Danh sách phát " + item.id,
+      item.artwork ?? "",
+      "Danh sách phát của " + (item.artists[0]?.name ?? "Unknown Artist"),
+      data
+    )
+  }
+
+  const onOptionPress = () => {
+    // Handle options action
+  }
+
 
   return (
     <View className="flex-1 bg-background-0">
@@ -88,10 +108,14 @@ export default function Album() {
         releaseDate={item.releaseDate}
         onPlayPress={onPlayPress}
         onShufflePress={onShufflePress}
-        onAddToPlaylistPress={() => {}}
-        onOptionPress={() => {}} 
+        onAddToPlaylistPress={onAddToPlaylistPress}
+        onOptionPress={onOptionPress}
         onTrackPress={onTrackPress}
+        inUserPlaylist={isInUserPlaylist}
       />
+      <MyBottomSheet>
+
+      </MyBottomSheet>
     </View>
   );
 }

@@ -71,6 +71,7 @@ export default function Favorite() {
           ListFooterComponent={
             <View className="h-28" />
           }
+          ItemSeparatorComponent={() => <View className="h-3" />}
           onTrackOptionPress={(track: Track) => {
             handlePresentModalPress();
             setSelectedTrack(track);

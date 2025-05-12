@@ -73,6 +73,9 @@ export const TracksList = ({
   return (
     <FlatList
       data={tracks || Library}
+      initialNumToRender={8}
+      maxToRenderPerBatch={9}
+      windowSize={5}
       renderItem={({ item: track }) => (
         <TracksListItem
           track={track}
