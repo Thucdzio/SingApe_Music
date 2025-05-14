@@ -19,9 +19,6 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
   const activeTrack = useActiveTrack();
   const lastActiveTrack = useLastActiveTrack();
 
-  console.log("Active Track:", activeTrack);
-  console.log("Last Active Track:", lastActiveTrack);
-
   const displayedTrack = activeTrack ?? lastActiveTrack;
 
   const handlePress = () => {
@@ -52,10 +49,9 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
       >
         <HStack space="4xl" className="flex-1 items-center">
           <Image
-            source={{
-              uri: displayedTrack.artwork ?? unknownTrackImageSource,
-            }}
+            source={displayedTrack.artwork ? { uri: displayedTrack.artwork } : unknownTrackImageSource}
             className="w-16 h-16 rounded-xl m-2"
+            alt="track artwork"
           />
           <MovingText
             text={displayedTrack.title ?? ""}

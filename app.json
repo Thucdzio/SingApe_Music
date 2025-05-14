@@ -4,7 +4,7 @@
     "slug": "AppTEST",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/adaptive-icon.png",
     "scheme": "myapp",
     "backgroundColor": "none",
     "userInterfaceStyle": "automatic",
@@ -18,7 +18,11 @@
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.anonymous.AppTEST"
+      "package": "com.anonymous.AppTEST",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -37,11 +41,26 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      [
+        "expo-media-library",
+        {
+          "isAccessMediaLibraryEnabled": true
+        }
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "44fcef65-1d4b-48cd-9aa2-2a96d5b22fa7"
+      }
     }
   }
 }

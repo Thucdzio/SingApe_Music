@@ -2,25 +2,34 @@ import { FlatList, ScrollView, View } from "react-native";
 import { Image, VStack, Text, HStack, Box, Button } from "./ui";
 import { Heading } from "./ui/heading";
 import { ButtonIcon, ButtonText } from "./ui/button";
-import { ArrowLeft, CirclePlus, Play, Shuffle } from "lucide-react-native";
+import { ArrowLeft, CirclePlus, EllipsisVertical, Play, Shuffle } from "lucide-react-native";
 import { TrackList } from "./TrackList";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {  Extrapolation, interpolate, interpolateColor, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import colors from "tailwindcss/colors";
+import { router } from "expo-router";
+import { useColorScheme } from "nativewind";
+import { backgroundColor } from "@/constants/tokens";
+import { Track } from "react-native-track-player";
 
 interface PlaylistProps {
   title?: string;
   description?: string;
   imageUrl?: string;
   createdBy?: string;
-  tracks?: Array<{ id: string; title: string; artist: string }>;
-  onTrackPress?: (trackId: string) => void;
+  tracks?: Track[];
+  onTrackPress?: (track: Track) => void;
+  onPlayPress?: () => void;
+  onShufflePress?: () => void;
+  onAddToPlaylistPress?: () => void;
+  onOptionsPress?: () => void;
 }
 
 export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue<number>(0);
+  const colorScheme = useColorScheme();
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -37,7 +46,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
     const backgroundColor = interpolateColor(
       scrollY.value,
       [160, 180],
-      ["transparent", colors.white]
+      ["transparent", (colorScheme.colorScheme === "dark" ? colors.purple[900] : colors.white)],
     );
     return { backgroundColor };
   });
@@ -45,7 +54,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
   const playButtonOpacity = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollY.value,
-      [249, 250],
+      [225, 226],
       [0, 1]
     );
 
@@ -55,8 +64,8 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
   const playButtonAnimatedStyle = useAnimatedStyle(() => {
     const translateY = interpolate(
       scrollY.value,
-      [160, 200],
-      [0, -50],
+      [210, 250],
+      [42, 0],
       Extrapolation.CLAMP
     );
     return { transform: [{ translateY }] };
@@ -70,13 +79,13 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
       >
         <LinearGradient
           colors={[
-            colors.purple[400],
-            colors.purple[200],
-            colors.purple[50],
-            colors.white,
+            colors.purple[500],
+            (colorScheme.colorScheme === "dark" ? colors.purple[600] : colors.purple[200]),
+            (colorScheme.colorScheme === "dark" ? colors.purple[800] : colors.purple[50]),
+            (colorScheme.colorScheme === "dark" ? colors.black : colors.white),
           ]}
           style={[{ paddingTop: insets.top }]}
-        >
+        />
           <VStack className="bg-transparent">
             <Box className="w-full justify-center items-center mt-4">
               <Image
@@ -96,8 +105,17 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
                   variant="solid"
                   className="rounded-full justify-center bg-transparent data-[active=true]:bg-background-200 h-14 w-14"
                   size="md"
+                  onPress={props.onAddToPlaylistPress}
                 >
                   <ButtonIcon as={CirclePlus} className="text-black" />
+                </Button>
+                <Button
+                  variant="solid"
+                  className="rounded-full justify-center bg-transparent data-[active=true]:bg-background-200 h-14 w-14"
+                  size="md"
+                  onPress={props.onOptionsPress}
+                >
+                  <ButtonIcon as={EllipsisVertical} className="text-black" />
                 </Button>
               </HStack>
               <HStack className="justify-items-end gap-2">
@@ -105,6 +123,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
                   variant="solid"
                   className="rounded-full justify-center bg-transparent data-[active=true]:bg-background-200 h-14 w-14"
                   size="md"
+                  onPress={props.onShufflePress}
                 >
                   <ButtonIcon as={Shuffle} className="text-black" />
                 </Button>
@@ -115,6 +134,7 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
                     variant="solid"
                     className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
                     size="md"
+                    onPress={props.onPlayPress}
                   >
                     <ButtonIcon as={Play} className="text-black fill-black" />
                   </Button>
@@ -122,36 +142,40 @@ export const PlaylistScreen = ({ ...props }: PlaylistProps) => {
               </HStack>
             </HStack>
           </VStack>
-        </LinearGradient>
+        {/* </LinearGradient> */}
         <TrackList scrollEnabled={false} className="p-4" />
       </Animated.ScrollView>
+
+      
       <Animated.View
         className="absolute w-full"
         style={[headerBackgroundAnimatedStyle, { paddingTop: insets.top }]}
       >
         <HStack className="items-center w-full">
           <Button
+            onPress={() => {router.back()}}
             variant="solid"
-            className="bg-transparent rounded-full justify-center h-14 w-14 data-[active=true]:bg-background-200"
+            className="bg-transparent rounded-full justify-center h-14 w-14 data-[active=true]:bg-transparent"
             size="md"
           >
-            <ButtonIcon as={ArrowLeft} className="text-black" size="xxl" />
+            <ButtonIcon as={ArrowLeft} className="text-primary-500" size="xxl" />
           </Button>
           <Animated.Text
             style={[scrollHeaderTitleAnimatedStyle]}
-            className="text-black text-2xl font-bold ml-4"
+            className="text-primary-500 text-2xl font-bold ml-4"
           >
-            Playlist
+            Danh sách phát
           </Animated.Text>
         </HStack>
         <Animated.View
           className="absolute right-4 top-7"
-          style={[playButtonOpacity, { paddingTop: insets.top }]}
+          style={[playButtonAnimatedStyle, playButtonOpacity, { paddingTop: insets.top }]}
           >
         <Button
           variant="solid"
           className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
           size="md"
+          onPress={props.onPlayPress}
         >
           <ButtonIcon as={Play} className="text-black fill-black" />
         </Button>

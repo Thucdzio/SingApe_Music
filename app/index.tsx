@@ -1,17 +1,39 @@
 import { useAuth } from "@/context/auth";
-import AuthenticateOption from "./(auth)/index";
-import { Redirect } from "expo-router";
+import { supabase } from "@/lib/supabase";
+import { Redirect, router } from "expo-router";
+import React, { useEffect } from "react";
 
-export default function Login() {
-  const { session, loading, error } = useAuth();
+export default function App() {
+  const { setSession, setUser } = useAuth();
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      if (data.session) {
+        setUser(data.session.user);
+        router.replace("/(app)/(tabs)/(songs)");
+        console.log("getSession-supabase success");
+      } else {
+        console.log("getSession-supabase no session");
+        router.replace("/(auth)");
+      }
+    });
 
-  if (process.env.NODE_ENV !== "production") {
-    console.log("Login screen loaded");
-  }
-
-  if (session) {
-    return <Redirect href="/(tabs)" />;
-  }
-
-  return <Redirect href="/(auth)" />;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
+      setSession(session);
+      if (session) {
+        console.log("onAuthStateChange-supabase success", session);
+        setUser(session.user);
+        router.replace("/(app)/(tabs)/(songs)");
+      } else {
+        console.log("onAuthStateChange-supabase no session");
+        setUser(null);
+        router.replace("/(auth)");
+      }
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 }

@@ -11,6 +11,7 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, Stack, useRouter } from "expo-router";
 import { VStack } from "@/components/ui/vstack";
 import {
@@ -23,7 +24,12 @@ import {
 import { ButtonText, Button } from "@/components/ui/button";
 import { AntDesign } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
-import { supabase } from "@/app/lib/supabase";
+import { Center, Input, Modal, Spinner } from "@/components/ui";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { Heading } from "@/components/ui/heading";
+import { useAuth } from "@/context/auth";
+import { InputField } from "@/components/ui/input";
+import { supabase } from "../lib/supabase";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
@@ -40,213 +46,170 @@ const header = () => {
 };
 
 export default function Login() {
+  const { signIn, loading, setLoading } = useAuth();
+
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false);
+
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const emailRef = useRef("");
+  const passwordRef = useRef("");
 
-  // Sử dụng useState để lưu trữ giá trị input
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [validationError, setValidationError] = useState({
-    email: "",
-    password: "",
-  });
-
-  const validateInputs = () => {
-    let isValid = true;
-    const newErrors = { email: "", password: "" };
-
-    if (!email) {
-      newErrors.email = "Email không được để trống";
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Email không hợp lệ";
-      isValid = false;
+  const handleEmailChange = (text: string) => {
+    if (text.length === 0) {
+      setIsInvalidEmail(true);
     }
-
-    if (!password) {
-      newErrors.password = "Mật khẩu không được để trống";
-      isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-      isValid = false;
+    if (text.length > 0) {
+      setIsInvalidEmail(false);
     }
-
-    setValidationError(newErrors);
-    return isValid;
+    emailRef.current = text;
+  };
+  const handlePasswordChange = (text: string) => {
+    if (text.length === 0) {
+      setIsInvalidPassword(true);
+    }
+    if (text.length > 0) {
+      setIsInvalidPassword(false);
+    }
+    passwordRef.current = text;
   };
 
-  const handleSignIn = async () => {
-    if (!validateInputs()) return;
-
+  async function signInWithEmail() {
     try {
-      setLoading(true);
-      setError(null);
+      if (emailRef.current.length === 0) {
+        setIsInvalidEmail(true);
+        return;
+      }
+      if (passwordRef.current.length === 0) {
+        setIsInvalidPassword(true);
+        return;
+      }
 
-      // Sử dụng trực tiếp API của Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      await signIn({
+        email: emailRef.current,
+        password: passwordRef.current,
       });
-
-      if (error) throw error;
-
-      // Điều hướng đến màn hình chính nếu đăng nhập thành công
-      router.replace("/(tabs)");
-    } catch (error: any) {
-      console.error("Error signing in:", error);
-      setError(error.message || "Đăng nhập thất bại. Vui lòng thử lại.");
-    } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-      });
-
-      if (error) throw error;
+      router.dismissAll();
+      router.replace("/(app)/(tabs)");
     } catch (error: any) {
-      console.error("Error signing in with Google:", error);
-      setError(error.message || "Đăng nhập thất bại. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setValidationError({
-        ...validationError,
-        email: "Vui lòng nhập email để đặt lại mật khẩu",
-      });
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "myapp://reset-password",
-      });
-
-      if (error) throw error;
-
+      console.error(error);
       Alert.alert(
-        "Đặt lại mật khẩu",
-        "Chúng tôi đã gửi email hướng dẫn đặt lại mật khẩu. Vui lòng kiểm tra hộp thư của bạn."
+        "Đăng nhập thất bại",
+        "Vui lòng kiểm tra lại thông tin đăng nhập.",
+        [
+          {
+            text: "Xác nhận",
+            onPress: () => setLoading(false),
+          },
+        ]
       );
-    } catch (error: any) {
-      console.error("Error resetting password:", error);
-      setError(error.message || "Đã xảy ra lỗi khi đặt lại mật khẩu");
-    } finally {
-      setLoading(false);
     }
-  };
+  }
+
+  async function signInWithGoogle() {}
+
+  if (loading) {
+    return (
+      <View className="w-full h-full items-center bg-background-0 justify-center">
+        {header()}
+        <LoadingOverlay />
+      </View>
+    );
+  }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View className="w-full h-full items-center bg-background-0">
-        {header()}
-        <VStack
-          space="md"
-          className="bg-none w-full flex-1 justify-center p-4 max-w-md h-full"
-        >
-          <VStack space="md" className="w-full justify-center">
-            <FormControl isRequired={true} isInvalid={!!validationError.email}>
-              <FormControlLabel>
-                <FormControlLabelText>Email</FormControlLabelText>
-              </FormControlLabel>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nhập email"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                />
-              </View>
-              {validationError.email ? (
+    <SafeAreaView className="flex-1 bg-background-0">
+      <TouchableWithoutFeedback
+        onPress={() => Keyboard.dismiss()}
+        accessible={false}
+      >
+        <View className="flex-1 items-center h-full bg-background-0">
+          {header()}
+          {/* <KeyboardAvoidingComponent> */}
+          <VStack className="flex-1 items-center w-full max-w-md bg-transparent p-4">
+            <Center className="h-32">
+              <Heading className="text-primary-500 font-bold text-4xl mt-4">
+                Đăng nhập
+              </Heading>
+            </Center>
+            <VStack space="md" className="bg-none w-full">
+              <FormControl isRequired={true} isInvalid={isInvalidEmail}>
+                <FormControlLabel>
+                  <FormControlLabelText>Email</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="text"
+                    placeholder="Nhập email"
+                    onChangeText={handleEmailChange}
+                  />
+                </Input>
                 <FormControlError>
                   <FormControlErrorText>
-                    {validationError.email}
+                    Vui lòng nhập email
                   </FormControlErrorText>
                 </FormControlError>
-              ) : null}
-            </FormControl>
-            <FormControl
-              isRequired={true}
-              isInvalid={!!validationError.password || !!error}
-            >
-              <FormControlLabel>
-                <FormControlLabelText>Mật khẩu</FormControlLabelText>
-              </FormControlLabel>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nhập mật khẩu"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={true}
-                />
-              </View>
-              {validationError.password ? (
+              </FormControl>
+              <FormControl isRequired={true} isInvalid={isInvalidPassword}>
+                <FormControlLabel>
+                  <FormControlLabelText>Mật khẩu</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="password"
+                    secureTextEntry={true}
+                    placeholder="Nhập mật khẩu"
+                    onChangeText={handlePasswordChange}
+                  />
+                </Input>
                 <FormControlError>
                   <FormControlErrorText>
-                    {validationError.password}
+                    Vui lòng nhập mật khẩu
                   </FormControlErrorText>
                 </FormControlError>
-              ) : error ? (
-                <FormControlError>
-                  <FormControlErrorText>
-                    {error || "Sai tên đăng nhập hoặc mật khẩu"}
-                  </FormControlErrorText>
-                </FormControlError>
-              ) : null}
-            </FormControl>
-            <TouchableWithoutFeedback onPress={handleForgotPassword}>
+              </FormControl>
               <Text className="text-primary-100">Quên mật khẩu?</Text>
-            </TouchableWithoutFeedback>
+              <Button
+                onPress={signInWithEmail}
+                variant="solid"
+                action="primary"
+                className=""
+              >
+                <ButtonText>Đăng nhập</ButtonText>
+              </Button>
+            </VStack>
+            <HStack className="w-full justify-between items-center mt-2">
+              <Divider className="w-1/3" />
+              <Text className="text-primary-100">Hoặc</Text>
+              <Divider className="w-1/3" />
+            </HStack>
             <Button
-              onPress={handleSignIn}
-              variant="solid"
-              action="primary"
-              isDisabled={loading}
+              onPress={signInWithGoogle}
+              variant="outline"
+              className="mt-2 w-full data-[active=true]:bg-background-300"
             >
-              <ButtonText>
-                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-              </ButtonText>
+              <ButtonText>Đăng ký với Google</ButtonText>
+              <AntDesign
+                name="googleplus"
+                size={24}
+                className="color-primary-100"
+              />
             </Button>
+            <VStack className="w-full justify-center items-center mt-4">
+              <Text className="text-primary-100">Chưa có tài khoản?</Text>
+              <Link
+                href="/(auth)/register"
+                className="text-primary-100 font-bold"
+              >
+                Đăng ký
+              </Link>
+            </VStack>
           </VStack>
-          <HStack className="w-full justify-between items-center px-4">
-            <Divider className="w-1/3" />
-            <Text className="text-primary-100">Hoặc</Text>
-            <Divider className="w-1/3" />
-          </HStack>
-          <Button
-            onPress={handleGoogleSignIn}
-            variant="outline"
-            action="primary"
-            className="mb-2"
-            isDisabled={loading}
-          >
-            <ButtonText>Đăng nhập với Google</ButtonText>
-            <AntDesign name="google" size={24} color="#6E6BFF" />
-          </Button>
-          <VStack className="bg-none w-full items-center justify-center">
-            <Text className="text-primary-100">Bạn chưa có tài khoản?</Text>
-            <Link href="/register">
-              <Text className="text-primary-200 font-bold">Đăng ký</Text>
-            </Link>
-          </VStack>
-        </VStack>
-      </View>
-    </TouchableWithoutFeedback>
+          {/* </KeyboardAvoidingComponent> */}
+        </View>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }
 

@@ -1,18 +1,19 @@
+import { AuthError } from "expo-auth-session";
+import { setStorageItemAsync, useStorageState } from "./useStorageState";
+import { supabase } from "@/lib/supabase";
+import { Session, User } from "@supabase/supabase-js";
 import {
   useContext,
   createContext,
   type PropsWithChildren,
   useState,
-  useEffect,
 } from "react";
-import { supabase } from "@/app/lib/supabase";
-import { Session, User, AuthChangeEvent } from "@supabase/supabase-js";
 
-export type AuthUser = {
-  id: string;
-  email: string;
-  display_name?: string;
-};
+// export type AuthUser = {
+//   id: string;
+//   email: string;
+//   display_name?: string;
+// };
 
 export type SignInParams = {
   email: string;
@@ -26,21 +27,27 @@ export type SignUpParams = {
 };
 
 const AuthContext = createContext<{
-  user?: AuthUser | null;
+  user?: User | null;
+  setUser: (user: User | null) => void;
   signIn: (params: SignInParams) => Promise<void>;
   signUp: (params: SignUpParams) => Promise<void>;
-  signOut: () => Promise<void>;
+  signOut: () => void;
   session?: Session | null;
+  setSession: (session: Session | null) => void;
   loading?: boolean;
-  error?: any | null;
-  setError: (error: any) => void;
+  setLoading: (loading: boolean) => void;
+  error?: AuthError | null;
+  setError: (error: AuthError | null) => void;
 }>({
   user: null,
+  setUser: () => null,
   signIn: async () => Promise.resolve(),
   signUp: async () => Promise.resolve(),
-  signOut: async () => Promise.resolve(),
+  signOut: () => null,
   session: null,
+  setSession: () => null,
   loading: true,
+  setLoading: () => {},
   error: null,
   setError: () => null,
 });
@@ -48,166 +55,165 @@ const AuthContext = createContext<{
 // This hook can be used to access the user info.
 export function useAuth() {
   const value = useContext(AuthContext);
-  if (process.env.NODE_ENV !== "production") {
-    if (!value) {
-      throw new Error("useAuth must be wrapped in a <AuthProvider />");
-    }
+
+  if (!value) {
+    throw new Error("useSession must be wrapped in a <AuthProvider />");
   }
 
   return value;
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<AuthError | null>(null);
 
-  // Function to get user profile data
-  const getUserProfile = async (userId: string) => {
-    if (!userId) return null;
-
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", userId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching user profile:", error);
-        return null;
-      }
-
-      return data;
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-      return null;
-    }
-  };
-
-  // Set up auth state listener
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-
-      if (session?.user) {
-        const profile = await getUserProfile(session.user.id);
-
-        setUser({
-          id: session.user.id,
-          email: session.user.email || "",
-          display_name: profile?.display_name,
-        });
-      }
-
-      setLoading(false);
-    });
-
-    // Subscribe to auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      async (_event: AuthChangeEvent, session: Session | null) => {
-        setSession(session);
-
-        if (session?.user) {
-          const profile = await getUserProfile(session.user.id);
-
-          setUser({
-            id: session.user.id,
-            email: session.user.email || "",
-            display_name: profile?.display_name,
-          });
-        } else {
-          setUser(null);
-        }
-
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Sign in with email and password
   const signIn = async ({ email, password }: SignInParams) => {
     setLoading(true);
     setError(null);
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
-      if (error) throw error;
-
-      setSession(data.session);
-
-      if (data.user) {
-        const profile = await getUserProfile(data.user.id);
-
-        setUser({
-          id: data.user.id,
-          email: data.user.email || "",
-          display_name: profile?.display_name,
-        });
+      if (error) {
+        setError(error as any);
+        return;
       }
+      if (!data.session) {
+        setError({
+          name: "AuthSessionMissing",
+          message: "No session returned from sign in",
+        } as any);
+        return;
+      }
+      setSession(data.session);
+      setUser(data.session.user);
     } catch (error) {
       console.error("Sign-in error:", error);
-      setError(error);
-      setUser(null);
+      setError({
+        name: "AuthUnknown",
+        message: "Unknown error during sign in",
+      } as any);
     } finally {
       setLoading(false);
     }
   };
 
-  // Sign up with email, password and display name
   const signUp = async ({ email, password, display_name }: SignUpParams) => {
     setLoading(true);
     setError(null);
-
     try {
-      // 1. Create the user with Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: { display_name: display_name },
+        },
       });
+      console.log("session", session);
 
-      if (error) throw error;
-
-      // 2. If successful and we have a user, insert profile data
-      if (data.user) {
-        // Create a profile record with display_name
-        const { error: profileError } = await supabase.from("profiles").insert([
-          {
-            id: data.user.id,
-            display_name,
-            email: data.user.email,
-            updated_at: new Date().toISOString(),
-          },
-        ]);
-
-        if (profileError) throw profileError;
-
-        // If we got a session (auto sign-in is enabled)
-        if (data.session) {
-          setSession(data.session);
-          setUser({
-            id: data.user.id,
-            email: data.user.email || "",
-            display_name: display_name,
-          });
-        }
+      if (error) {
+        setError(error as any);
+        return;
       }
+      if (!session) {
+        setError({
+          name: "AuthSessionMissing",
+          message: "No session returned from sign up",
+        } as any);
+        return;
+      }
+      setSession(session);
+      setUser(session.user);
     } catch (error) {
       console.error("Sign-up error:", error);
-      setError(error);
+      setError({
+        name: "AuthUnknown",
+        message: "Unknown error during sign up",
+      } as any);
     } finally {
       setLoading(false);
     }
   };
+
+  //   try {
+  //     const { data, error } = await supabase.auth.signInWithPassword({
+  //       email,
+  //       password,
+  //     });
+
+  //     if (error) throw error;
+
+  //     setSession(data.session);
+
+  //     if (data.user) {
+  //       const profile = await getUserProfile(data.user.id);
+
+  //       setUser({
+  //         id: data.user.id,
+  //         email: data.user.email || "",
+  //         display_name: profile?.display_name,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Sign-in error:", error);
+  //     setError(error);
+  //     setUser(null);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // Sign up with email, password and display name
+  // const signUp = async ({ email, password, display_name }: SignUpParams) => {
+  //   setLoading(true);
+  //   setError(null);
+
+  //   try {
+  //     // 1. Create the user with Supabase Auth
+  //     const { data, error } = await supabase.auth.signUp({
+  //       email,
+  //       password,
+  //     });
+
+  //     if (error) throw error;
+
+  //     // 2. If successful and we have a user, insert profile data
+  //     if (data.user) {
+  //       // Create a profile record with display_name
+  //       const { error: profileError } = await supabase.from("profiles").insert([
+  //         {
+  //           id: data.user.id,
+  //           display_name,
+  //           email: data.user.email,
+  //           updated_at: new Date().toISOString(),
+  //         },
+  //       ]);
+
+  //       if (profileError) throw profileError;
+
+  //       // If we got a session (auto sign-in is enabled)
+  //       if (data.session) {
+  //         setSession(data.session);
+  //         setUser({
+  //           id: data.user.id,
+  //           email: data.user.email || "",
+  //           display_name: display_name,
+  //         });
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Sign-up error:", error);
+  //     setError(error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Sign out
   const signOut = async () => {
@@ -218,7 +224,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setUser(null);
     } catch (error) {
       console.error("Error signing out:", error);
-      setError(error);
+      // setError(error);
     } finally {
       setLoading(false);
     }
@@ -228,11 +234,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         signIn,
         signUp,
         signOut,
         session,
+        setSession,
         loading,
+        setLoading,
         error,
         setError,
       }}

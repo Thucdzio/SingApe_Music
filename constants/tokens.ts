@@ -30,7 +30,9 @@ export const iconColor = {
 
 export const backgroundColor = {
     light: "#f6f6f6", 
-    dark: "#272625"
+    dark: "#272625",
+    white: "#ffffff",
+    black: "#000000",
 };
 
 export const screenPadding = {
@@ -38,6 +40,7 @@ export const screenPadding = {
     vertical: 16,
 };
 export const colors = {
+    blue:"#000fff",
 	primary: '#fc3c44',
 	background: '#000',
 	text: '#fff',

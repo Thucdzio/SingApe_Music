@@ -10,3 +10,5 @@ export { Pressable } from "./pressable";
 export { Spinner } from "./spinner";
 export { Icon } from "./icon";
 export { Slider } from "./slider";
+export { Modal } from "./modal";
+export { Actionsheet } from "./actionsheet";

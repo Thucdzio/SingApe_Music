@@ -12,8 +12,9 @@ import {
   FormControlLabel,
   FormControlLabelText,
 } from "@/components/ui/form-control";
-import { HStack } from "@/components/ui";
-import { useState } from "react";
+import { Center, HStack, Input, Spinner } from "@/components/ui";
+import { InputField } from "@/components/ui/input";
+import { useRef, useState } from "react";
 import { Divider } from "@/components/ui/divider";
 import {
   Alert,
@@ -24,7 +25,11 @@ import {
   StyleSheet,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { supabase } from "@/app/lib/supabase";
+import { useAuth } from "@/context/auth";
+import { supabase } from "@/lib/supabase";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Heading } from "@/components/ui/heading";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
@@ -32,7 +37,7 @@ const header = () => {
     <Stack.Screen
       options={{
         headerShown: true,
-        headerTitle: "Đăng ký",
+        headerTitle: "",
         headerTransparent: true,
         headerTintColor: isDarkMode ? "#fafafa" : "#000",
       }}
@@ -41,116 +46,126 @@ const header = () => {
 };
 
 export default function Register() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isInvalidName, setIsInvalidName] = useState(false);
+  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [isInvalidRePassword, setIsInvalidRePassword] = useState(false);
+  const { signUp, loading, setLoading } = useAuth();
 
-  // Sử dụng useState thay vì useRef
-  const [displayName, setDisplayName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const nameRef = useRef("");
+  const emailRef = useRef("");
+  const passwordRef = useRef("");
+  const repasswordRef = useRef("");
 
-  const [validationError, setValidationError] = useState({
-    displayName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const validateInputs = () => {
-    let isValid = true;
-    const newErrors = {
-      displayName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    };
-
-    if (!displayName) {
-      newErrors.displayName = "Tên hiển thị không được để trống";
-      isValid = false;
+  const handleEmailChange = (text: string) => {
+    if (isInvalidEmail) {
+      setIsInvalidEmail(false);
     }
-
-    if (!email) {
-      newErrors.email = "Email không được để trống";
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Email không hợp lệ";
-      isValid = false;
-    }
-
-    if (!password) {
-      newErrors.password = "Mật khẩu không được để trống";
-      isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-      isValid = false;
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Vui lòng nhập lại mật khẩu";
-      isValid = false;
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Mật khẩu không khớp";
-      isValid = false;
-    }
-
-    setValidationError(newErrors);
-    return isValid;
+    emailRef.current = text;
   };
 
-  const handleRegister = async () => {
-    if (!validateInputs()) return;
+  const handlePasswordChange = (text: string) => {
+    if (isInvalidPassword) {
+      setIsInvalidPassword(false);
+    }
+    if (text.length < 6) {
+      setPasswordError("Mật khẩu phải có ít nhất 6 ký tự");
+    } else {
+      setPasswordError("");
+    }
+    passwordRef.current = text;
+  };
 
+  const handleRePasswordChange = (text: string) => {
+    if (isInvalidRePassword) {
+      setIsInvalidRePassword(false);
+    }
+    repasswordRef.current = text;
+  };
+
+  const handleNameChange = (text: string) => {
+    nameRef.current = text;
+  };
+
+  async function signUpWithEmail() {
     try {
-      setLoading(true);
-      setError(null);
-
-      // 1. Tạo người dùng với Supabase Auth
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (signUpError) throw signUpError;
-
-      // 2. Nếu thành công và có người dùng, thêm dữ liệu hồ sơ
-      if (data.user) {
-        // Tạo bản ghi hồ sơ với display_name
-        const { error: profileError } = await supabase.from("profiles").insert([
-          {
-            id: data.user.id,
-            display_name: displayName,
-            email: data.user.email,
-            updated_at: new Date().toISOString(),
-          },
-        ]);
-
-        if (profileError) throw profileError;
-
-        Alert.alert(
-          "Đăng ký thành công",
-          "Vui lòng kiểm tra email của bạn để xác nhận tài khoản.",
-          [
-            {
-              text: "OK",
-              onPress: () => router.replace("/login"),
-            },
-          ]
-        );
+      if (emailRef.current === "") {
+        setIsInvalidEmail(true);
+        return;
       }
-    } catch (error: any) {
-      console.error("Error signing up:", error);
-      setError(error.message || "Đã xảy ra lỗi khi đăng ký");
-    } finally {
+      if (passwordRef.current === "") {
+        setPasswordError("Vui lòng nhập mật khẩu");
+        setIsInvalidPassword(true);
+        return;
+      }
+      if (passwordRef.current.length < 6) {
+        setPasswordError("Mật khẩu phải có ít nhất 6 ký tự");
+        setIsInvalidPassword(true);
+        return;
+      }
+      if (
+        repasswordRef.current === "" ||
+        passwordRef.current !== repasswordRef.current
+      ) {
+        setIsInvalidRePassword(true);
+        return;
+      }
+      await signUp({
+        email: emailRef.current,
+        password: passwordRef.current,
+        display_name: nameRef.current,
+      });
       setLoading(false);
+      router.push("/login");
+    } catch (error: any) {
+      console.log(error);
+      var errorMessage = error.message;
+      if (errorMessage.includes("registered")) {
+        errorMessage = "Email đã được đăng ký";
+      }
+      Alert.alert("Đăng ký không thành công", errorMessage, [
+        {
+          text: "Đóng",
+          onPress: () => setLoading(false),
+        },
+      ]);
+    }
+  }
+
+  if (loading) {
+    return (
+      <View className="w-full h-full items-center bg-background-0 justify-center">
+        {header()}
+        <LoadingOverlay />
+      </View>
+    );
+  }
+
+  const signUpWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "https://your-redirect-url.com",
+      },
+    });
+    if (error) {
+      Alert.alert("Lỗi", error.message);
+    }
+  };
+
+  const handleGoogle = async () => {
+    try {
+      console.log("handleGoogle");
+    } catch (error) {
+      console.log(error);
     }
   };
 
   const handleGoogleSignUp = async () => {
     try {
       setLoading(true);
-      setError(null);
+      // setError(null);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -159,152 +174,126 @@ export default function Register() {
       if (error) throw error;
     } catch (error: any) {
       console.error("Error signing up with Google:", error);
-      setError(error.message || "Đã xảy ra lỗi khi đăng ký với Google");
+      // setError(error.message || "Đã xảy ra lỗi khi đăng ký với Google");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => Keyboard.dismiss()}
-      accessible={false}
-    >
-      <View className="flex-1 items-center h-full bg-background-0">
-        {header()}
+    <SafeAreaView className="flex-1 bg-background-0">
+      <TouchableWithoutFeedback
+        onPress={() => Keyboard.dismiss()}
+        accessible={false}
+      >
+        <View className="flex-1 items-center h-full bg-background-0">
+          {header()}
+          {/* <KeyboardAvoidingComponent> */}
 
-        <VStack className="flex-1 justify-center items-center w-full max-w-md bg-transparent p-4">
-          <VStack space="md" className="bg-none w-full">
-            <FormControl
-              isRequired={true}
-              isInvalid={!!validationError.displayName}
-            >
-              <FormControlLabel>
-                <FormControlLabelText>Tên hiển thị</FormControlLabelText>
-              </FormControlLabel>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nhập tên hiển thị của bạn"
-                  value={displayName}
-                  onChangeText={setDisplayName}
-                />
-              </View>
-              {validationError.displayName ? (
+          <VStack className="flex-1 items-center w-full max-w-md bg-transparent p-4">
+            <Center className="h-32">
+              <Heading className="text-primary-500 font-bold text-4xl mt-4">
+                Đăng ký
+              </Heading>
+            </Center>
+            <VStack space="md" className="bg-none w-full">
+              <FormControl isRequired={true} isInvalid={isInvalidEmail}>
+                <FormControlLabel>
+                  <FormControlLabelText>Tên của bạn</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="text"
+                    placeholder="Enter your name"
+                    onChangeText={handleNameChange}
+                  ></InputField>
+                </Input>
+              </FormControl>
+              <FormControl isRequired={true} isInvalid={isInvalidEmail}>
+                <FormControlLabel>
+                  <FormControlLabelText>Email</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="text"
+                    placeholder="Enter your email"
+                    onChangeText={handleEmailChange}
+                  ></InputField>
+                </Input>
                 <FormControlError>
                   <FormControlErrorText>
-                    {validationError.displayName}
+                    Vui lòng nhập email
                   </FormControlErrorText>
                 </FormControlError>
-              ) : null}
-            </FormControl>
-            <FormControl isRequired={true} isInvalid={!!validationError.email}>
-              <FormControlLabel>
-                <FormControlLabelText>Email</FormControlLabelText>
-              </FormControlLabel>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nhập email của bạn"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                />
-              </View>
-              {validationError.email ? (
+              </FormControl>
+              <FormControl isRequired={true} isInvalid={isInvalidPassword}>
+                <FormControlLabel>
+                  <FormControlLabelText>Mật khẩu</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="password"
+                    placeholder="Enter your password"
+                    onChangeText={handlePasswordChange}
+                  ></InputField>
+                </Input>
+                <FormControlError>
+                  <FormControlErrorText>{passwordError}</FormControlErrorText>
+                </FormControlError>
+              </FormControl>
+              <FormControl isRequired={true} isInvalid={isInvalidRePassword}>
+                <FormControlLabel>
+                  <FormControlLabelText>Nhập lại mật khẩu</FormControlLabelText>
+                </FormControlLabel>
+                <Input>
+                  <InputField
+                    type="password"
+                    placeholder="Enter your password"
+                    onChangeText={handleRePasswordChange}
+                  ></InputField>
+                </Input>
                 <FormControlError>
                   <FormControlErrorText>
-                    {validationError.email}
+                    Mật khẩu không khớp
                   </FormControlErrorText>
                 </FormControlError>
-              ) : null}
-            </FormControl>
-            <FormControl
-              isRequired={true}
-              isInvalid={!!validationError.password}
-            >
-              <FormControlLabel>
-                <FormControlLabelText>Mật khẩu</FormControlLabelText>
-              </FormControlLabel>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nhập mật khẩu"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={true}
-                />
-              </View>
-              {validationError.password ? (
-                <FormControlError>
-                  <FormControlErrorText>
-                    {validationError.password}
-                  </FormControlErrorText>
-                </FormControlError>
-              ) : null}
-            </FormControl>
-            <FormControl
-              isRequired={true}
-              isInvalid={!!validationError.confirmPassword || !!error}
-            >
-              <FormControlLabel>
-                <FormControlLabelText>Nhập lại mật khẩu</FormControlLabelText>
-              </FormControlLabel>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nhập lại mật khẩu"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={true}
-                />
-              </View>
-              {validationError.confirmPassword ? (
-                <FormControlError>
-                  <FormControlErrorText>
-                    {validationError.confirmPassword}
-                  </FormControlErrorText>
-                </FormControlError>
-              ) : error ? (
-                <FormControlError>
-                  <FormControlErrorText>
-                    {error || "Đã xảy ra lỗi khi đăng ký"}
-                  </FormControlErrorText>
-                </FormControlError>
-              ) : null}
-            </FormControl>
+              </FormControl>
+              <Button
+                onPress={signUpWithEmail}
+                variant="solid"
+                className="mt-4"
+              >
+                <ButtonText>Đăng ký</ButtonText>
+              </Button>
+            </VStack>
+            <HStack className="w-full justify-between items-center mt-2">
+              <Divider className="w-1/3" />
+              <Text className="text-primary-100">Hoặc</Text>
+              <Divider className="w-1/3" />
+            </HStack>
             <Button
-              onPress={handleRegister}
-              variant="solid"
-              className="mt-4"
-              isDisabled={loading}
+              onPress={handleGoogle}
+              variant="outline"
+              className="mt-2 w-full data-[active=true]:bg-background-300"
             >
-              <ButtonText>{loading ? "Đang đăng ký..." : "Đăng ký"}</ButtonText>
+              <ButtonText>Đăng ký với Google</ButtonText>
+              <AntDesign
+                name="googleplus"
+                size={24}
+                className="color-primary-100"
+              />
             </Button>
+            <VStack className="w-full justify-center items-center mt-4">
+              <Text className="text-primary-100">Bạn đã có tài khoản?</Text>
+              <Link href="/(auth)/login" className="text-primary-100 font-bold">
+                Đăng nhập
+              </Link>
+            </VStack>
           </VStack>
-          <HStack className="w-full justify-between items-center mt-2">
-            <Divider className="w-1/3" />
-            <Text className="text-primary-100">Hoặc</Text>
-            <Divider className="w-1/3" />
-          </HStack>
-          <Button
-            onPress={handleGoogleSignUp}
-            variant="outline"
-            className="mt-2 w-full data-[active=true]:bg-background-300"
-            isDisabled={loading}
-          >
-            <ButtonText>Đăng ký với Google</ButtonText>
-            <AntDesign name="google" size={24} color="#6E6BFF" />
-          </Button>
-          <VStack className="w-full justify-center items-center mt-4">
-            <Text className="text-primary-100">Bạn đã có tài khoản?</Text>
-            <Link href="/login">
-              <Text className="text-primary-100 font-bold">Đăng nhập</Text>
-            </Link>
-          </VStack>
-        </VStack>
-      </View>
-    </TouchableWithoutFeedback>
+          {/* </KeyboardAvoidingComponent> */}
+        </View>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }
 

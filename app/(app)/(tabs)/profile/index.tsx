@@ -1,4 +1,3 @@
-import { FlatList, Pressable, SafeAreaView, View } from "react-native";
 import { Href, router, Stack } from "expo-router";
 import { Box, HStack, Text, VStack, Image, Button } from "@/components/ui";
 import { CrownIcon, LogOut, Settings } from "lucide-react-native";
@@ -13,6 +12,8 @@ import { ButtonIcon, ButtonText } from "@/components/ui/button";
 import { useAuth } from "@/context/auth";
 import { VirtualHeader } from "@/components/VirtualHeader";
 import { BellIcon, Icon } from "@/components/ui/icon";
+import { SafeAreaView } from "react-native-safe-area-context";
+import CustomHeader from "@/components/CustomHeader";
 
 const header = () => {
   const isDarkMode = useSelector((state: any) => state.isDarkMode);
@@ -47,10 +48,11 @@ const header = () => {
 };
 
 export default function Profile() {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/(auth)" as Href);
   };
 
   const handleSetting = () => {
@@ -62,20 +64,27 @@ export default function Profile() {
   };
 
   return (
+    <SafeAreaView className="flex-1 bg-background-0">
     <VStack className="flex-1 bg-background-0">
-      {header()}
-      <VirtualHeader />
-      <HStack className="p-4 px-6">
+      <CustomHeader
+        title="Cá nhân"
+        showBack={false}
+        titleClassName="text-4xl font-bold"
+        headerClassName="px-4"
+      />
+      <HStack className="p-4">
         <Avatar size="xl" className="border">
           <AvatarFallbackText>Lucas</AvatarFallbackText>
           <AvatarImage
             source={{
-              uri: "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/hinh-anime-2.jpg",
+              uri: user?.user_metadata.avatar_url ?? "https://ui-avatars.com/api/?length=1&name=" + user?.user_metadata.display_name,
             }}
           />
         </Avatar>
         <VStack className="pl-4 gap-1">
-          <Text className="text-2xl font-bold pt-2">Lucas Dzio</Text>
+          <Text className="text-2xl font-bold pt-2">
+            {user?.user_metadata.display_name}
+          </Text>
           <HStack className="w-fit justify-center items-center gap-2 bg-info-50 text-info-800 px-2 py-1 rounded-2xl shadow-md border border-info-200">
             <Icon
               as={CrownIcon}
@@ -85,7 +94,7 @@ export default function Profile() {
           </HStack>
         </VStack>
       </HStack>
-      <VStack className="flex-1 px-4 pt-2 space-y-2">
+      <VStack className="flex-1 px-2 pt-2 space-y-2">
         <Button
           onPress={handleSetting}
           variant="solid"
@@ -106,5 +115,6 @@ export default function Profile() {
         </Button>
       </VStack>
     </VStack>
+    </SafeAreaView>
   );
 }

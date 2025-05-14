@@ -1,79 +1,484 @@
 import { Button, ButtonText } from "@/components/ui/button";
-import { View, FlatList, ScrollView } from "react-native";
-import { Href, useNavigation, useRouter } from "expo-router";
-import { VStack, HStack, Text, Input } from "@/components/ui";
-import { useState } from "react";
-import Feather from "@expo/vector-icons/Feather";
-import { InputField } from "@/components/ui/input";
+import {
+  View,
+  FlatList,
+  ScrollView,
+  RefreshControl,
+  useWindowDimensions,
+  InteractionManager,
+} from "react-native";
+import { Href, Link, useNavigation, useRouter } from "expo-router";
+import {
+  VStack,
+  HStack,
+  Text,
+  Input,
+  Spinner,
+  Image,
+  Box,
+} from "@/components/ui";
+import { useCallback, useEffect, useState, memo, useMemo } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TrackList } from "@/components/TrackList";
-import { screenPadding } from "@/constants/tokens";
-import { FloatingPlayer } from "@/components/FloatingPlayer";
+import { getSongs } from "@/services/apiService";
+import { Track, useActiveTrack } from "react-native-track-player";
+import CustomHeader from "@/components/CustomHeader";
+import { Heading } from "@/components/ui/heading";
+import { MyTrack, Home, ExtendedTrack } from "@/types/zing.types";
+import { fetchHome } from "@/lib/spotify";
+import { convertZingToTrack } from "@/helpers/convert";
+import { TracksListItem } from "@/components/TrackListItem";
+import { playTrack } from "@/services/playbackService";
+import { getListeningHistory } from "@/services/fileService";
+import { getAllSongs, getSongsByArtistId } from "@/lib/api/song.api";
+import { getAllArtists } from "@/lib/api/artist.api";
+import { Song, Artist } from "@/lib/supabase";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { getSongMp3Url } from "@/lib/api/storage.api";
+
+// Move playSong function outside of the component so it can be accessed by child components
+const playSong = async (song: Song | MyTrack) => {
+  try {
+    // Show loading or feedback to user could be added here
+
+    // Get the song URL from storage
+    const url = await getSongMp3Url(song.id);
+
+    if (!url) {
+      console.error("Could not get song URL from storage");
+      // Consider showing an error toast/notification here
+      return;
+    }
+
+    // Create a track object with all the necessary information
+    const track: Track = {
+      id: song.id,
+      title: song.title || "Unknown Title",
+      artist:
+        "artist_names" in song
+          ? song.artist_names
+          : "artist" in song
+          ? song.artist
+          : "Unknown Artist",
+      url,
+      artwork:
+        "thumbnail_url" in song
+          ? song.thumbnail_url
+          : "artwork" in song
+          ? song.artwork
+          : "https://via.placeholder.com/400",
+      duration: song.duration || 0,
+    };
+
+    // Play the track
+    await playTrack(track);
+  } catch (error) {
+    console.error("Error playing song:", error);
+    // Show error toast/notification
+  }
+};
 
 export default function Songs() {
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const haveFloatingPlayer = useActiveTrack();
+
+  const [homeData, setHomeData] = useState<{
+    tracks: Track[];
+    chillSection: MyTrack[];
+    recentSection: Track[];
+    top100Section: MyTrack[];
+    newReleaseSection: MyTrack[];
+    albumHotSection: MyTrack[];
+  }>({
+    tracks: [],
+    chillSection: [],
+    recentSection: [],
+    top100Section: [],
+    newReleaseSection: [],
+    albumHotSection: [],
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const numCols = 3;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Data states
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [artists, setArtists] = useState<Artist[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const navigation = useNavigation();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  // Load data when component mounts
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Function to load data from Supabase
+  const loadData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch songs
+      const songsData = await getAllSongs();
+      if (songsData) {
+        setSongs(songsData);
+        console.log(`Loaded ${songsData.length} songs`);
+      }
+
+      // Fetch artists
+      const artistsData = await getAllArtists();
+      if (artistsData) {
+        setArtists(artistsData);
+        console.log(`Loaded ${artistsData.length} artists`);
+      }
+    } catch (err) {
+      console.error("Error loading data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     console.log(text);
   };
 
-  const onPressSerach = () => {
-    return Text;
-  };
-  return (
-    <SafeAreaView>
-      <ScrollView>
-        <VStack space="lg" className=" px-4 py-4">
-          {/* Header with Mic and Search Icon */}
-          <HStack className="flex-row justify-between items-center">
-            <Text className="text-3xl font-bold">Khám phá</Text>
-            <HStack className="flex-row space-x-2">
-              <Feather name="mic" size={24} color="black" />
-              <Feather
-                name="search"
-                size={24}
-                color="black"
-                onPress={() => {
-                  console.log("hello");
-                  setIsSearchVisible(!isSearchVisible);
-                }}
-              />
-            </HStack>
-          </HStack>
-          {isSearchVisible && (
-            <Input variant="rounded" size="md">
-              <InputField
-                value={searchQuery}
-                onChangeText={handleSearch}
-                placeholder="Search on here..."
-              />
-            </Input>
-          )}
+  const songsToTracks = (songs: Song[]): Track[] => {
+    if (!songs || songs.length === 0) return [];
 
-          <Text className="text-xl font-bold">Gợi ý cho bạn </Text>
-          <Text>TOP 100</Text>
-          <TrackList scrollEnabled={false}></TrackList>
-          <Text>Chill</Text>
-          <Text>Chủ đề & Thể loại</Text>
-          <Text>Album Hot</Text>
+    return songs.map((song) => {
+      const fallbackUrl =
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+
+      return {
+        id: song.id,
+        title: song.title || "Unknown Title",
+        artist: "Various Artists",
+        url: song.url || fallbackUrl,
+        artwork: song.thumbnail_url || "https://via.placeholder.com/400",
+        duration: 0,
+      };
+    });
+  };
+
+  const fetchSongs = async () => {
+    setIsLoading(true);
+    try {
+      const myData = await getAllSongs();
+      const tracks = await Promise.all(
+        myData.map(async (song) => {
+          const songUrl = await getSongMp3Url(song.id);
+          return {
+            id: song.id,
+            title: song.title ?? undefined,
+            artist: song.artist_names || "Unknown Artist",
+            // Use a fallback for album name
+            album: "Unknown Album",
+            url: songUrl || "",
+            genre: "", // You can add a genre property to your Song type if needed
+            artwork: song.thumbnail_url || "",
+          } as Track;
+        })
+      );
+
+      setTracks(tracks);
+
+      const zingData: Home = await fetchHome();
+      // setData(zingData);
+
+      const chillSection = zingData?.items.find(
+        (item) => item.title === "Chill"
+      )?.items;
+      // setChillSection(
+      //   Array.isArray(chillSection) ? await handleData(chillSection) : []
+      // );
+
+      const newReleaseSection = zingData?.items.find(
+        (item) => item.sectionType === "new-release"
+      )?.items;
+      // setNewReleaseSection(
+      //   Array.isArray(newReleaseSection)
+      //     ? await handleData(newReleaseSection)
+      //     : newReleaseSection?.all
+      //     ? await handleData(newReleaseSection.all)
+      //     : []
+      // );
+
+      const recentSection = getListeningHistory();
+      // setRecentSection(
+      //   (await recentSection).map((song) => {
+      //     return song.track;
+      //   })
+      // );
+
+      const top100Section = zingData?.items.find(
+        (item) => item.sectionId === "h100"
+      )?.items;
+      // setTop100Section(
+      //   Array.isArray(top100Section) ? await handleData(top100Section) : []
+      // );
+
+      const albumHotSection = zingData?.items.find(
+        (item) => item.sectionId === "hAlbum"
+      )?.items;
+      // setAlbumHotSection(
+      //   Array.isArray(albumHotSection) ? await handleData(albumHotSection) : []
+      // );
+
+      setHomeData({
+        tracks,
+        chillSection: Array.isArray(chillSection)
+          ? await handleData(chillSection)
+          : [],
+        recentSection: (await getListeningHistory()).map((song) => song.track),
+        top100Section: Array.isArray(top100Section)
+          ? await handleData(top100Section)
+          : [],
+        newReleaseSection: Array.isArray(newReleaseSection)
+          ? await handleData(newReleaseSection)
+          : newReleaseSection?.all
+          ? await handleData(newReleaseSection.all)
+          : [],
+        albumHotSection: Array.isArray(albumHotSection)
+          ? await handleData(albumHotSection)
+          : [],
+      });
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleData = async (data: ExtendedTrack[]) => {
+    const tracks = await Promise.all(
+      data.map((song) => {
+        return convertZingToTrack(song);
+      })
+    );
+    return tracks;
+  };
+
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => {
+      fetchSongs();
+    });
+    return () => task.cancel();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchSongs().then(() => setRefreshing(false));
+  }, []);
+
+  const renderRecentSection = () => {
+    return (
+      <>
+        <HStack className="justify-between items-center pr-4">
+          <Heading className={headingStyle}>Gần đây</Heading>
           <Button
-            variant="solid"
+            variant="link"
+            className="text-sm font-semibold"
             onPress={() => {
-              console.log("press buttons");
-              router.push("/[id]");
+              router.push("/history" as Href);
             }}
           >
-            <ButtonText>Press</ButtonText>
+            <ButtonText className="text-primary-500">Xem tất cả</ButtonText>
           </Button>
+        </HStack>
+        <TrackList
+          className="px-4 data-[active=true]:no-underline"
+          scrollEnabled={false}
+          tracks={homeData.recentSection.slice(0, 3)}
+          onTrackOptionPress={(track) => {
+            console.log("Track pressed:", track);
+          }}
+        />
+      </>
+    );
+  };
+
+  const renderTop100Section = () => {
+    return (
+      <>
+        <Heading className={headingStyle}>Top 100</Heading>
+        <Box className="">
+          <AlbumList horizontal={true} data={homeData.top100Section} />
+        </Box>
+      </>
+    );
+  };
+
+  const recommendSection = () => {
+    return (
+      <>
+        <Heading className={headingStyle}>Dựa trên sở thích của bạn</Heading>
+        <TrackList
+          className="px-4"
+          scrollEnabled={false}
+          tracks={tracks}
+          onTrackOptionPress={(track) => {
+            console.log("Track pressed:", track);
+          }}
+        />
+      </>
+    );
+  };
+
+  const renderChillSection = () => {
+    return (
+      <>
+        <Heading className={headingStyle}>Chill</Heading>
+        <Box className="">
+          <AlbumList horizontal={true} data={homeData.chillSection} />
+        </Box>
+      </>
+    );
+  };
+
+  const renderAlbumHotSection = () => {
+    return (
+      <>
+        <Heading className={headingStyle}>Album Hot</Heading>
+        <Box className="">
+          <AlbumList horizontal={true} data={homeData.albumHotSection} />
+        </Box>
+      </>
+    );
+  };
+  const renderNewReleaseSection = () => {
+    return (
+      <>
+        <Heading className={headingStyle}>Mới phát hành</Heading>
+        <Box>
+          <ColumnWiseFlatList data={homeData.newReleaseSection || []} />
+        </Box>
+      </>
+    );
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-background-0">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <CustomHeader
+          title="Khám phá"
+          showBack={false}
+          titleClassName="text-3xl font-bold"
+          headerClassName="bg-background-0 px-4"
+        />
+        <VStack space="lg">
+          {renderAlbumHotSection()}
+          {recommendSection()}
+          {homeData.recentSection.length > 3 && renderRecentSection()}
+          {renderNewReleaseSection()}
+          {renderTop100Section()}
+          {renderChillSection()}
         </VStack>
+        <Box className="h-28" />
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+interface AlbumListProps {
+  horizontal?: boolean;
+  data: MyTrack[];
+}
+
+const ColumnWiseFlatList = ({ data }: { data: MyTrack[] }) => {
+  const screenWidth = useWindowDimensions().width - 32;
+  const snapInterval = screenWidth + 14; // 16 is the width of the separator
+  const numCols = 3;
+  const transformedData = useMemo(() => {
+    const columns: MyTrack[][] = [];
+    for (let i = 0; i < data.length; i += numCols) {
+      columns.push(data.slice(i, i + numCols));
+    }
+    return columns;
+  }, [data]);
+  const Column = memo(({ items }: { items: MyTrack[] }) => (
+    <VStack style={{ width: screenWidth }}>
+      {items.map((item, i) => (
+        <TracksListItem
+          key={i}
+          track={item}
+          onTrackSelect={(track) => playSong(track as MyTrack)}
+        />
+      ))}
+    </VStack>
+  ));
+  const _renderitem = useCallback(
+    ({ item }: any) => <Column items={item} />,
+    []
+  );
+  return (
+    <FlatList
+      data={transformedData}
+      horizontal
+      keyExtractor={(_, i) => `col-${i}`}
+      renderItem={_renderitem}
+      showsHorizontalScrollIndicator={false}
+      ListHeaderComponent={() => <View className="w-4" />}
+      ListFooterComponent={() => <View className="w-4" />}
+      ItemSeparatorComponent={() => <View className="w-4" />}
+      initialNumToRender={9}
+      maxToRenderPerBatch={9}
+      windowSize={6}
+      snapToAlignment="start"
+      snapToInterval={snapInterval}
+      disableIntervalMomentum={true}
+      className="flex-grow-0"
+    />
+  );
+};
+
+const AlbumList = ({ horizontal, data, ...props }: AlbumListProps) => {
+  return (
+    <FlatList
+      data={data}
+      horizontal={horizontal}
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={false}
+      ListFooterComponent={<View className="w-4" />}
+      ListHeaderComponent={<View className="w-4" />}
+      ItemSeparatorComponent={() => <View className="w-4" />}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => <AlbumListItem item={item} />}
+      {...props}
+    />
+  );
+};
+
+const AlbumListItem = ({ item }: { item: MyTrack }) => {
+  return (
+    <Link href={`/albums/${item.id}` as Href}>
+      <VStack className="w-40">
+        <Image
+          source={{ uri: item.artwork }}
+          alt={item.title}
+          className="w-40 h-40 rounded-lg"
+        />
+        <Text
+          className="text-md font-semibold"
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
+          {item.title}
+        </Text>
+        <Text className="text-gray-400">{item.sortDescription}</Text>
+      </VStack>
+    </Link>
+  );
+};
+
+const headingStyle = "text-2xl px-4";
+const listStyle = "px-4";
