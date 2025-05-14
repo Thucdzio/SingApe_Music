@@ -6,6 +6,7 @@ import { Track } from 'react-native-track-player';
 const HISTORY_FILE = FileSystem.documentDirectory + 'listeningHistory.json';
 const PLAYLISTS_DIR = FileSystem.documentDirectory + 'Playlists/';
 const FAVORITES_DIR = FileSystem.documentDirectory + 'Favorites/';
+const RECENTSEARCH_FILE = FileSystem.documentDirectory + 'recentSearch.json';
 
 export async function downloadMusic(url: string, filename: string) {
   const localUri = FileSystem.documentDirectory + filename;
@@ -269,4 +270,33 @@ export const checkIfSongInFavorites = async (song: MyTrack): Promise<boolean> =>
   const content = await FileSystem.readAsStringAsync(filePath);
   const favorites = JSON.parse(content);
   return favorites.some((track: MyTrack) => track.id === song.id);
+}
+
+export const saveRecentSearch = async (items: any) => {
+  const recentSearchFileUri = RECENTSEARCH_FILE;
+  let recentSearch = [];
+  try {
+    const fileContent = await FileSystem.readAsStringAsync(recentSearchFileUri);
+    recentSearch = JSON.parse(fileContent);
+  } catch (error) {
+    console.log('No existing recent search file found, creating a new one.');
+  } 
+  recentSearch = recentSearch.filter((item: any) => item.id !== items.id);
+  recentSearch.unshift(items);
+  recentSearch = recentSearch.slice(0, 10);
+  await FileSystem.writeAsStringAsync(recentSearchFileUri, JSON.stringify(recentSearch));
+}
+
+export const getRecentSearch = async () => {
+  try {
+    const fileInfo = await FileSystem.getInfoAsync(RECENTSEARCH_FILE);
+    if (!fileInfo.exists) return [];
+    const raw = await FileSystem.readAsStringAsync(RECENTSEARCH_FILE, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Error reading recent search:', e);
+    return [];
+  }
 }

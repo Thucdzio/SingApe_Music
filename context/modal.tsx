@@ -15,30 +15,32 @@ import {
 } from "@/components/ui/modal";
 import React, { createContext, useContext, useState } from "react";
 
-interface AlertModalContextType {
-  show: (
-    title: string,
-    message: string, 
-    type: "error" | "normal",
-    confirmText?: string,
-    cancelText?: string,
-    onConfirm?: () => void
-  ) => void;
+interface ModalContextType {
+show: {
+  (options: {
+    title: string;
+    message: string;
+    type: "error" | "normal";
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void;
+  }): void;
+};
   hide: () => void;
 }
 
-const AlertModalContext = createContext<AlertModalContextType | undefined>(
+const ModalContext = createContext<ModalContextType | undefined>(
   undefined
 );
 
-export const useAlertModal = () => {
-  const context = useContext(AlertModalContext);
+export const useModal = () => {
+  const context = useContext(ModalContext);
   if (!context)
-    throw new Error("useAlertModal must be used within AlertModalProvider");
+    throw new Error("useModal must be used within AlertModalProvider");
   return context;
 };
 
-export const AlertModalProvider = ({
+export const ModalProvider = ({
   children,
 }: {
   children: React.ReactNode;
@@ -51,14 +53,22 @@ export const AlertModalProvider = ({
   const [type, setType] = useState<"error" | "normal">("normal");
   const [onConfirm, setOnConfirm] = useState<(() => void) | undefined>();
 
-  const show = (
-    title: string,
-    message: string,
-    type: "error" | "normal" = "normal",
-    confirmText: string = "OK",
-    cancelText: string = "Cancel",
-    onConfirm?: () => void
-  ) => {
+  const show = (options: {
+    title: string;
+    message: string;
+    type: "error" | "normal";
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void;
+  }) => {
+    const {
+      title,
+      message,
+      type = "normal",
+      confirmText = "OK",
+      cancelText = "Cancel",
+      onConfirm,
+    } = options;
     setTitle(title);
     setMessage(message);
     setConfirmText(confirmText);
@@ -108,9 +118,9 @@ export const AlertModalProvider = ({
   }
 
   return (
-    <AlertModalContext.Provider value={{ show, hide }}>
+    <ModalContext.Provider value={{ show, hide }}>
       {children}
       {renderModal()}
-    </AlertModalContext.Provider>
+    </ModalContext.Provider>
   );
 };

@@ -23,16 +23,16 @@ import {
 } from "@/components/ui/form-control";
 import { ButtonText, Button } from "@/components/ui/button";
 import { AntDesign } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
 import { Center, Input, Modal, Spinner } from "@/components/ui";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Heading } from "@/components/ui/heading";
 import { useAuth } from "@/context/auth";
 import { InputField } from "@/components/ui/input";
+import { useColorScheme } from "nativewind";
 
 
 const header = () => {
-  const isDarkMode = useSelector((state: any) => state.isDarkMode);
+  const isDarkMode = useColorScheme().colorScheme === "dark";
   return (
     <Stack.Screen
       options={{

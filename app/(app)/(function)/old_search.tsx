@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, LayoutChangeEvent } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  LayoutChangeEvent,
+} from "react-native";
 import { SearchBar } from "@/components/home/SearchBar";
 import { router, Stack } from "expo-router";
 import CustomHeader from "@/components/CustomHeader";
@@ -29,14 +35,25 @@ import { Avatar } from "@/components/ui/avatar";
 import { star } from "@/constants/text";
 import { PlaylistCard } from "@/components/PlaylistCard";
 import { convertZingToTrack } from "@/helpers/convert";
-import Animated, { FadeIn, FadeOut, LinearTransition, SlideInLeft, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  SlideInLeft,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { set } from "ts-pattern/dist/patterns";
+import { Heading } from "@/components/ui/heading";
+import { saveRecentSearch } from "@/services/fileService";
+import e from "express";
 
 type MixedSearchItem = any & {
   type: "song" | "artist" | "playlist" | "album";
 };
 
-type FilterType = {label: string; value: string};
+type FilterType = { label: string; value: string };
 
 export default function SearchScreen() {
   // const isInitialized = useRef(false);
@@ -67,11 +84,16 @@ export default function SearchScreen() {
   //     });
   // };
   const [showAll, setShowAll] = useState(false);
-  const [filter, setFilter] = useState<FilterType>({label: "Tất cả", value: "all"});
+  const [filter, setFilter] = useState<FilterType>({
+    label: "Tất cả",
+    value: "all",
+  });
   const [query, setQuery] = useState<string>("");
+  const [searchFocus, setSearchFocus] = useState(true);
   const [data, setData] = useState<MixedSearchItem[]>();
   const [filteredData, setFilteredData] = useState<MixedSearchItem[]>();
-  const debounceQuery = useDebounce(query, 200);
+  const [recentData, setRecentData] = useState<MixedSearchItem[]>();
+  const debounceQuery = useDebounce(query, 100);
 
   const filterOptions: FilterType[] = [
     { label: "Bài hát", value: "song" },
@@ -95,10 +117,12 @@ export default function SearchScreen() {
         );
         const convertedArtists = response.artists.map((item: any) => ({
           ...item,
+          id: item.encodeId,
           type: "artist",
         }));
         const convertedPlaylists = response.playlists.map((item: any) => ({
           ...item,
+          id: item.encodeId,
           type: "playlist",
         }));
         const mixedItems: MixedSearchItem[] = [
@@ -107,11 +131,6 @@ export default function SearchScreen() {
           ...convertedPlaylists,
         ];
 
-        // const mixedItems: MixedSearchItem[] = [
-        //   ...response.artists.map((a: any) => ({ ...a, type: "artist" })),
-        //   ...response.songs.map((s: any) => ({ ...s, type: "song" })),
-        //   ...response.playlists.map((p: any) => ({ ...p, type: "playlist" })),
-        // ];
         setData(mixedItems);
         setFilteredData([
           ...convertedArtists.slice(0, 3),
@@ -122,39 +141,135 @@ export default function SearchScreen() {
         setData(undefined);
       }
     };
+    const fetchRecentData = async () => {
+      const recentSearches = await fetchSearch("recent");
+      const convertedTracks = await Promise.all(
+        recentSearches.songs.map(async (item: any) => {
+          const track = await convertZingToTrack(item);
+          return {
+            ...track,
+            type: "song",
+          };
+        })
+      );
+      const convertedArtists = recentSearches.artists.map((item: any) => ({
+        ...item,
+        type: "artist",
+      }));
+      const convertedPlaylists = recentSearches.playlists.map((item: any) => ({
+        ...item,
+        type: "playlist",
+      }));
+      const mixedItems: MixedSearchItem[] = [
+        ...convertedArtists,
+        ...convertedTracks,
+        ...convertedPlaylists,
+      ];
+      setRecentData(mixedItems);
+    }
+
     fetchData();
   }, [debounceQuery]);
 
   useEffect(() => {
-    setFilteredData(data?.filter((item: MixedSearchItem) => {
-      if (filter.value === "all") {
-        return true;
-      } else {
-        return filter.value === item.type
+    if (query.length === 0) {
+      setFilteredData([])
+    } else {
+      if (searchFocus) {
+
       }
-    }))
-  }, [filter, setShowAll]);
+      setFilteredData(
+        data?.filter((item: MixedSearchItem) => {
+          if (filter.value === "all") {
+            return true;
+          } else {
+            return filter.value === item.type;
+          }
+        })
+      );
+    }
+  }, [filter, showAll, searchFocus]);
 
   const handleSelectSong = async (song: MyTrack) => {
     console.log("Selected song:", song);
+    addRecentSearchEntry(song);
     playTrack(song);
   };
 
+  const handleSelectArtist = async (artist: Artist) => {
+    console.log("Selected artist:", artist);
+    addRecentSearchEntry(artist);
+    router.push({
+      pathname: "/artists/[id]",
+      params: { id: artist.id },
+    });
+  }
+
+  const handleSelectPlaylist = async (playlist: MyTrack) => {
+    console.log("Selected playlist:", playlist);
+    addRecentSearchEntry(playlist);
+    router.push({
+      pathname: "/playlists/[id]",
+      params: { id: playlist.id },
+    });
+  };
+
+  const addRecentSearchEntry = async (entry: any) => {
+    const existingEntry = recentData?.find((i) => i.id === entry.id);
+    if (!existingEntry) {
+      setRecentData((prev) => [entry, ...(prev || [])]);
+    } else {
+      const updatedRecentData = recentData?.filter((i) => i.id !== entry.id);
+      setRecentData([entry, ...(updatedRecentData || [])]);
+    }
+    saveRecentSearch(entry);
+  }
+  
+  const removeRecentSearchEntry = async (entry: any) => {
+    setRecentData(recentData?.filter((i) => i.id !== entry.id));
+    saveRecentSearch(recentData?.filter((i) => i.id !== entry.id));
+  }
+
+  const removeRecentButton = (entry: any) => {
+    return (
+      <Button
+        onPress={() => {
+          removeRecentSearchEntry(entry);
+        }}
+        className="bg-transparent border-none rounded-full data-[active=true]:bg-background-200 w-10 h-10"
+      >
+        <ButtonIcon as={X} size="xxl" className="text-gray-500" />
+      </Button>
+    )
+  }
+
   const renderItem = ({ item }: { item: MixedSearchItem }) => {
+    const isRecent = query.length === 0;
     if (item.type === "artist") {
-      return renderArtistItem({ item });
+      return renderArtistItem({ item, isRecent });
     } else if (item.type === "song") {
-      return renderTrackItem({ item });
+      return renderTrackItem({ item, isRecent });
     } else if (item.type === "playlist") {
-      return renderPlaylistItem({ item });
+      return renderPlaylistItem({ item, isRecent });
     }
     return null;
   };
-  const renderTrackItem = ({ item }: { item: MixedSearchItem }) => {
+
+  const renderTrackItem = ({ item, isRecent }: { item: MixedSearchItem, isRecent?: boolean }) => {
     const newItem = item as unknown as MyTrack;
     return (
       <View className="px-2">
-        <TracksListItem
+        {isRecent ? (
+          <TracksListItem
+            track={newItem}
+            showOptionButton={false}
+            onTrackSelect={() => {
+              handleSelectSong(newItem);
+            }}
+          >
+            {removeRecentButton(item)}
+          </TracksListItem>
+        ) : (<TracksListItem
           track={newItem}
           onTrackSelect={() => {
             handleSelectSong(newItem);
@@ -162,12 +277,12 @@ export default function SearchScreen() {
           onRightPress={() => {
             console.log("Long pressed:", item);
           }}
-        />
+        />)}
       </View>
     );
   };
 
-  const renderArtistItem = ({ item }: { item: MixedSearchItem }) => {
+  const renderArtistItem = ({ item, isRecent }: { item: MixedSearchItem, isRecent: boolean }) => {
     const newItem = item as unknown as Artist;
     return (
       <HStack space="lg" className="px-2 items-center">
@@ -183,11 +298,14 @@ export default function SearchScreen() {
               {newItem.name}
             </Text>
             <Text className="text-sm text-gray-500 dark:text-gray-400">
-              Nghệ sĩ 
+              Nghệ sĩ
             </Text>
             {/* {star} {newItem.totalFollow} người theo dõi */}
           </VStack>
-          <Button
+          
+          {isRecent ? (
+          removeRecentButton(newItem)
+          ) : (<Button
             onPress={() => {
               console.log("Theo dõi nghệ sĩ:", newItem.name);
               // Theo dõi nghệ sĩ
@@ -195,13 +313,13 @@ export default function SearchScreen() {
             className="bg-transparent border-none rounded-full data-[active=true]:bg-background-200 w-10 h-10"
           >
             <ButtonText>Theo dõi</ButtonText>
-          </Button>
+          </Button>)}
         </HStack>
       </HStack>
     );
   };
 
-  const renderPlaylistItem = ({ item }: { item: MixedSearchItem }) => {
+  const renderPlaylistItem = ({ item, isRecent }: { item: MixedSearchItem, isRecent: boolean }) => {
     const newItem = item as unknown as MyTrack;
     return (
       <HStack space="lg" className="px-2 items-center">
@@ -213,13 +331,21 @@ export default function SearchScreen() {
         />
         <HStack space="md">
           <VStack space="xs" className="w-10/12">
-            <Text numberOfLines={1} ellipsizeMode="tail" className="text-base font-semibold text-primary-500">
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              className="text-base font-semibold text-primary-500"
+            >
               {newItem.title}
             </Text>
             <Text className="text-sm text-gray-500 dark:text-gray-400">
               Danh sách phát
             </Text>
           </VStack>
+
+          {isRecent && (
+            removeRecentButton(newItem)
+          )}
         </HStack>
       </HStack>
     );
@@ -249,7 +375,14 @@ export default function SearchScreen() {
             >
               <InputField
                 placeholder={"Tìm bài hát, ca sĩ, album..."}
+                value={query}
                 onChangeText={(text) => setQuery(text)}
+                onFocus={() => {
+                  setShowAll(false);
+                }}
+                onSubmitEditing={() => {
+                  setShowAll(true);
+                }}
                 autoCorrect={false}
                 autoFocus={true}
               />
@@ -271,18 +404,16 @@ export default function SearchScreen() {
           isVisible={showAll}
         />
         <FlatList
-          data={filteredData}
-          keyExtractor={(item) => item.encodeId}
+          data={query.length > 0 ? filteredData : recentData}
+          keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           initialNumToRender={10}
           maxToRenderPerBatch={10}
           windowSize={10}
-          ItemSeparatorComponent={() => (
-            <View className="h-3 bg-transparent" />
-          )}
+          ItemSeparatorComponent={() => <View className="h-3 bg-transparent" />}
           ListFooterComponent={() => (
             <>
-              {!showAll && filteredData && (
+              {!showAll && query.length > 0 && filteredData && (
                 <Button
                   variant="link"
                   action="positive"
@@ -291,22 +422,27 @@ export default function SearchScreen() {
                   <ButtonText>Xem tất cả các kết quả</ButtonText>
                 </Button>
               )}
+              {query.length === 0 && recentData && (
+                <Button
+                  variant="link"
+                  action="positive"
+                  onPress={() => removeRecentSearchEntry}
+                >
+                  <ButtonText>Xóa lịch sử tìm kiếm</ButtonText>
+                </Button>
+              )}
               <View className="h-10 bg-transparent" />
             </>
           )}
+          ListHeaderComponent={() => {
+            return query === "" && <Heading className="px-4 text-2xl">Các tìm kiếm gần đây</Heading>;
+          }}
           renderItem={renderItem}
         />
       </VStack>
     </SafeAreaView>
   );
-};
-
-
-
-
-
-
-
+}
 
 interface ListHeaderComponentProps {
   isVisible?: boolean;
@@ -323,7 +459,9 @@ const ListHeaderComponent = ({
 }: ListHeaderComponentProps) => {
   const displayedOptions = useMemo(() => {
     if (selected.value === "all") return filterOptions;
-    const filtered = filterOptions.filter((item) => item.value === selected.value);
+    const filtered = filterOptions.filter(
+      (item) => item.value === selected.value
+    );
     return [{ label: "button", value: "x" }, ...filtered];
   }, [selected, filterOptions]);
 
@@ -331,15 +469,15 @@ const ListHeaderComponent = ({
     return null;
   }
 
-  const handleOnSelect = (value: FilterType) => {
+  const handleOnSelect = async (value: FilterType) => {
     if (selected?.value === value.value) {
       return onSelect({
         label: "Tất cả",
-        value: "all"
+        value: "all",
       });
     }
     onSelect(value);
-  }
+  };
 
   return (
     <Animated.FlatList
@@ -355,15 +493,15 @@ const ListHeaderComponent = ({
         const isActive = selected.value === item.value;
         if (item.value === "x") {
           return (
-           <Button
-            variant="solid"
-            action="secondary"
-            className={`rounded-full w-10 h-10`}
-            size="sm"
-            onPress={() => handleOnSelect(selected)}
-          >
-            <ButtonIcon as={X} className="text-base" />
-          </Button>
+            <Button
+              variant="solid"
+              action="secondary"
+              className={`rounded-full w-10 h-10`}
+              size="sm"
+              onPress={() => handleOnSelect(selected)}
+            >
+              <ButtonIcon as={X} className="text-base" />
+            </Button>
           );
         }
         return (
@@ -371,121 +509,20 @@ const ListHeaderComponent = ({
             <Button
               variant="solid"
               action="secondary"
-              className={`rounded-full w-fit h-10 ${isActive && "bg-green-500"}`}
+              className={`rounded-full w-fit h-10 ${
+                isActive && "bg-green-500"
+              }`}
               onPress={() => handleOnSelect(item)}
             >
-              <ButtonText className={`text-base font-medium ${isActive && "text-white" }`}>
+              <ButtonText
+                className={`text-base font-medium ${isActive && "text-white"}`}
+              >
                 {item.label}
-              </ButtonText>
-            </Button>
-            </Animated.View>
-        )}
-      }
-    />
-  );
-};
-
-
-
-
-
-
-
-
-interface Props {
-  isVisible?: boolean;
-  selected: FilterType;
-  filterOptions: FilterType[];
-  onSelect: (value: FilterType) => void;
-}
-
-export function FilterTabs({
-  selected,
-  onSelect,
-  filterOptions,
-  isVisible,
-}: Props) {
-  const xOffset = useSharedValue(0);
-  const positions = useRef<Record<FilterType["value"], number>>({} as any);
-
-  const handleLayout = (filter: FilterType, e: LayoutChangeEvent) => {
-    positions.current[filter.value] = e.nativeEvent.layout.x;
-  };
-
-  if (!isVisible) {
-    return null;
-  }
-  const handleOnSelect = (value: FilterType) => {
-    const x = positions.current[value.value];
-    if (typeof x === "number") {
-      xOffset.value = withTiming(-x, { duration: 300 });
-    }
-    if (selected?.value === value.value) {
-      return onSelect({
-        label: "Tất cả",
-        value: "all"
-      });
-    }
-    onSelect(value);
-  };
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: xOffset.value }],
-  }));
-  
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 16 }}
-      className="mt-2"
-    >
-      {"all" !== selected.value && (
-        <Animated.View
-          entering={SlideInLeft}
-          exiting={FadeOut}
-          className="mr-2"
-        >
-        <Button
-            variant="solid"
-            action="secondary"
-            className={`rounded-full w-10 h-10`}
-            size="sm"
-            onPress={() => handleOnSelect(selected)}
-          >
-            <ButtonIcon as={X} className="text-base" />
-          </Button>
-        </Animated.View>
-      )}
-      {filterOptions.map((filter) => {
-        const isActive = selected.value === filter.value;
-        if (selected.value !== "all" && !isActive) {
-          return null;
-        }
-        return (
-          <Animated.View
-            entering={FadeIn}
-            exiting={FadeOut}
-            onLayout={(e) => handleLayout(filter, e)}
-            style={
-              animatedStyle
-            }
-            className="mr-2"
-          >
-            <Button
-              key={filter.value}
-              variant="solid"
-              action="secondary"
-              className={`rounded-full w-fit h-10 ${isActive && "bg-green-500"}`}
-              onPress={() => handleOnSelect(filter)}
-            >
-              <ButtonText className={`text-base font-medium ${isActive && "text-white" }`}>
-                {filter.label}
               </ButtonText>
             </Button>
           </Animated.View>
         );
-      })}
-    </ScrollView>
+      }}
+    />
   );
-}
+};

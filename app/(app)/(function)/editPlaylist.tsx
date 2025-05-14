@@ -143,16 +143,16 @@ export default function editPlaylist() {
         right={
           <Pressable
             className="mr-3"
-            onPress={async () => {
+            onPress={() => {
               if (!changed) return
               if (playlist) {
                 updateStorePlaylist(playlist);
-                await updatePlaylist(playlist.id, playlist);
+                updatePlaylist(playlist.id, playlist);
                 router.back();
               }
             }}
           >
-            <ButtonText className={`${!changed ? "text-gray-500" : "text-primary-500"}`}>Lưu</ButtonText>
+            <Text className={`${!changed ? "text-gray-500" : "text-primary-500"}`}>Lưu</Text>
           </Pressable>
         }
       />

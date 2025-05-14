@@ -2,7 +2,7 @@ import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
 import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
 import { PlaylistScreen } from "@/components/screens/PlaylistScreen";
 import { VStack } from "@/components/ui";
-import { useAlertModal } from "@/context/modal";
+import { useModal } from "@/context/modal";
 import { useAuth } from "@/context/auth";
 import { convertZingToTrack } from "@/helpers/convert";
 import { likeSong } from "@/lib/api";
@@ -35,7 +35,7 @@ import { View } from "react-native";
 export default function Playlists() {
   const item = useLocalSearchParams<MyTrack>();
   const [data, setData] = useState<MyTrack[]>([]);
-  const { show } = useAlertModal();
+  const { show } = useModal();
   const playlists = useLibraryStore((state) => state.playlists);
   const deleteStorePlaylist = useLibraryStore((state) => state.deletePlaylist);
   const { user } = useAuth();
@@ -98,18 +98,19 @@ export default function Playlists() {
   };
 
   const handleDeletePlaylist = () => {
-    show(
-      "Xóa danh sách phát",
-      `Bạn có chắc chắn muốn xóa danh sách phát '${item.title}' không?`,
-      "normal",
-      "Xóa",
-      "Hủy",
-      confirmDelete
-    );
+    show({
+      title: "Xóa danh sách phát",
+      message: `Bạn có chắc chắn muốn xóa danh sách phát '${item.title}' không?`,
+      type: "normal",
+      confirmText: "Xóa",
+      cancelText: "Hủy",
+      onConfirm: confirmDelete,
+    });
   };
 
   useFocusEffect(
     useCallback(() => {
+      let isActive = true;
       const fetchData = async () => {
         if (item.id.length === 8) {
           try {
@@ -119,6 +120,7 @@ export default function Playlists() {
                 return convertZingToTrack(track);
               })
             );
+            console.log("Converted Data:", convertedData.map((item) => item.title));
             setData(convertedData);
           } catch (error) {
             console.error("Error playlist:", error);
@@ -132,12 +134,21 @@ export default function Playlists() {
           const response = playlists.find(
             (playlist) => playlist.id === item.id
           );
+          console.log("Response:", response?.tracks.map((item) => item.title));
           setData(response?.tracks || []);
         }
       };
       fetchData();
-    }, [])
+
+      return () => {
+        isActive = false;
+      };
+    }, [playlists])
   );
+
+  useEffect(() => {
+    console.log("Data:", data.map((item) => item.title));
+  }, [data]);
 
   return (
     <View className="flex-1 bg-background-0">

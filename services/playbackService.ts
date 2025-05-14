@@ -24,20 +24,18 @@ export const playbackService = async () => {
   });
 };
 
-export const generateTracksListId = (trackListName: string, search?: string) => {
-	return `${trackListName}${`-${search}` || ''}`
-}
+export const generateTracksListId = (
+  trackListName: string,
+  search?: string
+) => {
+  return `${trackListName}${`-${search}` || ""}`;
+};
 
 export const playTrack = async (track: Track) => {
   try {
     if (track.id.length === 8) {
       track.url = await fetchSong(track.id);
     }
-    const { activeQueueId, setActiveQueueId } = useQueue();
-    if (activeQueueId === track.id) {
-      return;
-    }
-    setActiveQueueId(track.id);
 
     await TrackPlayer.reset();
     await TrackPlayer.load(track);
@@ -58,38 +56,38 @@ export const playPlaylist = async (tracks: Track[], id: string) => {
       })
     );
     if (!tracks || tracks.length === 0) return;
-    const { activeQueueId, setActiveQueueId } = useQueue();
-    if (activeQueueId === id) {
-      TrackPlayer.pause();
-      return;
-    }
-    setActiveQueueId(id);
-    
+
     await TrackPlayer.reset();
     await TrackPlayer.setQueue(tracks);
     await TrackPlayer.play();
   } catch (error) {
     console.error("Error loading playlist:", error);
   }
-}
+};
 
-export const playPlaylistFromIndex = async (tracks: Track[], index: number, id: string) => {
+export const playPlaylistFromIndex = async (
+  tracks: Track[],
+  index: number,
+  id: string
+) => {
   if (!tracks || index < 0 || index >= tracks.length) return;
-  
 
   TrackPlayer.reset(); // clear existing queue
   TrackPlayer.add(tracks);
   TrackPlayer.skip(tracks[index].id);
   TrackPlayer.play();
+};
 
-}
-
-export const playPlaylistFromTrack = async (tracks: Track[], trackIndex: Track) => {
+export const playPlaylistFromTrack = async (
+  tracks: Track[],
+  trackIndex: Track,
+  id: string
+) => {
   if (trackIndex === undefined) return;
   const index = tracks.findIndex((track) => track.id === trackIndex.id);
   if (index === -1) return;
 
-  TrackPlayer.reset();
-  TrackPlayer.setQueue(tracks.slice(index));
-  TrackPlayer.play();
-}
+  await TrackPlayer.reset();
+  await TrackPlayer.setQueue(tracks.slice(index));
+  await TrackPlayer.play();
+};

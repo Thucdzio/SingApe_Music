@@ -109,7 +109,10 @@ export default function Library() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1"
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false} 
+      >
         <CustomHeader
           title="Thư viện"
           showBack={false}
@@ -196,6 +199,7 @@ export default function Library() {
                 </Pressable>
               )}
               ItemSeparatorComponent={() => <View className="h-3" />}
+              ListFooterComponent={() => <View className="h-28" />}
               scrollEnabled={false}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}

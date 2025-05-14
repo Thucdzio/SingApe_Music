@@ -5,7 +5,6 @@ import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
 import { AuthProvider } from "../context/auth";
 import { useCallback, useEffect, useState } from "react";
-import { ModeType } from "@/components/ui/gluestack-ui-provider/types";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSetupTrackPlayer } from "@/hooks/useSetupTrackPlayer";
 import { useLogTrackPlayerState } from "@/hooks/useLogTrackPlayerState";
@@ -20,8 +19,9 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useDoubleBackExit } from "@/hooks/useDoubleBackExit";
 import { useTrackHistoryLogger } from "@/hooks/useTrackHistoryLogger";
 import { ThemeProvider, useTheme } from "@/components/ui/ThemeProvider";
-import { AlertModalProvider } from "@/context/modal";
+import { ModalProvider } from "@/context/modal";
 import { AlertProvider } from "@/context/alert";
+import { backgroundColor } from "@/constants/tokens";
 
 SplashScreen.preventAutoHideAsync();
 TrackPlayer.registerPlaybackService(() => playbackService);
@@ -30,6 +30,7 @@ configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
 });
+
 export default function RootLayout() {
   const handelTrackPlayerLoaded = useCallback(() => {
     SplashScreen.hideAsync();
@@ -48,18 +49,18 @@ export default function RootLayout() {
     <GestureHandlerRootView>
       <ThemeProvider>
         <GluestackWrapper>
-          <AlertModalProvider>
+          <ModalProvider>
             <AlertProvider>
               <SafeAreaProvider>
                 <AuthProvider>
                   <BottomSheetModalProvider>
                     <RootNavigator />
+                    <StatusBar style="auto" />
                   </BottomSheetModalProvider>
-                  <StatusBar style="auto" />
                 </AuthProvider>
               </SafeAreaProvider>
             </AlertProvider>
-          </AlertModalProvider>
+          </ModalProvider>
         </GluestackWrapper>
       </ThemeProvider>
     </GestureHandlerRootView>

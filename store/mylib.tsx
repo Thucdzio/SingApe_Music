@@ -25,7 +25,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
     tracks: [],
 
     setPlaylist: (playlist: MyPlaylist) => {
-        set({ playlists: [...get().playlists.filter((item) => item.id === playlist.id), playlist] });
+        set({ playlists: [...get().playlists.filter((item) => item.id !== playlist.id), playlist] });
     },
 
     setPlaylists: (playlists: MyPlaylist[]) => {

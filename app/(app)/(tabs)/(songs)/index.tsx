@@ -1,4 +1,4 @@
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import {
   View,
   FlatList,
@@ -38,7 +38,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Divider } from "@/components/ui/divider";
 import { unknownTrackImageSource } from "@/constants/image";
 import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
-import { CircleArrowDown, CirclePlus, Heart } from "lucide-react-native";
+import { CircleArrowDown, CirclePlus, Heart, Search } from "lucide-react-native";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -377,6 +377,17 @@ export default function Songs() {
           showBack={false}
           titleClassName="text-3xl font-bold"
           headerClassName="bg-background-0 px-4"
+          right={
+            <Button
+              variant="link"
+              className="text-sm font-semibold"
+              onPress={() => {
+                router.navigate("/search" as Href);
+              }}
+            >
+              <ButtonIcon as={Search} size="xxl" className="text-primary-500" />
+            </Button>
+          }
         />
         <VStack space="lg">
           {renderAlbumHotSection()}
@@ -464,7 +475,7 @@ const ColumnWiseFlatList = ({ data, onTrackOptionPress, onTrackSelect }: ColumnW
           key={i}
           track={item}
           onTrackSelect={(item: any) => {
-            playPlaylistFromTrack(data, item);
+            playPlaylistFromTrack(data, item, "newRelease");
           }}
           onRightPress={() => {
             onTrackOptionPress && onTrackOptionPress(item);
