@@ -45,21 +45,22 @@ export const playTrack = async (track: Track) => {
   }
 };
 
-export const playPlaylist = async (tracks: Track[], id: string) => {
+export const playPlaylist = async (tracks: Track[]) => {
   try {
-    tracks = await Promise.all(
-      tracks.map(async (track) => {
-        if (track.id.length === 8) {
-          track.url = await fetchSong(track.id);
-        }
-        return track;
-      })
-    );
     if (!tracks || tracks.length === 0) return;
 
+    const currentTrack = {...tracks[0], url: await fetchSong(tracks[0].id) };
     await TrackPlayer.reset();
-    await TrackPlayer.setQueue(tracks);
+    await TrackPlayer.add(currentTrack);
     await TrackPlayer.play();
+
+    for (const track of tracks) {
+      if (track.id.length === 8) {
+        track.url = await fetchSong(track.id);
+      }
+      await TrackPlayer.add(track);
+    }
+    
   } catch (error) {
     console.error("Error loading playlist:", error);
   }
@@ -80,14 +81,26 @@ export const playPlaylistFromIndex = async (
 
 export const playPlaylistFromTrack = async (
   tracks: Track[],
-  trackIndex: Track,
-  id: string
+  trackIndex: Track
 ) => {
   if (trackIndex === undefined) return;
   const index = tracks.findIndex((track) => track.id === trackIndex.id);
   if (index === -1) return;
 
+  const currentTrack = { ...trackIndex, url: await fetchSong(trackIndex.id) };
+
   await TrackPlayer.reset();
-  await TrackPlayer.setQueue(tracks.slice(index));
+  await TrackPlayer.add(currentTrack);
   await TrackPlayer.play();
+
+  Promise.all(
+    tracks.map(async (track) => {
+      if (track.id.length === 8) {
+        track.url = await fetchSong(track.id);
+      }
+      return track;
+    })
+  ).then((tracks) => {
+    TrackPlayer.add(tracks);
+  });
 };

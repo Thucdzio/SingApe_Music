@@ -37,12 +37,12 @@ import {
 import { ScrollView } from "react-native-gesture-handler";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useWindowDimensions } from "react-native";
-import { useColorScheme } from "nativewind";
+import { MyTrack } from "@/types/zing.types";
 
 export type TracksListItemProps = {
-  track: Track;
-  onTrackSelect: (track: Track) => void;
-  onRightPress?: (track: Track) => void;
+  track: MyTrack;
+  onTrackSelect: (track: MyTrack) => void;
+  onRightPress?: (track: MyTrack) => void;
   variant?: variantType;
   showOptionButton?: boolean;
   children?: React.ReactNode;
@@ -59,7 +59,7 @@ export const TracksListItem = ({
   children,
 }: TracksListItemProps) => {
   const { playing } = useIsPlaying();
-  const isActiveTrack = useActiveTrack()?.url === track.url;
+  const isActiveTrack = useActiveTrack()?.id === track.id;
 
   const windowWidth = useWindowDimensions().width - 32;
 
@@ -110,7 +110,7 @@ export const TracksListItem = ({
     );
   };
 
-  const handleOptionPress = (track: Track) => {
+  const handleOptionPress = (track: MyTrack) => {
     onRightPress?.(track);
   };
 

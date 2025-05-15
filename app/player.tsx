@@ -29,7 +29,6 @@ const PlayerScreen = () => {
   const { imageColors } = usePlayerBackground(
     activeTrack?.artwork ?? unknownTrackImageSource
   );
-  console.log(activeTrack?.artwork ?? unknownTrackImageSource);
 
   const { top, bottom } = useSafeAreaInsets();
   const { isFavorite, toggleFavorite } = useTrackPlayerFavorite();

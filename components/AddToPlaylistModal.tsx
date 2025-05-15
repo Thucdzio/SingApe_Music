@@ -45,7 +45,7 @@ export const AddToPlaylistModal = ({
     });
     onClose();
   };
-  // console.log(isOpen);
+
   const handleCreatePlaylist = () => {
     if (newPlaylistName.trim()) {
       createPlaylist(newPlaylistName.trim());

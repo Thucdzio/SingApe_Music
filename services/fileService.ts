@@ -67,7 +67,7 @@ export async function saveListeningHistory(track: Track) {
   await FileSystem.writeAsStringAsync(historyFileUri, JSON.stringify(history));
 }
 
-export async function getListeningHistory(): Promise<Array<{ track: Track; timestamp: string }>> {
+export async function getListeningHistory(): Promise<Array<{ track: MyTrack; timestamp: string }>> {
   try {
     const fileInfo = await FileSystem.getInfoAsync(HISTORY_FILE);
     if (!fileInfo.exists) return [];
@@ -78,6 +78,13 @@ export async function getListeningHistory(): Promise<Array<{ track: Track; times
   } catch (e) {
     console.error('Error reading history:', e);
     return [];
+  }
+}
+
+export async function deleteListeningHistory() {
+  const fileInfo = await FileSystem.getInfoAsync(HISTORY_FILE);
+  if (fileInfo.exists) {
+    await FileSystem.writeAsStringAsync(HISTORY_FILE, JSON.stringify([]));
   }
 }
 

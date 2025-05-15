@@ -13,7 +13,7 @@ import {
   getPlaylist,
   listPlaylists,
 } from "@/services/fileService";
-import { generateTracksListId, playPlaylist } from "@/services/playbackService";
+import { generateTracksListId, playPlaylist, playPlaylistFromTrack } from "@/services/playbackService";
 import { usePlaylists } from "@/store/library";
 import { useLibraryStore } from "@/store/mylib";
 import { MyTrack, Playlist } from "@/types/zing.types";
@@ -31,14 +31,24 @@ import { navigate } from "expo-router/build/global-state/routing";
 import { CircleX } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
+import { useQueueStore } from "@/store/queue";
+import TrackPlayer, {
+  isPlaying,
+  useIsPlaying,
+} from "react-native-track-player";
 
 export default function Playlists() {
   const item = useLocalSearchParams<MyTrack>();
   const [data, setData] = useState<MyTrack[]>([]);
-  const { show } = useModal();
+
   const playlists = useLibraryStore((state) => state.playlists);
   const deleteStorePlaylist = useLibraryStore((state) => state.deletePlaylist);
+
   const { user } = useAuth();
+  const { show } = useModal();
+  const { playing } = useIsPlaying();
+  const activeQueueId = useQueueStore((state) => state.activeQueueId);
+  const setActiveQueueId = useQueueStore((state) => state.setActiveQueueId);
   const variant = useSegments().find((segment) => segment === "(songs)")
     ? "songs"
     : "library";
@@ -75,15 +85,37 @@ export default function Playlists() {
     );
   };
 
-  const handleOnPlayPress = () => {
-    playPlaylist(data, generateTracksListId(item.title || "Unknown", item.id));
+  const handleOnPlayPress = async () => {
+    const queueId = item.id;
+    console.log("Queue ID:", queueId);
+    if (activeQueueId === queueId) {
+      if (!playing) {
+        await TrackPlayer.play();
+        return;
+      }
+
+      await TrackPlayer.pause();
+    } else {
+      setActiveQueueId(queueId);
+      await playPlaylist(data)
+    }
   };
 
-  const handleOnShufflePress = () => {
-    playPlaylist(
-      data.sort(() => Math.random() - 0.5),
-      generateTracksListId(item.title || "Unknown", item.id)
-    );
+  const handleOnShufflePress = async () => {
+    const queueId = generateTracksListId(item.title || "Unknown", item.id);
+    if (activeQueueId === queueId) {
+      if (!playing) {
+        await TrackPlayer.play();
+        return;
+      }
+
+      await TrackPlayer.pause();
+    } else {
+      setActiveQueueId(queueId);
+      playPlaylist(
+        data.sort(() => Math.random() - 0.5)
+      );
+    }
   };
 
   const confirmDelete = async () => {
@@ -120,7 +152,10 @@ export default function Playlists() {
                 return convertZingToTrack(track);
               })
             );
-            console.log("Converted Data:", convertedData.map((item) => item.title));
+            console.log(
+              "Converted Data:",
+              convertedData.map((item) => item.title)
+            );
             setData(convertedData);
           } catch (error) {
             console.error("Error playlist:", error);
@@ -134,7 +169,10 @@ export default function Playlists() {
           const response = playlists.find(
             (playlist) => playlist.id === item.id
           );
-          console.log("Response:", response?.tracks.map((item) => item.title));
+          console.log(
+            "Response:",
+            response?.tracks.map((item) => item.title)
+          );
           setData(response?.tracks || []);
         }
       };
@@ -147,7 +185,10 @@ export default function Playlists() {
   );
 
   useEffect(() => {
-    console.log("Data:", data.map((item) => item.title));
+    console.log(
+      "Data:",
+      data.map((item) => item.title)
+    );
   }, [data]);
 
   return (

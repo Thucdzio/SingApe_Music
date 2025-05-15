@@ -16,18 +16,37 @@ import { backgroundColor, colors } from "@/constants/tokens";
 import { Marquee } from "@animatereactnative/marquee";
 import usePlayerBackground from "@/hooks/usePlayerBackground";
 import { LinearGradient } from "expo-linear-gradient";
-import { useDerivedValue, useFrameCallback, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
+import {
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedSensor,
+  useDerivedValue,
+  useFrameCallback,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
 import { useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export const FloatingPlayer = ({ style }: ViewProps) => {
-  const marqueePosition = useSharedValue(0);
-  const router = useRouter();
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [textWidth, setTextWidth] = useState(0);
+  const [measured, setMeasured] = useState(false);
+  const [speed, setSpeed] = useState(0.2);
 
   const activeTrack = useActiveTrack();
   const lastActiveTrack = useLastActiveTrack();
 
   const displayedTrack = activeTrack ?? lastActiveTrack;
+  const shouldMarquee = measured && textWidth > containerWidth;
+
+  useEffect(() => {
+    setMeasured(!measured);
+  }, [displayedTrack, textWidth]);
+
+  const marqueePosition = useSharedValue(0);
+  const router = useRouter();
 
   const { imageColors } = usePlayerBackground(
     displayedTrack?.artwork ?? unknownTrackImageSource
@@ -41,24 +60,32 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
     console.log("No track is currently playing or active.");
     return null;
   }
-  
+
   const renderTitle = () => {
-    if ((displayedTrack.title ?? "").length > 20) {
+    if (measured && textWidth > containerWidth) {
       return (
-        <Marquee spacing={50} speed={0.2} style={{ width: "100%" }} position={marqueePosition}>
-          <Text className="text-white font-semibold text-base">
-            {displayedTrack.title ?? ""}
+        <Marquee
+          spacing={50}
+          speed={speed}
+          style={{ width: "100%" }}
+          position={marqueePosition}       
+        >
+          <Text
+            numberOfLines={1}
+            className="text-white font-semibold text-base"
+          >
+            {displayedTrack.title}
           </Text>
         </Marquee>
-      )
+      );
     } else {
       return (
-        <Text className="text-white font-semibold text-base">
-          {displayedTrack.title ?? ""}
+        <Text numberOfLines={1} className="text-white font-semibold text-base">
+          {displayedTrack.title}
         </Text>
-      )
+      );
     }
-  }
+  };
 
   return (
     <View
@@ -102,9 +129,26 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
               overflow: "hidden",
             }}
           /> */}
-          <VStack className="flex-1 overflow-hidden w-full">
+          <Text
+            className="text-white font-semibold text-base absolute opacity-0"
+            onLayout={(e) => {
+              setTextWidth(e.nativeEvent.layout.width);
+            }}
+          >
+            {displayedTrack.title ?? ""}
+          </Text>
+          <VStack
+            className="flex-1 overflow-hidden w-full"
+            onLayout={(e) => {
+              setContainerWidth(e.nativeEvent.layout.width);
+              setMeasured(true);
+            }}
+          >
             <LinearGradient
-              colors={[imageColors?.primary || colors.background, "transparent"]}
+              colors={[
+                imageColors?.primary || colors.background,
+                "transparent",
+              ]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{
@@ -116,7 +160,7 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
                 zIndex: 10,
               }}
             />
-            <View className="ml-2">
+            <View className="ml-2 w-full">
               {renderTitle()}
               <Text numberOfLines={1} className="text-gray-400">
                 {displayedTrack.artist}
@@ -124,7 +168,10 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
             </View>
 
             <LinearGradient
-              colors={["transparent", imageColors?.primary || colors.background]}
+              colors={[
+                "transparent",
+                imageColors?.primary || colors.background,
+              ]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={{

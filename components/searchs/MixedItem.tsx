@@ -1,10 +1,15 @@
 import { Artist, MyTrack } from "@/types/zing.types";
 import { FlatListProps, View } from "react-native";
-import { Button, HStack, Image, VStack, Text } from "../ui";
+import { Button, HStack, Image, VStack, Text, Box } from "../ui";
 import { ButtonIcon, ButtonText } from "../ui/button";
-import { X } from "lucide-react-native";
+import { CircleArrowDown, CirclePlus, CircleUserRound, Heart, ListFilterPlus, Share2, X } from "lucide-react-native";
 import { TracksListItem } from "../TrackListItem";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { MyBottomSheet } from "../bottomSheet/MyBottomSheet";
+import { unknownTrackImageSource } from "@/constants/image";
+import { Divider } from "../ui/divider";
+import ButtonBottomSheet from "../bottomSheet/ButtonBottomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 export type MixedSearchItem = any & {
   type: "song" | "artist" | "playlist" | "album";
@@ -29,9 +34,42 @@ export const MixedItem = ({
 }: MixedItemProps
 ) => {
   const [followed, setFollowed] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<MixedSearchItem | null>(null);
+
+  const ref = useRef<BottomSheetModal>(null);
+  const handlePresentModalPress = () => {
+    ref.current?.present();
+  };
+  const handleDismissModalPress = () => {
+    ref.current?.dismiss();
+  };
+  const handleSelectItem = (item: MixedSearchItem) => {
+    setSelectedItem(item);
+    handlePresentModalPress();
+  }
+
   const handleFollowArtist = () => {
     setFollowed(!followed);
     console.log("Follow artist:", item);
+  }
+
+  const handleAddToPlaylistPress = () => {
+    console.log("Add to playlist:", selectedItem);
+  }
+  const handleFavoritePress = () => {
+    console.log("Favorite:", selectedItem);
+  }
+  const handleDownloadPress = () => {
+    console.log("Download:", selectedItem);
+  }
+  const handleArtistPress = () => {
+    console.log("Artist:", selectedItem);
+  }
+  const handleSharePress = () => {
+    console.log("Share:", selectedItem);
+  }
+  const handleAddToNowPlayingPress = () => {
+    
   }
 
 
@@ -82,7 +120,7 @@ export const MixedItem = ({
               onSelectSong(newItem);
             }}
             onRightPress={() => {
-              console.log("Long pressed:", item);
+              handleSelectItem(newItem);
             }}
           />
         )}
@@ -163,6 +201,67 @@ export const MixedItem = ({
   };
 
   return (
-    renderItem()
+    <>
+    {renderItem()}
+    <MyBottomSheet bottomSheetRef={ref}>
+              <HStack space="md">
+                <Image
+                  source={
+                    selectedItem?.artwork
+                      ? { uri: selectedItem.artwork }
+                      : unknownTrackImageSource
+                  }
+                  className="rounded"
+                  size="sm"
+                  alt="track artwork"
+                />
+                <VStack className="flex-1 pl-2">
+                  <Text className="text-xl font-medium text-primary-500">
+                    {selectedItem?.title}
+                  </Text>
+                  <Text className="text-md text-gray-500">
+                    {selectedItem?.artist}
+                  </Text>
+                </VStack>
+              </HStack>
+              <Box className="w-full my-4">
+                <Divider />
+              </Box>
+              <VStack space="md" className="w-full">
+                <ButtonBottomSheet
+                  onPress={handleAddToPlaylistPress}
+                  buttonIcon={CirclePlus}
+                  buttonText="Thêm vào danh sách phát"
+                />
+                <ButtonBottomSheet
+                  onPress={handleFavoritePress}
+                  stateChangable={true}
+                  fillIcon={selectedItem?.isFavorite}
+                  buttonIcon={Heart}
+                  buttonText="Thêm vào yêu thích"
+                />
+                <ButtonBottomSheet
+                  onPress={handleAddToNowPlayingPress}
+                  buttonIcon={ListFilterPlus}
+                  buttonText="Thêm vào danh sách chờ"
+                />
+                <ButtonBottomSheet
+                  onPress={handleDownloadPress}
+                  buttonIcon={CircleArrowDown}
+                  buttonText="Tải xuống"
+                />
+                <ButtonBottomSheet
+                  onPress={handleArtistPress}
+                  buttonIcon={CircleUserRound}
+                  buttonText="Chuyển đến nghệ sĩ"
+                />
+                <ButtonBottomSheet
+                  onPress={handleSharePress}
+                  buttonIcon={Share2}
+                  buttonText="Chia sẻ"
+                />
+              </VStack>
+            </MyBottomSheet>
+    </>
   );
 };

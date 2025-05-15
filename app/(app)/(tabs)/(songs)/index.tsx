@@ -28,8 +28,19 @@ import { MyTrack, Home, ExtendedTrack } from "@/types/zing.types";
 import { fetchHome } from "@/lib/spotify";
 import { convertZingToTrack } from "@/helpers/convert";
 import { TracksListItem } from "@/components/TrackListItem";
-import { playPlaylist, playTrack, playPlaylistFromIndex, playPlaylistFromTrack, generateTracksListId } from "@/services/playbackService";
-import { addSongToFavorite, checkIfSongInFavorites, getListeningHistory, removeSongFromFavorite } from "@/services/fileService";
+import {
+  playPlaylist,
+  playTrack,
+  playPlaylistFromIndex,
+  playPlaylistFromTrack,
+  generateTracksListId,
+} from "@/services/playbackService";
+import {
+  addSongToFavorite,
+  checkIfSongInFavorites,
+  getListeningHistory,
+  removeSongFromFavorite,
+} from "@/services/fileService";
 import { getAllSongs, getSongsByArtistId, Song } from "@/lib/api/songs";
 import { getAllArtists, Artist } from "@/lib/api/artists";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
@@ -38,17 +49,24 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Divider } from "@/components/ui/divider";
 import { unknownTrackImageSource } from "@/constants/image";
 import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
-import { CircleArrowDown, CirclePlus, Heart, Search } from "lucide-react-native";
+import {
+  CircleArrowDown,
+  CirclePlus,
+  Heart,
+  Search,
+  Share2,
+  UserRoundCheck,
+} from "lucide-react-native";
 
 export default function Songs() {
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const [tracks, setTracks] = useState<MyTrack[]>([]);
   const haveFloatingPlayer = useActiveTrack();
   const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
 
   const [homeData, setHomeData] = useState<{
     tracks: Track[];
     chillSection: MyTrack[];
-    recentSection: Track[];
+    recentSection: MyTrack[];
     top100Section: MyTrack[];
     newReleaseSection: MyTrack[];
     albumHotSection: MyTrack[];
@@ -178,15 +196,21 @@ export default function Songs() {
 
       setHomeData({
         tracks,
-        chillSection: Array.isArray(chillSection) ? await handleData(chillSection) : [],
-        recentSection: (recentSection.map((song) => song.track)),
-        top100Section: Array.isArray(top100Section) ? await handleData(top100Section) : [],
+        chillSection: Array.isArray(chillSection)
+          ? await handleData(chillSection)
+          : [],
+        recentSection: recentSection.map((song) => song.track),
+        top100Section: Array.isArray(top100Section)
+          ? await handleData(top100Section)
+          : [],
         newReleaseSection: Array.isArray(newReleaseSection)
           ? await handleData(newReleaseSection)
           : newReleaseSection?.all
           ? await handleData(newReleaseSection.all)
           : [],
-        albumHotSection: Array.isArray(albumHotSection) ? await handleData(albumHotSection) : [],
+        albumHotSection: Array.isArray(albumHotSection)
+          ? await handleData(albumHotSection)
+          : [],
       });
     } catch (error) {
       console.error("Error fetching songs:", error);
@@ -197,27 +221,30 @@ export default function Songs() {
 
   const handleData = async (data: ExtendedTrack[]) => {
     const tracks = await Promise.all(
-      data.filter((song: ExtendedTrack) => (
-        !song.streamPrivileges || song.streamPrivileges.includes(1)
-      )).map((song: any) => {
-        return convertZingToTrack(song);
-      })
+      data
+        .filter(
+          (song: ExtendedTrack) =>
+            !song.streamPrivileges || song.streamPrivileges.includes(1)
+        )
+        .map((song: any) => {
+          return convertZingToTrack(song);
+        })
     );
     return tracks;
   };
 
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
-    fetchSongs();
-  });
-  return () => task.cancel();
+      fetchSongs();
+    });
+    return () => task.cancel();
   }, []);
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
     bottomSheetRef.current?.present();
   }, []);
-  const handleCloseModalPress = useCallback(() => {
+  const handleDismissModalPress = useCallback(() => {
     bottomSheetRef.current?.close();
   }, []);
 
@@ -226,17 +253,17 @@ export default function Songs() {
       const isFavorite = await checkIfSongInFavorites(selectedItem);
       setIsFavorite(isFavorite);
     }
-  }
+  };
 
   const handleAddToPlaylistPress = async () => {
     if (selectedItem) {
-      handleCloseModalPress();
+      handleDismissModalPress();
       router.push({
         pathname: "/addToPlaylist",
-        params: selectedItem
+        params: selectedItem,
       });
     }
-  }
+  };
 
   const handleFavoritePress = async () => {
     if (selectedItem) {
@@ -255,10 +282,28 @@ export default function Songs() {
   const handleDownloadPress = async () => {
     if (selectedItem) {
       try {
-        
       } catch (error) {
         console.error("Error playing playlist:", error);
       }
+    }
+  };
+
+  const handleArtistPress = async () => {
+    if (selectedItem) {
+      handleDismissModalPress();
+      console.log("artistId", selectedItem);
+      router.navigate({
+        pathname: `/(app)/(tabs)/(songs)/artists/[id]`,
+        params: { id: selectedItem?.artists[0].alias ?? selectedItem?.artist ?? "" },
+      });
+    }
+  };
+
+  const handleSharePress = async () => {
+    if (selectedItem) {
+      handleDismissModalPress();
+      console.log("Share", selectedItem);
+      // Implement share functionality here
     }
   };
 
@@ -352,12 +397,11 @@ export default function Songs() {
       <>
         <Heading className={headingStyle}>Mới phát hành</Heading>
         <Box>
-          <ColumnWiseFlatList data={homeData.newReleaseSection || []} 
-            onTrackOptionPress={
-              (track) => {
-                handleOnOptionsPress(track as MyTrack);
-              }
-            }
+          <ColumnWiseFlatList
+            data={homeData.newReleaseSection || []}
+            onTrackOptionPress={(track) => {
+              handleOnOptionsPress(track as MyTrack);
+            }}
           />
         </Box>
       </>
@@ -397,51 +441,59 @@ export default function Songs() {
           {renderTop100Section()}
           {renderChillSection()}
         </VStack>
-        <MyBottomSheet
-          bottomSheetRef={bottomSheetRef}
-        >
+        <MyBottomSheet bottomSheetRef={bottomSheetRef}>
           <HStack space="md">
-          <Image
-            source={
-              selectedItem?.artwork
-                ? { uri: selectedItem.artwork }
-                : unknownTrackImageSource
-            }
-            className="rounded"
-            size="sm"
-            alt="track artwork"
-          />
-          <VStack className="flex-1 pl-2">
-            <Text className="text-xl font-medium text-primary-500">
-              {selectedItem?.title}
-            </Text>
-            <Text className="text-md text-gray-500">
-              {selectedItem?.artist}
-            </Text>
+            <Image
+              source={
+                selectedItem?.artwork
+                  ? { uri: selectedItem.artwork }
+                  : unknownTrackImageSource
+              }
+              className="rounded"
+              size="sm"
+              alt="track artwork"
+            />
+            <VStack className="flex-1 pl-2">
+              <Text className="text-xl font-medium text-primary-500">
+                {selectedItem?.title}
+              </Text>
+              <Text className="text-md text-gray-500">
+                {selectedItem?.artist}
+              </Text>
+            </VStack>
+          </HStack>
+          <Box className="w-full my-4">
+            <Divider />
+          </Box>
+          <VStack space="md" className="w-full">
+            <ButtonBottomSheet
+              onPress={handleAddToPlaylistPress}
+              buttonIcon={CirclePlus}
+              buttonText="Thêm vào danh sách phát"
+            />
+            <ButtonBottomSheet
+              onPress={handleFavoritePress}
+              stateChangable={true}
+              fillIcon={isFavorite}
+              buttonIcon={Heart}
+              buttonText="Thêm vào yêu thích"
+            />
+            <ButtonBottomSheet
+              onPress={handleDownloadPress}
+              buttonIcon={CircleArrowDown}
+              buttonText="Tải xuống"
+            />
+            <ButtonBottomSheet
+              onPress={handleArtistPress}
+              buttonIcon={UserRoundCheck}
+              buttonText="Chuyển đến nghệ sĩ"
+            />
+            <ButtonBottomSheet
+              onPress={handleSharePress}
+              buttonIcon={Share2}
+              buttonText="Chia sẻ"
+            />
           </VStack>
-        </HStack>
-        <Box className="w-full my-4">
-          <Divider />
-        </Box>
-        <VStack space="md" className="w-full">
-          <ButtonBottomSheet
-            onPress={handleAddToPlaylistPress}
-            buttonIcon={CirclePlus}
-            buttonText="Thêm vào danh sách phát"
-          />
-          <ButtonBottomSheet
-            onPress={handleFavoritePress}
-            stateChangable={true}
-            fillIcon={isFavorite}
-            buttonIcon={Heart}
-            buttonText="Thêm vào yêu thích"
-          />
-          <ButtonBottomSheet
-            onPress={handleDownloadPress}
-            buttonIcon={CircleArrowDown}
-            buttonText="Tải xuống"
-          />
-        </VStack>
         </MyBottomSheet>
         <Box className="h-28" />
       </ScrollView>
@@ -455,18 +507,22 @@ interface ColumnWiseFlatListProps {
   onTrackOptionPress?: (track: MyTrack) => void;
 }
 
-const ColumnWiseFlatList = ({ data, onTrackOptionPress, onTrackSelect }: ColumnWiseFlatListProps) => {
+const ColumnWiseFlatList = ({
+  data,
+  onTrackOptionPress,
+  onTrackSelect,
+}: ColumnWiseFlatListProps) => {
   const screenWidth = useWindowDimensions().width - 32;
   const snapInterval = screenWidth + 14; // 16 is the width of the separator
   const numCols = 3;
 
-  const transformedData = useMemo((() => {
+  const transformedData = useMemo(() => {
     const columns: MyTrack[][] = [];
     for (let i = 0; i < data.length; i += numCols) {
       columns.push(data.slice(i, i + numCols));
     }
     return columns;
-  }), [data]);
+  }, [data]);
 
   const Column = ({ items }: { items: MyTrack[] }) => (
     <VStack style={{ width: screenWidth }} space="md">
@@ -475,7 +531,7 @@ const ColumnWiseFlatList = ({ data, onTrackOptionPress, onTrackSelect }: ColumnW
           key={i}
           track={item}
           onTrackSelect={(item: any) => {
-            playPlaylistFromTrack(data, item, "newRelease");
+            playPlaylistFromTrack(items, item);
           }}
           onRightPress={() => {
             onTrackOptionPress && onTrackOptionPress(item);
@@ -484,7 +540,10 @@ const ColumnWiseFlatList = ({ data, onTrackOptionPress, onTrackSelect }: ColumnW
       ))}
     </VStack>
   );
-  const _renderitem = useCallback(({ item }: any) => <Column items={item} />, []);
+  const _renderitem = useCallback(
+    ({ item }: any) => <Column items={item} />,
+    []
+  );
   return (
     <FlatList
       data={transformedData}
@@ -530,10 +589,14 @@ const AlbumList = ({ horizontal, data, ...props }: AlbumListProps) => {
 
 const AlbumListItem = ({ item }: { item: MyTrack }) => {
   return (
-    <Link href={{
-      pathname: `${item.datatype === "playlist" ? "/playlists" : "/albums"}/[id]`,
-      params: item
-    }}>
+    <Link
+      href={{
+        pathname: `${
+          item.datatype === "playlist" ? "/playlists" : "/albums"
+        }/[id]`,
+        params: item,
+      }}
+    >
       <VStack className="w-40">
         <Image
           source={{ uri: item.artwork }}

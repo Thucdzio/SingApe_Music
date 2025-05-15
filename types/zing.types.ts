@@ -56,11 +56,12 @@ export type MyTrackType = "playlist" | "album" | "track" | "artist" | "mv" | "us
 
 export interface MyTrack extends Track {
     id: string;
-    score: number;
+    score?: number;
+    alias?: string;
     description?: string;
     sortDescription?: string;
-    rakingStatus: number;
-    weeklyRanking: number;
+    rakingStatus?: number;
+    weeklyRanking?: number;
     createdBy?: string;
     releaseDate?: string;
     datatype?: MyTrackType;
@@ -111,4 +112,21 @@ export interface SearchResult {
     artists: Artist[];
     songs: ExtendedTrack[];
     playlists: ExtendedTrack[];
+}
+
+export interface ArtistResult {
+    id: string;
+    name: string;
+    link: string;
+    thumbnail: string;
+    viewtype: string;
+    sections: [
+        {
+            sectionId: string;
+            sectionType: string;
+            title: string;
+            link: string;
+            items: ExtendedTrack[];
+        }
+    ]
 }

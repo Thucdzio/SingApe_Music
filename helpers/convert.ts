@@ -22,6 +22,7 @@ export async function convertZingToTrack(track: ExtendedTrack): Promise<MyTrack>
     id: track.encodeId,
     title: track.title,
     artist: track.artists[0].name,
+    alias: track.alias || track.artists[0].alias,
     artwork: track.thumbnailM,
     url: track.link,
     duration: track.duration,

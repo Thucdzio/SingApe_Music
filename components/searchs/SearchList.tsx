@@ -1,9 +1,11 @@
 import { FlatList, FlatListProps, View } from "react-native";
 import { MixedItem, MixedSearchItem } from "./MixedItem";
 import { useEffect, useState } from "react";
-import { Button, Center, Text, VStack } from "../ui";
+import { Button, Center, HStack, Text, VStack } from "../ui";
 import { ButtonText } from "../ui/button";
 import { FilterType, SearchListHeader } from "./SearchListHeader";
+import { MyBottomSheet } from "../bottomSheet/MyBottomSheet";
+import { unknownTrackImageSource } from "@/constants/image";
 
 interface SearchListProps extends Partial<FlatListProps<MixedSearchItem>> {
   data: MixedSearchItem[];
@@ -23,7 +25,9 @@ export const SearchList = ({
   onSelectPlaylist,
   ...props
 }: SearchListProps) => {
-  const [filteredData, setFilteredData] = useState<MixedSearchItem[]>(dataSlice || []);
+  const [filteredData, setFilteredData] = useState<MixedSearchItem[]>(
+    dataSlice || []
+  );
   const [showAll, setShowAll] = useState(displayAll);
 
   const [filter, setFilter] = useState<FilterType>({
@@ -61,12 +65,12 @@ export const SearchList = ({
 
   return (
     <VStack space="xs" className="pt-2">
-        <SearchListHeader
-          selected={filter}
-          onSelect={setFilter}
-          filterOptions={filterOptions}
-          isVisible={showAll}
-        />
+      <SearchListHeader
+        selected={filter}
+        onSelect={setFilter}
+        filterOptions={filterOptions}
+        isVisible={showAll}
+      />
       <FlatList
         data={filteredData}
         keyExtractor={(item) => item.id}
@@ -81,12 +85,15 @@ export const SearchList = ({
               <Button
                 variant="link"
                 action="positive"
-                onPress={() => setShowAll(true)}
+                className="h-14"
+                onPress={() => {
+                  setShowAll(true);
+                }}
               >
                 <ButtonText>Xem tất cả các kết quả</ButtonText>
               </Button>
             )}
-            <View className="h-10 bg-transparent" />
+            <View className="h-20 bg-transparent" />
           </>
         )}
         renderItem={({ item }) => (

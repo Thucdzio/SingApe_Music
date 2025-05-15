@@ -52,6 +52,8 @@ import { MyTrack } from "@/types/zing.types";
 import { Divider } from "@/components/ui/divider";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
+import { useQueueStore } from "@/store/queue";
+import { generateTracksListId } from "@/services/playbackService";
 
 interface PlaylistProps {
   id?: string;
@@ -60,7 +62,7 @@ interface PlaylistProps {
   imageUrl?: string;
   createdBy?: string;
   userImage?: string;
-  tracks?: Track[];
+  tracks?: MyTrack[];
   variant?: "library" | "songs";
   onTrackPress?: (track: Track) => void;
   onPlayPress?: () => void;
@@ -88,8 +90,9 @@ export const PlaylistScreen = ({
   onPlusPress,
   onEditPress,
 }: PlaylistProps) => {
-  const [selectedItem, setSelectedItem] = useState<Track | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
   const { playing } = useIsPlaying();
+  const queue = useQueueStore((state) => state.activeQueueId);
 
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue<number>(0);
@@ -107,15 +110,8 @@ export const PlaylistScreen = ({
   });
 
   const headerBackgroundAnimatedStyle = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(
-      scrollY.value,
-      [160, 180],
-      [
-        "transparent",
-        colorScheme.colorScheme === "dark" ? colors.purple[900] : colors.white,
-      ]
-    );
-    return { backgroundColor };
+    const opacity = interpolate(scrollY.value, [0, 200], [0, 1]);
+    return { opacity };
   });
 
   const playButtonOpacity = useAnimatedStyle(() => {
@@ -142,7 +138,7 @@ export const PlaylistScreen = ({
     bottomSheetRef.current?.dismiss();
   }, []);
 
-  const handleTrackOptionPress = (track: Track) => {
+  const handleTrackOptionPress = (track: MyTrack) => {
     setSelectedItem(track);
     handlePresentModalPress();
   };
@@ -150,7 +146,10 @@ export const PlaylistScreen = ({
   const handleAddToPlaylistPress = () => {};
   const handleFavoritePress = () => {
     if (selectedItem) {
-      setSelectedItem({ ...selectedItem, isFavorite: !selectedItem?.isFavorite });
+      setSelectedItem({
+        ...selectedItem,
+        isFavorite: !selectedItem?.isFavorite,
+      });
     }
   };
   const handleDownloadPress = () => {
@@ -158,7 +157,7 @@ export const PlaylistScreen = ({
   };
   const handleRemoveFromPlaylistPress = () => {
     // Handle remove from playlist action
-  }
+  };
   const handleArtistPress = () => {
     handleDismissModalPress();
     console.log("artistId", selectedItem?.artist);
@@ -166,11 +165,10 @@ export const PlaylistScreen = ({
       pathname: `/(app)/(tabs)/(${variant})/artists/[id]`,
       params: { id: selectedItem?.artist ?? "" },
     });
-  }
+  };
   const handleSharePress = () => {
     // Handle share action
   };
-
 
   const variantRender = () => {
     switch (variant) {
@@ -286,7 +284,7 @@ export const PlaylistScreen = ({
                     onPress={onPlayPress}
                   >
                     <ButtonIcon
-                      as={playing ? Pause : Play}
+                      as={playing && queue === id ? Pause : Play}
                       className="text-black fill-black w-6 h-6"
                     />
                   </Button>
@@ -296,21 +294,46 @@ export const PlaylistScreen = ({
           </VStack>
         </LinearGradient>
         <TracksList
-          id={title || "random"}
+          id={id || title || "default"}
           tracks={tracks || []}
-          ItemSeparatorComponent={
-            () => <View className="h-3" />
-          }
+          ItemSeparatorComponent={() => <View className="h-3" />}
           scrollEnabled={false}
           className="p-4"
+          ListFooterComponent={() => <View className="h-28" />}
+          onTrackSelect={onTrackPress}
           onTrackOptionPress={handleTrackOptionPress}
         />
       </Animated.ScrollView>
 
       <Animated.View
         className="absolute w-full"
-        style={[headerBackgroundAnimatedStyle, { paddingTop: insets.top }]}
+        style={{ paddingTop: insets.top }}
       >
+        <Animated.View
+          style={[
+            headerBackgroundAnimatedStyle,
+            {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              paddingTop: insets.top,
+            },
+          ]}
+        >
+          <LinearGradient
+            colors={getGradient(id || "")}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              paddingTop: insets.top,
+            }}
+          />
+        </Animated.View>
         <HStack className="items-center w-full">
           <Button
             onPress={() => {
@@ -348,73 +371,73 @@ export const PlaylistScreen = ({
             onPress={onPlayPress}
           >
             <ButtonIcon
-              as={playing ? Pause : Play}
+              as={playing && queue === id ? Pause : Play}
               className="text-black fill-black"
             />
           </Button>
         </Animated.View>
-
-        {/* Bottom Sheet Modal ----------------------------------------------------------------------------*/}
-        <MyBottomSheet bottomSheetRef={bottomSheetRef}>
-          <HStack space="md">
-            <Image
-              source={
-                selectedItem?.artwork
-                  ? { uri: selectedItem.artwork }
-                  : unknownTrackImageSource
-              }
-              className="rounded"
-              size="sm"
-              alt="track artwork"
-            />
-            <VStack className="flex-1 pl-2">
-              <Text className="text-xl font-medium text-primary-500">
-                {selectedItem?.title}
-              </Text>
-              <Text className="text-md text-gray-500">
-                {selectedItem?.artist}
-              </Text>
-            </VStack>
-          </HStack>
-          <Box className="w-full my-4">
-            <Divider />
-          </Box>
-          <VStack space="lg" className="w-full">
-            <ButtonBottomSheet
-              onPress={handleAddToPlaylistPress}
-              buttonIcon={CirclePlus}
-              buttonText="Thêm vào danh sách phát"
-            />
-            <ButtonBottomSheet
-              onPress={handleFavoritePress}
-              stateChangable={true}
-              fillIcon={selectedItem?.isFavorite}
-              buttonIcon={Heart}
-              buttonText="Thêm vào yêu thích"
-            />
-            <ButtonBottomSheet
-              onPress={handleDownloadPress}
-              buttonIcon={CircleArrowDown}
-              buttonText="Tải xuống"
-            />
-            <ButtonBottomSheet
-              onPress={handleRemoveFromPlaylistPress}
-              buttonIcon={CircleX}
-              buttonText="Xóa khỏi danh sách phát"
-            />
-            <ButtonBottomSheet
-              onPress={handleArtistPress}
-              buttonIcon={UserRoundCheck}
-              buttonText="Chuyển đến nghệ sĩ"
-            />
-            <ButtonBottomSheet
-              onPress={handleSharePress}
-              buttonIcon={Share2}
-              buttonText="Chia sẻ"
-            />
-          </VStack>
-        </MyBottomSheet>
       </Animated.View>
+
+      {/* Bottom Sheet Modal ----------------------------------------------------------------------------*/}
+      <MyBottomSheet bottomSheetRef={bottomSheetRef}>
+        <HStack space="md">
+          <Image
+            source={
+              selectedItem?.artwork
+                ? { uri: selectedItem.artwork }
+                : unknownTrackImageSource
+            }
+            className="rounded"
+            size="sm"
+            alt="track artwork"
+          />
+          <VStack className="flex-1 pl-2">
+            <Text className="text-xl font-medium text-primary-500">
+              {selectedItem?.title}
+            </Text>
+            <Text className="text-md text-gray-500">
+              {selectedItem?.artist}
+            </Text>
+          </VStack>
+        </HStack>
+        <Box className="w-full my-4">
+          <Divider />
+        </Box>
+        <VStack space="lg" className="w-full">
+          <ButtonBottomSheet
+            onPress={handleAddToPlaylistPress}
+            buttonIcon={CirclePlus}
+            buttonText="Thêm vào danh sách phát"
+          />
+          <ButtonBottomSheet
+            onPress={handleFavoritePress}
+            stateChangable={true}
+            fillIcon={selectedItem?.isFavorite}
+            buttonIcon={Heart}
+            buttonText="Thêm vào yêu thích"
+          />
+          <ButtonBottomSheet
+            onPress={handleDownloadPress}
+            buttonIcon={CircleArrowDown}
+            buttonText="Tải xuống"
+          />
+          <ButtonBottomSheet
+            onPress={handleRemoveFromPlaylistPress}
+            buttonIcon={CircleX}
+            buttonText="Xóa khỏi danh sách phát"
+          />
+          <ButtonBottomSheet
+            onPress={handleArtistPress}
+            buttonIcon={UserRoundCheck}
+            buttonText="Chuyển đến nghệ sĩ"
+          />
+          <ButtonBottomSheet
+            onPress={handleSharePress}
+            buttonIcon={Share2}
+            buttonText="Chia sẻ"
+          />
+        </VStack>
+      </MyBottomSheet>
     </View>
   );
 };

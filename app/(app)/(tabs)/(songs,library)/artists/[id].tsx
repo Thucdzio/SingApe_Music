@@ -1,18 +1,23 @@
 import { ArtistScreen } from "@/components/screens/ArtistScreen";
-import { MyTrack } from "@/types/zing.types";
-import { Stack } from "expo-router";
+import { fetchArtist } from "@/lib/spotify";
+import { ArtistResult, MyTrack } from "@/types/zing.types";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 export default function Artist() {
-  const [data, setData] = useState<MyTrack[]>([]);
+  const item = useLocalSearchParams<MyTrack>();
+  const [data, setData] = useState<ArtistResult>();
 
   useEffect(() => {
-    const fetchArtist = async () => {
-      // const response = await fetchArtist
+    const fetchData= async () => {
+      console.log("item", item);
+      const response = await fetchArtist(item.id);
+      setData(response);
+      console.log("response", response);
     };
 
-    fetchArtist();
+    fetchData();
   }, []);
 
   return (
@@ -22,7 +27,12 @@ export default function Artist() {
           headerShown: false,
         }}
       />
-      <ArtistScreen />
+      <ArtistScreen 
+        data={data}
+        id={data?.id}
+        name={data?.name}
+        imageUrl={data?.thumbnail}
+      />
     </View>
   );
 }

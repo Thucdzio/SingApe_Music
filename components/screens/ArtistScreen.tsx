@@ -1,4 +1,4 @@
-import { FlatList, ScrollView, View } from "react-native";
+import { FlatList, ScrollView, SectionList, View } from "react-native";
 import { Image, VStack, Text, HStack, Box, Button } from "@/components/ui";
 import { Heading } from "@/components/ui/heading";
 import Library from "@/assets/data/library.json";
@@ -52,20 +52,18 @@ import {
 import { useAuth } from "@/context/auth";
 import { P } from "ts-pattern";
 import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
-import { MyTrack } from "@/types/zing.types";
+import { ArtistResult, MyTrack } from "@/types/zing.types";
 import { Divider } from "@/components/ui/divider";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
+import { TracksListItem } from "../TrackListItem";
 
 interface ArtistProps {
   id?: string;
-  title?: string;
+  name?: string;
   description?: string;
   imageUrl?: string;
-  createdBy?: string;
-  userImage?: string;
-  tracks?: Track[];
-  variant?: "library" | "songs";
+  data?: ArtistResult;
   onTrackPress?: (track: Track) => void;
   onPlayPress?: () => void;
   onShufflePress?: () => void;
@@ -77,13 +75,10 @@ interface ArtistProps {
 
 export const ArtistScreen = ({
   id,
-  title,
+  name,
   description,
   imageUrl,
-  createdBy,
-  userImage,
-  tracks,
-  variant = "songs",
+  data,
   onTrackPress,
   onPlayPress,
   onShufflePress,
@@ -131,7 +126,7 @@ export const ArtistScreen = ({
       [0, 1],
       Extrapolation.CLAMP
     );
-    return { opacity } ;
+    return { opacity };
   });
 
   const scrollHeaderTitleAnimatedStyle = useAnimatedStyle(() => {
@@ -196,37 +191,34 @@ export const ArtistScreen = ({
 
   return (
     <View className="flex-1">
-        <Animated.ScrollView
-          className="flex-1 w-full bg-transparen"
-          onScroll={scrollHandler}
-        >
-      <View className="bg-black flex-1">
-      <LinearGradient
-        colors={getGradientColor("gray")}
-        locations={[0.5, 0.8, 0.9, 1]}
-        className="absolute w-full h-full"
-      />
-      <View>
-      <Animated.View
-        className="w-full h-72 relative rounded-lg overflow-hidden bg-transparent -z-20"
-        style={imageSectionAnimatedStyle}
+      <Animated.ScrollView
+        className="flex-1 w-full bg-transparen"
+        onScroll={scrollHandler}
       >
-        <Image
-          source={unknownArtistImageSource}
-          className="absolute w-full h-full -z-10"
-          resizeMode="cover"
-          alt="artist image"
-        />
-      </Animated.View>
-      <View className="absolute bottom-0 left-0 right-0 px-4 py-1">
-          <Heading
-            numberOfLines={1}
-            className="text-white text-5xl"
-          >
-            DA Lab
-          </Heading>
-        </View>
-      </View>
+        <View className="bg-black flex-1">
+          <LinearGradient
+            colors={getGradientColor("gray")}
+            locations={[0.5, 0.8, 0.9, 1]}
+            className="absolute w-full h-full -z-20"
+          />
+          <View>
+            <Animated.View
+              className="w-full h-72 relative rounded-lg overflow-hidden bg-transparent -z-20"
+              style={imageSectionAnimatedStyle}
+            >
+              <Image
+                source={imageUrl || unknownArtistImageSource}
+                className="absolute w-full h-full -z-10"
+                resizeMode="cover"
+                alt="artist image"
+              />
+            </Animated.View>
+            <View className="absolute bottom-0 left-0 right-0 px-4 py-1">
+              <Heading numberOfLines={1} className="text-white text-5xl">
+                {name}
+              </Heading>
+            </View>
+          </View>
           <HStack className="space-x-2 justify-between pr-4 py-2 w-full pl-4">
             <HStack className="items-center space-x-2">
               <Button
@@ -271,31 +263,76 @@ export const ArtistScreen = ({
               </Animated.View>
             </HStack>
           </HStack>
-          </View>
-          <TracksList
-            id={title || "random"}
-            tracks={tracks || Library}
-            scrollEnabled={false}
-            className="p-4"
-            onTrackOptionPress={handleTrackOptionPress}
-            ItemSeparatorComponent={() => (
-              <View className="h-3" />
-            )}
-          />
-        </Animated.ScrollView>
-
+        </View>
+        <SectionList
+          sections={
+            data?.sections?.map((section) => ({
+              title: section.title,
+              data: section.items,
+            })) || []
+          }
+          scrollEnabled={false}
+          keyExtractor={(item) => item.encodeId}
+          renderItem={({ item: track }) => {
+            const myTrack = {
+              ...track,
+              id: track.encodeId,
+              url: track.link,
+              album: track.album?.title || "", // Map album to its title or an empty string
+            };
+            return (
+              <TracksListItem
+                track={myTrack}
+                onTrackSelect={() => {
+                  if (onTrackPress) {
+                    onTrackPress(myTrack);
+                  } else {
+                    router.push({
+                      pathname: "/playlists/[id]",
+                      params: { id: myTrack.id },
+                    });
+                  }
+                }}
+                onRightPress={() => {
+                  handleTrackOptionPress(myTrack);
+                }}
+              />
+            );
+          }}
+          renderSectionHeader={({ section: { title } }) => (
+            <Text className="text-lg font-semibold text-primary-500 pl-4 pt-2">
+              {title}
+            </Text>
+          )}
+        />
+      </Animated.ScrollView>
 
       <Animated.View
         className="absolute w-full"
         style={{ paddingTop: insets.top }}
       >
-        <Animated.View style={headerBackgroundAnimatedStyle} className="absolute w-full h-full">
+        <Animated.View
+          style={[headerBackgroundAnimatedStyle, {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            paddingTop: insets.top,
+          }]}
+        >
           <LinearGradient
             colors={getGradientColor("gray")}
             locations={[0.5, 0.8, 0.9, 1]}
-            className="absolute w-full h-full"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0
+            }}
           />
-          </Animated.View>
+        </Animated.View>
         <HStack className="items-center w-full">
           <Button
             onPress={() => {
@@ -315,7 +352,7 @@ export const ArtistScreen = ({
             style={[scrollHeaderTitleAnimatedStyle]}
             className="text-white text-xl font-semibold ml-4"
           >
-            DA Lab
+            {name}
           </Animated.Text>
         </HStack>
         <Animated.View
