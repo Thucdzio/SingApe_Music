@@ -6,7 +6,7 @@ import TrackPlayer, { Track } from "react-native-track-player";
 import { saveListeningHistory } from "@/services/fileService";
 import { useQueue } from "@/store/queue";
 import { fetchSong } from "@/lib/spotify";
-import { Center } from "./ui";
+import { Box, Center, HStack } from "./ui";
 import { Heading } from "./ui/heading";
 import { MyTrack } from "@/types/zing.types";
 import { playPlaylistFromTrack } from "@/services/playbackService";
@@ -15,6 +15,7 @@ export type TracksListProps = Partial<FlatListProps<MyTrack>> & {
   id: string;
   tracks: MyTrack[];
   hideQueueControls?: boolean;
+  showIndex?: boolean;
   variant?: "album" | "playlist";
   onTrackSelect?: (track: MyTrack) => void;
   onTrackOptionPress?: (track: MyTrack) => void;
@@ -29,6 +30,7 @@ export const TracksList = ({
   onTrackOptionPress,
   children,
   variant = "playlist",
+  showIndex = false,
   ...flatlistProps
 }: TracksListProps) => {
   const queueOffset = useRef(0);
@@ -92,14 +94,25 @@ export const TracksList = ({
       initialNumToRender={8}
       maxToRenderPerBatch={9}
       windowSize={5}
-      renderItem={({ item: track }) => (
-        <TracksListItem
-          track={track}
-          onTrackSelect={handleTrackSelect}
-          onRightPress={onTrackOptionPress}
-          children={children}
-          variant={variant}
-        />
+      renderItem={({ item: track, index: index }) => (
+        <HStack>
+          {showIndex && (
+            <Center className="w-14 pr-2">
+              <Text className="text-primary-500 text-lg font-medium mr-4">
+                {index + 1}
+              </Text>
+            </Center>
+          )}
+          <Box className="flex-1">
+            <TracksListItem
+              track={track}
+              onTrackSelect={handleTrackSelect}
+              onRightPress={onTrackOptionPress}
+              children={children}
+              variant={variant}
+            />
+          </Box>
+        </HStack>
       )}
       keyExtractor={(item) => item.id || item.url}
       {...flatlistProps}

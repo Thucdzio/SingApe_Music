@@ -145,7 +145,7 @@ export default function SearchScreen() {
     addRecentSearchEntry(artist);
     router.push({
       pathname: "/artists/[id]",
-      params: { id: artist.id },
+      params: { id: artist.alias },
     });
   };
 
@@ -154,7 +154,12 @@ export default function SearchScreen() {
     addRecentSearchEntry(playlist);
     router.push({
       pathname: "/playlists/[id]",
-      params: { id: playlist.id },
+      params: { 
+        id: playlist.id,
+        title: playlist.title,
+        artwork: playlist.thumbnail,
+        createdBy: playlist.createdBy ?? "Singape"
+      },
     });
   };
 

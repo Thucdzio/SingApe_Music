@@ -216,7 +216,7 @@ const TrendingList = ({ tracks }: TrendingListProps) => {
         <HStack className="pr-4 pl-2">
           <Center className="w-14 pr-2">
             <Text className={numberStyle(index + 1)}>{index + 1}</Text>
-            {rankingStyle(track.rakingStatus)}
+            {rankingStyle(track.rakingStatus ?? 0)}
           </Center>
           <Box className="flex-1">
             <TracksListItem

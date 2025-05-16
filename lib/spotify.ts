@@ -89,3 +89,14 @@ export const fetchPlaylist = async (encodeId: string) => {
     throw error;
   }
 };
+
+export const fetchArtist = async (encodeId: string) => {
+  try {
+    const response = await fetch(KOYEB_API_URL + "zingmp3/artist/" + encodeId);
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching artist:", error);
+    throw error;
+  }
+}

@@ -28,6 +28,7 @@ import {
 } from "react-native-reanimated";
 import { useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useFloatingPlayerVisible } from "@/hooks/useFloatingPlayerVisible";
 
 export const FloatingPlayer = ({ style }: ViewProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
@@ -39,7 +40,6 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
   const lastActiveTrack = useLastActiveTrack();
 
   const displayedTrack = activeTrack ?? lastActiveTrack;
-  const shouldMarquee = measured && textWidth > containerWidth;
 
   useEffect(() => {
     setMeasured(!measured);

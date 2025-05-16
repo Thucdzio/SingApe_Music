@@ -1,5 +1,13 @@
 import { FlatList, ScrollView, SectionList, View } from "react-native";
-import { Image, VStack, Text, HStack, Box, Button } from "@/components/ui";
+import {
+  Image,
+  VStack,
+  Text,
+  HStack,
+  Box,
+  Button,
+  Center,
+} from "@/components/ui";
 import { Heading } from "@/components/ui/heading";
 import Library from "@/assets/data/library.json";
 import { ButtonIcon, ButtonText } from "@/components/ui/button";
@@ -28,6 +36,7 @@ import Animated, {
   Extrapolation,
   interpolate,
   interpolateColor,
+  LinearTransition,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -44,7 +53,7 @@ import {
   useIsPlaying,
 } from "react-native-track-player";
 import { useCallback, useRef, useState } from "react";
-import { getGradientColor } from "@/helpers/color";
+import { getGradientColor, getImageColor } from "@/helpers/color";
 import {
   unknownArtistImageSource,
   unknownTrackImageSource,
@@ -52,11 +61,23 @@ import {
 import { useAuth } from "@/context/auth";
 import { P } from "ts-pattern";
 import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
-import { ArtistResult, MyTrack } from "@/types/zing.types";
+import {
+  Artist,
+  ArtistResult,
+  ExtendedTrack,
+  MyTrack,
+} from "@/types/zing.types";
 import { Divider } from "@/components/ui/divider";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
 import { TracksListItem } from "../TrackListItem";
+import { set } from "@gluestack-style/react";
+import { convertToTrack, convertZingToTrack } from "@/helpers/convert";
+import { AlbumList } from "../AlbumList";
+import { ArtistList } from "../ArtistList";
+import { LoadingOverlay } from "../LoadingOverlay";
+import { formatNumber } from "@/helpers/format";
+import { useFloatingPlayerVisible } from "@/hooks/useFloatingPlayerVisible";
 
 interface ArtistProps {
   id?: string;
@@ -64,6 +85,8 @@ interface ArtistProps {
   description?: string;
   imageUrl?: string;
   data?: ArtistResult;
+  gradientColor: string[];
+  onRefresh?: () => void;
   onTrackPress?: (track: Track) => void;
   onPlayPress?: () => void;
   onShufflePress?: () => void;
@@ -79,6 +102,8 @@ export const ArtistScreen = ({
   description,
   imageUrl,
   data,
+  gradientColor,
+  onRefresh,
   onTrackPress,
   onPlayPress,
   onShufflePress,
@@ -88,7 +113,12 @@ export const ArtistScreen = ({
   onEditPress,
 }: ArtistProps) => {
   const [selectedItem, setSelectedItem] = useState<Track | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [followed, setFollowed] = useState(false);
   const { playing } = useIsPlaying();
+  const { visible } = useFloatingPlayerVisible();
+  const [showAllTracks, setShowAllTracks] = useState<boolean>(false);
 
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue<number>(0);
@@ -122,7 +152,7 @@ export const ArtistScreen = ({
   const headerBackgroundAnimatedStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollY.value,
-      [0, 160],
+      [160, 200],
       [0, 1],
       Extrapolation.CLAMP
     );
@@ -132,22 +162,6 @@ export const ArtistScreen = ({
   const scrollHeaderTitleAnimatedStyle = useAnimatedStyle(() => {
     const opacity = interpolate(scrollY.value, [160, 200], [0, 1]);
     return { opacity };
-  });
-
-  const playButtonOpacity = useAnimatedStyle(() => {
-    const opacity = interpolate(scrollY.value, [225, 226], [0, 1]);
-
-    return { opacity };
-  });
-
-  const playButtonAnimatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollY.value,
-      [210, 250],
-      [42, 0],
-      Extrapolation.CLAMP
-    );
-    return { transform: [{ translateY }] };
   });
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -186,150 +200,202 @@ export const ArtistScreen = ({
   };
 
   const onFollowPress = () => {
-    // Handle follow action
+    setFollowed(!followed);
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    if (onRefresh) {
+      onRefresh();
+    }
+    setIsRefreshing(false);
+  };
+
+  const renderItem = ({
+    items,
+    sectionType,
+    title,
+  }: {
+    items: ExtendedTrack[] | Artist[];
+    sectionType: string;
+    title: string;
+  }) => {
+    if (title === "MV") return null;
+    if (sectionType === "artist") {
+      return (
+        <View>
+          <Heading className="text-2xl font-semibold px-4 py-2">
+            {title}
+          </Heading>
+          <ArtistList data={items as Artist[]} horizontal={true} />
+        </View>
+      );
+    }
+
+    const tracks = items.map((item) => convertToTrack(item as ExtendedTrack));
+
+    if (sectionType === "playlist") {
+      return (
+        <View>
+          <Heading className="text-2xl font-semibold px-4 py-2">
+            {title}
+          </Heading>
+          <AlbumList data={tracks} horizontal={true} />
+        </View>
+      );
+    }
+
+    return (
+      <View>
+        <Heading className="text-2xl font-semibold px-4 py-2">{title}</Heading>
+        <TracksList
+          id={data?.id ?? ""}
+          tracks={showAllTracks ? tracks : tracks.slice(0, 6)}
+          scrollEnabled={false}
+          showIndex={true}
+          ItemSeparatorComponent={() => <View className="h-3" />}
+          ListFooterComponent={() => (
+            <Center className="py-2">
+              <Button
+                variant="outline"
+                className="rounded-full"
+                onPress={() => setShowAllTracks(!showAllTracks)}
+              >
+                <ButtonText className="text-primary-500">
+                  {showAllTracks ? "Ẩn bớt" : "Xem thêm"}
+                </ButtonText>
+              </Button>
+            </Center>
+          )}
+          className="px-4"
+        />
+      </View>
+    );
   };
 
   return (
     <View className="flex-1">
-      <Animated.ScrollView
-        className="flex-1 w-full bg-transparen"
+      {/* <Animated.ScrollView
+        className="flex-1 w-full bg-transparent"
         onScroll={scrollHandler}
-      >
-        <View className="bg-black flex-1">
-          <LinearGradient
-            colors={getGradientColor("gray")}
-            locations={[0.5, 0.8, 0.9, 1]}
-            className="absolute w-full h-full -z-20"
-          />
-          <View>
-            <Animated.View
-              className="w-full h-72 relative rounded-lg overflow-hidden bg-transparent -z-20"
-              style={imageSectionAnimatedStyle}
-            >
-              <Image
-                source={imageUrl || unknownArtistImageSource}
-                className="absolute w-full h-full -z-10"
-                resizeMode="cover"
-                alt="artist image"
-              />
-            </Animated.View>
-            <View className="absolute bottom-0 left-0 right-0 px-4 py-1">
-              <Heading numberOfLines={1} className="text-white text-5xl">
-                {name}
-              </Heading>
+      ></Animated.ScrollView> */}
+      <Animated.FlatList
+        data={data?.sections || []}
+        keyExtractor={(item) => item.title}
+        ListHeaderComponent={() => (
+          <View className="w-full">
+            <LinearGradient
+              colors={[gradientColor[0], gradientColor[1]]}
+              locations={[0.6, 1]}
+              className="absolute w-full h-full -z-20"
+            />
+            <View>
+              <Animated.View
+                className="w-full h-72 relative rounded-lg overflow-hidden bg-transparent -z-20"
+                style={imageSectionAnimatedStyle}
+              >
+                <Image
+                  source={imageUrl || unknownArtistImageSource}
+                  className="absolute w-full h-full -z-10"
+                  resizeMode="cover"
+                  alt="artist image"
+                />
+              </Animated.View>
+              <View className="absolute bottom-0 left-0 right-0 px-4 py-1">
+                <Heading numberOfLines={1} className="text-white text-5xl">
+                  {name}
+                </Heading>
+              </View>
             </View>
-          </View>
-          <HStack className="space-x-2 justify-between pr-4 py-2 w-full pl-4">
-            <HStack className="items-center space-x-2">
-              <Button
-                variant="outline"
-                action="primary"
-                className="rounded-md justify-center bg-transparent w-fit"
-                size="md"
-                onPress={onFollowPress}
-              >
-                <ButtonText>Theo dõi</ButtonText>
-              </Button>
-              <Button
-                variant="solid"
-                className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
-                size="md"
-                onPress={onOptionPress}
-              >
-                <ButtonIcon as={EllipsisVertical} className={buttonIconStyle} />
-              </Button>
-            </HStack>
-            <HStack className="justify-items-end gap-2">
-              <Button
-                variant="solid"
-                className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
-                size="md"
-                onPress={onShufflePress}
-              >
-                <ButtonIcon as={Shuffle} className={buttonIconStyle} />
-              </Button>
-              <Animated.View>
+            <Text className="text-primary-700 px-4 pt-2">
+              {formatNumber(data?.totalFollow ?? 0)} người theo dõi
+            </Text>
+            <HStack className="space-x-2 justify-between pr-4 pb-2 pt-1 w-full pl-4">
+              <HStack className="items-center space-x-2">
+                <Button
+                  variant="outline"
+                  action="primary"
+                  className="rounded-md justify-center bg-transparent w-fit"
+                  size="md"
+                  onPress={onFollowPress}
+                >
+                  <ButtonText>
+                    {followed ? "Đang theo dõi" : "Theo dõi"}
+                  </ButtonText>
+                </Button>
                 <Button
                   variant="solid"
-                  className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
+                  className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
                   size="md"
-                  onPress={onPlayPress}
+                  onPress={onOptionPress}
                 >
                   <ButtonIcon
-                    as={playing ? Pause : Play}
-                    className="text-black fill-black w-6 h-6"
+                    as={EllipsisVertical}
+                    className={buttonIconStyle}
                   />
                 </Button>
-              </Animated.View>
+              </HStack>
+              <HStack className="justify-items-end gap-2">
+                <Button
+                  variant="solid"
+                  className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
+                  size="md"
+                  onPress={onShufflePress}
+                >
+                  <ButtonIcon as={Shuffle} className={buttonIconStyle} />
+                </Button>
+                <Animated.View>
+                  <Button
+                    variant="solid"
+                    className="rounded-full justify-center bg-indigo-400 data-[active=true]:bg-indigo-900 h-14 w-14"
+                    size="md"
+                    onPress={onPlayPress}
+                  >
+                    <ButtonIcon
+                      as={playing ? Pause : Play}
+                      className="text-black fill-black w-6 h-6"
+                    />
+                  </Button>
+                </Animated.View>
+              </HStack>
             </HStack>
-          </HStack>
-        </View>
-        <SectionList
-          sections={
-            data?.sections?.map((section) => ({
-              title: section.title,
-              data: section.items,
-            })) || []
-          }
-          scrollEnabled={false}
-          keyExtractor={(item) => item.encodeId}
-          renderItem={({ item: track }) => {
-            const myTrack = {
-              ...track,
-              id: track.encodeId,
-              url: track.link,
-              album: track.album?.title || "", // Map album to its title or an empty string
-            };
-            return (
-              <TracksListItem
-                track={myTrack}
-                onTrackSelect={() => {
-                  if (onTrackPress) {
-                    onTrackPress(myTrack);
-                  } else {
-                    router.push({
-                      pathname: "/playlists/[id]",
-                      params: { id: myTrack.id },
-                    });
-                  }
-                }}
-                onRightPress={() => {
-                  handleTrackOptionPress(myTrack);
-                }}
-              />
-            );
-          }}
-          renderSectionHeader={({ section: { title } }) => (
-            <Text className="text-lg font-semibold text-primary-500 pl-4 pt-2">
-              {title}
-            </Text>
-          )}
-        />
-      </Animated.ScrollView>
+          </View>
+        )}
+        renderItem={({ item }) => renderItem(item)}
+        ListFooterComponent={() =>
+          visible && <View className="h-28 bg-transparent" />
+        }
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        onRefresh={handleRefresh}
+        refreshing={isRefreshing}
+      />
 
       <Animated.View
         className="absolute w-full"
         style={{ paddingTop: insets.top }}
       >
         <Animated.View
-          style={[headerBackgroundAnimatedStyle, {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            paddingTop: insets.top,
-          }]}
-        >
-          <LinearGradient
-            colors={getGradientColor("gray")}
-            locations={[0.5, 0.8, 0.9, 1]}
-            style={{
-              position: 'absolute',
+          style={[
+            headerBackgroundAnimatedStyle,
+            {
+              position: "absolute",
               top: 0,
               left: 0,
               right: 0,
-              bottom: 0
+              bottom: 0,
+              paddingTop: insets.top,
+            },
+          ]}
+        >
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: gradientColor[0],
             }}
           />
         </Animated.View>
@@ -350,31 +416,12 @@ export const ArtistScreen = ({
           </Button>
           <Animated.Text
             style={[scrollHeaderTitleAnimatedStyle]}
-            className="text-white text-xl font-semibold ml-4"
+            className="text-primary-500 text-xl font-semibold ml-4"
           >
             {name}
           </Animated.Text>
         </HStack>
-        <Animated.View
-          className="absolute right-4 top-7"
-          style={[
-            playButtonAnimatedStyle,
-            playButtonOpacity,
-            { paddingTop: insets.top },
-          ]}
-        >
-          <Button
-            variant="solid"
-            className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
-            size="md"
-            onPress={onPlayPress}
-          >
-            <ButtonIcon
-              as={playing ? Pause : Play}
-              className="text-black fill-black"
-            />
-          </Button>
-        </Animated.View>
+
         <MyBottomSheet bottomSheetRef={bottomSheetRef}>
           <HStack space="md">
             <Image

@@ -119,7 +119,8 @@ export interface ArtistResult {
     name: string;
     link: string;
     thumbnail: string;
-    viewtype: string;
+    thumbnailM: string;
+    totalFollow: number;
     sections: [
         {
             sectionId: string;

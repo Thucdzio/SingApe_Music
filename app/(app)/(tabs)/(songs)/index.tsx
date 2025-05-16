@@ -16,6 +16,7 @@ import {
   Spinner,
   Image,
   Box,
+  Center,
 } from "@/components/ui";
 import { useCallback, useEffect, useState, memo, useMemo, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -57,6 +58,7 @@ import {
   Share2,
   UserRoundCheck,
 } from "lucide-react-native";
+import { AlbumList } from "@/components/AlbumList";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<MyTrack[]>([]);
@@ -81,6 +83,7 @@ export default function Songs() {
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const numCols = 3;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -214,6 +217,7 @@ export default function Songs() {
       });
     } catch (error) {
       console.error("Error fetching songs:", error);
+      setIsError(true);
     } finally {
       setIsLoading(false);
     }
@@ -294,7 +298,9 @@ export default function Songs() {
       console.log("artistId", selectedItem);
       router.navigate({
         pathname: `/(app)/(tabs)/(songs)/artists/[id]`,
-        params: { id: selectedItem?.artists[0].alias ?? selectedItem?.artist ?? "" },
+        params: {
+          id: selectedItem?.artists[0].alias ?? selectedItem?.artist ?? "",
+        },
       });
     }
   };
@@ -309,7 +315,13 @@ export default function Songs() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchSongs().then(() => setRefreshing(false));
+    setIsError(false);
+    fetchSongs()
+      .then(() => setRefreshing(false))
+      .catch(() => {
+        setRefreshing(false);
+        setIsError(true);
+      });
   }, []);
 
   const renderRecentSection = () => {
@@ -407,6 +419,67 @@ export default function Songs() {
       </>
     );
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background-0">
+        <LoadingOverlay isUnder={true} />
+        <CustomHeader
+          title="Khám phá"
+          showBack={false}
+          titleClassName="text-3xl font-bold"
+          headerClassName="bg-background-0 px-4"
+          right={
+            <Button
+              variant="link"
+              className="text-sm font-semibold"
+              onPress={() => {
+                router.navigate("/search" as Href);
+              }}
+            >
+              <ButtonIcon as={Search} size="xxl" className="text-primary-500" />
+            </Button>
+          }
+        />
+      </SafeAreaView>
+    );
+  }
+
+  if (isError) {
+    return (
+      <SafeAreaView className="flex-1 bg-background-0">
+        <CustomHeader
+          title="Khám phá"
+          showBack={false}
+          titleClassName="text-3xl font-bold"
+          headerClassName="bg-background-0 px-4"
+          right={
+            <Button
+              variant="link"
+              className="text-sm font-semibold"
+              onPress={() => {
+                router.navigate("/search" as Href);
+              }}
+            >
+              <ButtonIcon as={Search} size="xxl" className="text-primary-500" />
+            </Button>
+          }
+        />
+        <Center className="flex-1">
+          <Text className="text-center text-red-500">
+            Đã xảy ra lỗi khi tải dữ liệu.
+          </Text>
+          <Button
+            variant="solid"
+            className="rounded-full mt-4"
+            onPress={onRefresh}
+          >
+            <ButtonText className="font-semibold">Thử lại</ButtonText>
+          </Button>
+        </Center>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
@@ -562,57 +635,6 @@ const ColumnWiseFlatList = ({
       disableIntervalMomentum={true}
       className="flex-grow-0"
     />
-  );
-};
-
-interface AlbumListProps {
-  horizontal?: boolean;
-  data: MyTrack[];
-}
-
-const AlbumList = ({ horizontal, data, ...props }: AlbumListProps) => {
-  return (
-    <FlatList
-      data={data}
-      horizontal={horizontal}
-      showsHorizontalScrollIndicator={false}
-      showsVerticalScrollIndicator={false}
-      ListFooterComponent={<View className="w-4" />}
-      ListHeaderComponent={<View className="w-4" />}
-      ItemSeparatorComponent={() => <View className="w-4" />}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => <AlbumListItem item={item} />}
-      {...props}
-    />
-  );
-};
-
-const AlbumListItem = ({ item }: { item: MyTrack }) => {
-  return (
-    <Link
-      href={{
-        pathname: `${
-          item.datatype === "playlist" ? "/playlists" : "/albums"
-        }/[id]`,
-        params: item,
-      }}
-    >
-      <VStack className="w-40">
-        <Image
-          source={{ uri: item.artwork }}
-          alt={item.title}
-          className="w-40 h-40 rounded-lg"
-        />
-        <Text
-          className="text-md font-semibold text-primary-500"
-          numberOfLines={2}
-          ellipsizeMode="tail"
-        >
-          {item.title}
-        </Text>
-        <Text className="text-gray-400">{item.sortDescription}</Text>
-      </VStack>
-    </Link>
   );
 };
 

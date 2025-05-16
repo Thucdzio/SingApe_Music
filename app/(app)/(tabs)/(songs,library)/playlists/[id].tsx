@@ -158,9 +158,12 @@ export default function Playlists() {
             );
             setData(convertedData);
           } catch (error) {
-            console.error("Error playlist:", error);
             const response = playlists.find(
               (playlist) => playlist.id === item.id
+            );
+            console.log(
+              "Checking local playlist:",
+              response?.tracks.map((item) => item.title)
             );
             setData(response?.tracks || []);
           }
@@ -184,13 +187,6 @@ export default function Playlists() {
     }, [playlists])
   );
 
-  useEffect(() => {
-    console.log(
-      "Data:",
-      data.map((item) => item.title)
-    );
-  }, [data]);
-
   return (
     <View className="flex-1 bg-background-0">
       <Stack.Screen
@@ -203,10 +199,9 @@ export default function Playlists() {
         imageUrl={item.artwork}
         title={item.title}
         createdBy={item.createdBy}
-        userImage={user?.user_metadata.avatar_url}
+        userImage={item.user ?? user?.user_metadata.avatar_url}
         tracks={data}
         variant={variant}
-        onTrackPress={(trackId) => console.log(trackId)}
         onPlayPress={handleOnPlayPress}
         onShufflePress={handleOnShufflePress}
         onAddToPlaylistPress={handleAddToPlaylistPress}

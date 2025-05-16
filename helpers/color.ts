@@ -1,6 +1,7 @@
 import { useColorScheme } from "nativewind";
-import { rgbaColor, RGBtoHSV } from "react-native-reanimated/lib/typescript/Colors";
+import ImageColors from "react-native-image-colors";
 import colors from "tailwindcss/colors";
+import Color from "color";
 
 export const getGradient = (id: string) => {
   const {colorScheme} = useColorScheme();
@@ -83,4 +84,34 @@ function hashStringToIndex(str: string, prefixArrayLength: number): number {
     hash = (hash * 31 + str.charCodeAt(i)) >>> 0; // unsigned right shift to keep it positive
   }
   return hash % prefixArrayLength;
+}
+
+export async function getImageColor(imageUri: string) {
+  const result = await ImageColors.getColors(imageUri, {
+    fallback: '#000000',
+    cache: true,
+    key: imageUri,
+  });
+
+  if (result.platform === 'android') {
+    return [result.dominant, result.average, result.darkVibrant, result.lightVibrant]; // Or use vibrant, darkVibrant, etc.
+  } 
+  return ["#000", "#111"];
+}
+
+/**
+ * Auto-fixes background color by lightening if too dark for light mode
+ * @param color Input color from image
+ * @param lightMode Whether your app is in light mode
+ */
+export function getSafeBackgroundColor(color: string, lightMode = true): string {
+  const c = Color(color);
+  const brightness = c.luminosity(); // 0 = dark, 1 = bright
+
+  // If in light mode and too dark, lighten it
+  if (lightMode && brightness < 0.4) {
+    return c.mix(Color("white"), 0.6).hex(); // adjust amount to your taste
+  }
+  
+  return color;
 }
