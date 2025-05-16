@@ -1,79 +1,71 @@
-import { supabase } from "../supabase";
+import {
+  supabase,
+  Artist,
+  ArtistInsert,
+  ArtistUpdate,
+  Song,
+} from "../supabase";
 
-export interface Artist {
-  id: string;
-  name: string | null;
-  bio: string | null;
-  user_id: string | null;
-  cover_art_url: string | null;
-  created_at: string | null;
-}
-
-/**
- * Get all artists
- */
-export async function getAllArtists(): Promise<Artist[]> {
-  const { data, error } = await supabase
-    .from("artists")
-    .select("*")
-    .order("name");
-
-  if (error) {
-    console.error("Error fetching artists:", error);
-    throw error;
-  }
-
-  return data || [];
-}
-
-/**
- * Get artist by ID
- */
-export async function getArtistById(id: string): Promise<Artist | null> {
+export const getArtistById = async (id: string): Promise<Artist | null> => {
   const { data, error } = await supabase
     .from("artists")
     .select("*")
     .eq("id", id)
     .single();
-
-  if (error) {
-    console.error(`Error fetching artist with ID ${id}:`, error);
-    throw error;
-  }
-
+  if (error) throw error;
   return data;
-}
+};
 
-/**
- * Get artists for a specific song
- */
-export async function getArtistsBySongId(songId: string): Promise<Artist[]> {
+export const getArtistsByUserId = async (userId: string): Promise<Artist[]> => {
   const { data, error } = await supabase
-    .from("song_artists")
-    .select("artist_id")
-    .eq("song_id", songId);
-
-  if (error) {
-    console.error(`Error fetching artist IDs for song ${songId}:`, error);
-    throw error;
-  }
-
-  const artistIds = data.map((item) => item.artist_id);
-
-  if (artistIds.length === 0) {
-    return [];
-  }
-
-  const { data: artists, error: artistsError } = await supabase
     .from("artists")
     .select("*")
-    .in("id", artistIds)
-    .order("name");
+    .eq("user_id", userId);
+  if (error) throw error;
+  return data || [];
+};
 
-  if (artistsError) {
-    console.error(`Error fetching artists for song ${songId}:`, artistsError);
-    throw artistsError;
-  }
+export const getAllArtists = async (): Promise<Artist[]> => {
+  const { data, error } = await supabase.from("artists").select("*");
+  if (error) throw error;
+  return data || [];
+};
 
-  return artists || [];
-}
+export const getSongsByArtistId = async (artistId: string): Promise<Song[]> => {
+  const { data, error } = await supabase
+    .from("song_artists")
+    .select("song_id, songs(*)")
+    .eq("artist_id", artistId);
+  if (error) throw error;
+  return (data || []).map((row: any) => row.songs).filter(Boolean);
+};
+
+export const createArtist = async (artist: ArtistInsert): Promise<Artist> => {
+  const { data, error } = await supabase
+    .from("artists")
+    .insert([artist])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const updateArtist = async (
+  id: string,
+  artist: ArtistUpdate
+): Promise<Artist> => {
+  const { data, error } = await supabase
+    .from("artists")
+    .update(artist)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteArtist = async (id: string): Promise<boolean> => {
+  const { error } = await supabase.from("artists").delete().eq("id", id);
+  if (error) throw error;
+  return true;
+};

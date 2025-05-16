@@ -1,79 +1,61 @@
-import { supabase } from "../supabase";
+import { supabase, Album, AlbumInsert, AlbumUpdate, Song } from "../supabase";
 
-export interface Album {
-  id: string;
-  title: string | null;
-  release_date: string | null;
-  cover_art_url: string | null;
-  description: string | null;
-  created_at: string | null;
-}
-
-/**
- * Get all albums
- */
-export async function getAllAlbums(): Promise<Album[]> {
-  const { data, error } = await supabase
-    .from("albums")
-    .select("*")
-    .order("title");
-
-  if (error) {
-    console.error("Error fetching albums:", error);
-    throw error;
-  }
-
-  return data || [];
-}
-
-/**
- * Get album by ID
- */
-export async function getAlbumById(id: string): Promise<Album | null> {
+export const getAlbumById = async (id: string): Promise<Album | null> => {
   const { data, error } = await supabase
     .from("albums")
     .select("*")
     .eq("id", id)
     .single();
-
-  if (error) {
-    console.error(`Error fetching album with ID ${id}:`, error);
-    throw error;
-  }
-
+  if (error) throw error;
   return data;
-}
+};
 
-/**
- * Get albums by artist ID
- */
-export async function getAlbumsByArtistId(artistId: string): Promise<Album[]> {
+export const getAlbumsByArtistId = async (
+  artistId: string
+): Promise<Album[]> => {
   const { data, error } = await supabase
     .from("album_artists")
-    .select("album_id")
+    .select("album_id, albums(*)")
     .eq("artist_id", artistId);
+  if (error) throw error;
+  return (data || []).map((row: any) => row.albums).filter(Boolean);
+};
 
-  if (error) {
-    console.error(`Error fetching album IDs for artist ${artistId}:`, error);
-    throw error;
-  }
-
-  const albumIds = data.map((item) => item.album_id);
-
-  if (albumIds.length === 0) {
-    return [];
-  }
-
-  const { data: albums, error: albumsError } = await supabase
-    .from("albums")
+export const getSongsInAlbum = async (albumId: string): Promise<Song[]> => {
+  const { data, error } = await supabase
+    .from("songs")
     .select("*")
-    .in("id", albumIds)
-    .order("release_date", { ascending: false });
+    .eq("album_id", albumId);
+  if (error) throw error;
+  return data || [];
+};
 
-  if (albumsError) {
-    console.error(`Error fetching albums for artist ${artistId}:`, albumsError);
-    throw albumsError;
-  }
+export const createAlbum = async (album: AlbumInsert): Promise<Album> => {
+  const { data, error } = await supabase
+    .from("albums")
+    .insert([album])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
 
-  return albums || [];
-}
+export const updateAlbum = async (
+  id: string,
+  album: AlbumUpdate
+): Promise<Album> => {
+  const { data, error } = await supabase
+    .from("albums")
+    .update(album)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteAlbum = async (id: string): Promise<boolean> => {
+  const { error } = await supabase.from("albums").delete().eq("id", id);
+  if (error) throw error;
+  return true;
+};

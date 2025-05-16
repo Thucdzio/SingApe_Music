@@ -42,8 +42,8 @@ import {
   getListeningHistory,
   removeSongFromFavorite,
 } from "@/services/fileService";
-import { getAllSongs, getSongsByArtistId, Song } from "@/lib/api/songs";
-import { getAllArtists, Artist } from "@/lib/api/artists";
+import { getAllSongs, getSongsByArtistId } from "@/lib/api/songs";
+import { getAllArtists } from "@/lib/api/artists";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
@@ -90,8 +90,8 @@ export default function Songs() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Data states
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [artists, setArtists] = useState<Artist[]>([]);
+  // const [songs, setSongs] = useState<Song[]>([]);
+  // const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -109,17 +109,17 @@ export default function Songs() {
 
       // Fetch songs
       const songsData = await getAllSongs();
-      if (songsData) {
-        setSongs(songsData);
-        console.log(`Loaded ${songsData.length} songs`);
-      }
+      // if (songsData) {
+      //   setSongs(songsData);
+      //   console.log(`Loaded ${songsData.length} songs`);
+      // }
 
       // Fetch artists
       const artistsData = await getAllArtists();
-      if (artistsData) {
-        setArtists(artistsData);
-        console.log(`Loaded ${artistsData.length} artists`);
-      }
+      // if (artistsData) {
+      //   setArtists(artistsData);
+      //   console.log(`Loaded ${artistsData.length} artists`);
+      // }
     } catch (err) {
       console.error("Error loading data:", err);
     } finally {
@@ -138,23 +138,23 @@ export default function Songs() {
     console.log(text);
   };
 
-  const songsToTracks = (songs: Song[]): Track[] => {
-    if (!songs || songs.length === 0) return [];
+  // const songsToTracks = (songs: Song[]): Track[] => {
+  //   if (!songs || songs.length === 0) return [];
 
-    return songs.map((song) => {
-      const fallbackUrl =
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+  //   return songs.map((song) => {
+  //     const fallbackUrl =
+  //       "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
 
-      return {
-        id: song.id,
-        title: song.title || "Unknown Title",
-        artist: "Various Artists",
-        url: song.url || fallbackUrl,
-        artwork: song.cover_url || "https://via.placeholder.com/400",
-        duration: 0,
-      };
-    });
-  };
+  //     return {
+  //       id: song.id,
+  //       title: song.title || "Unknown Title",
+  //       artist: "Various Artists",
+  //       url: song.url || fallbackUrl,
+  //       artwork: song.cover_url || "https://via.placeholder.com/400",
+  //       duration: 0,
+  //     };
+  //   });
+  // };
 
   const fetchSongs = async () => {
     setIsLoading(true);
