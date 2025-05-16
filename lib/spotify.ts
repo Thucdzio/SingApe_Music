@@ -33,7 +33,7 @@ import { supabase } from "./supabase";
 //   console.log(json);
 // };
 
-const KOYEB_API_URL = "https://yielding-leia-vietnam-national-university-83340bf5.koyeb.app/"
+const KOYEB_API_URL = "http://192.168.0.104:8080/"; // Replace with your Koyeb API URL
 // const KOYEB_API_URL = "http://192.168.1.2:25565/";
 
 export const getSpotifyToken = async () => {

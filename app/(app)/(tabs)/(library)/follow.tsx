@@ -28,6 +28,7 @@ export default function Follow() {
     // fetchData();
   }, []);
 
+  
   return (
     <SafeAreaView className="bg-background-0 dark:bg-background-0 flex-1">
       <ScrollView className="bg-background-0 dark:bg-background-0">

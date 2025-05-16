@@ -1,7 +1,7 @@
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { ArtistScreen } from "@/components/screens/ArtistScreen";
 import { getGradient, getGradientColor, getImageColor, getSafeBackgroundColor } from "@/helpers/color";
-import { fetchArtist } from "@/lib/spotify";
+import { fetchArtist, fetchSong } from "@/lib/spotify";
 import { ArtistResult, MyTrack } from "@/types/zing.types";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useColorScheme } from "nativewind";
@@ -18,6 +18,8 @@ export default function Artist() {
   const fetchData = async () => {
     setLoading(true);
     const response = await fetchArtist(item.id);
+    // const data = await fetchSong("Z6697EZ9");
+    // console.log("data", data);
     const gradient = await getImageColor(response.thumbnailM || "")
     setGradientColor([
       colorScheme === "dark" ? getSafeBackgroundColor(gradient[1], false) : getSafeBackgroundColor(gradient[0]),
@@ -26,7 +28,6 @@ export default function Artist() {
     setData(response);
     setLoading(false);
   };
-
   useEffect(() => {
     fetchData();
   }, []);

@@ -50,6 +50,7 @@ import supabase from "@/lib/supabase";
 import { useAuth } from "@/context/auth";
 import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
 import { useQueueStore } from "@/store/queue";
+import { fetchSong } from "@/lib/spotify";
 
 export default function Album() {
   const item = useLocalSearchParams<MyTrack>();

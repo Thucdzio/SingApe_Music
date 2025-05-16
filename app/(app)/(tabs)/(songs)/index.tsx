@@ -178,7 +178,6 @@ export default function Songs() {
       // setTracks(tracks);
 
       const zingData: Home = await fetchHome();
-
       const chillSection = zingData?.items.find(
         (item) => item.title === "Chill"
       )?.items;
