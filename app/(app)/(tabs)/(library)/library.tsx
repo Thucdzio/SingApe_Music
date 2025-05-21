@@ -25,6 +25,7 @@ import { View } from "@gluestack-ui/themed";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Href, Link, router, Stack, useFocusEffect } from "expo-router";
+import uploadMusic from "@/lib/api/upload";
 import {
   ArrowBigDownDash,
   Download,
@@ -109,9 +110,10 @@ export default function Library() {
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
-      <ScrollView className="flex-1"
+      <ScrollView
+        className="flex-1"
         showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false} 
+        showsHorizontalScrollIndicator={false}
       >
         <CustomHeader
           title="Thư viện"
@@ -205,6 +207,16 @@ export default function Library() {
               showsHorizontalScrollIndicator={false}
               removeClippedSubviews={false}
             />
+            <HStack className="items-center gap-2">
+              <Heading className="text-2xl font-bold">Bài hát đã tải lên</Heading>
+              <Pressable
+                onPress={uploadMusic}
+                className="rounded-full w-10 h-10 data-[active=true]:bg-background-100 items-center justify-center"
+              >
+                <Icon as={Plus} className="fill-primary-500" />
+              </Pressable>
+            </HStack>
+            <Divider className="w-full" />
           </VStack>
         </Box>
       </ScrollView>

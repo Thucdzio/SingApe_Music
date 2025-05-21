@@ -215,7 +215,7 @@ export default function Songs() {
           : [],
       });
     } catch (error) {
-      console.error("Error fetching songs:", error);
+      console.error("", error);
       setIsError(true);
     } finally {
       setIsLoading(false);

@@ -85,25 +85,24 @@ export default function Login() {
         return;
       }
 
-      await signIn({
+      setLoading(true);
+      const result = await signIn({
         email: emailRef.current,
         password: passwordRef.current,
       });
+      
+      if (result && result.success) {
+        router.dismissAll();
+        router.replace("/(app)/(tabs)/(songs)");
+      } else {
+        Alert.alert(
+          "Đăng nhập thất bại",
+          "Vui lòng kiểm tra lại thông tin đăng nhập.",
+          [{ text: "Xác nhận" }]
+        );
+      }
+    } finally {
       setLoading(false);
-      router.dismissAll();
-      router.replace("/(app)/(tabs)/(songs)");
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert(
-        "Đăng nhập thất bại",
-        "Vui lòng kiểm tra lại thông tin đăng nhập.",
-        [
-          {
-            text: "Xác nhận",
-            onPress: () => setLoading(false),
-          },
-        ]
-      );
     }
   }
 
