@@ -29,11 +29,13 @@ import colors from "tailwindcss/colors";
 import { useColorScheme, vars } from "nativewind";
 import { backgroundColor } from "@/constants/tokens";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { MyTrack } from "@/types/zing.types";
+import { playTrack } from "@/services/playbackService";
 
 export default function Download() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<Track>();
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const [tracks, setTracks] = useState<MyTrack[]>([]);
   const [hasPermission, setHasPermission] = useState(false);
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -61,7 +63,7 @@ export default function Download() {
             url: asset.uri,
           };
         });
-
+        console.log("tracks", tracks);
         setTracks(tracks);
         setIsLoading(false);
       } else {
@@ -98,7 +100,8 @@ export default function Download() {
           id="downloaded"
           tracks={tracks}
           scrollEnabled={false}
-          onTrackOptionPress={(track: Track) => {
+          onTrackSelect={playTrack}
+          onTrackOptionPress={(track: MyTrack) => {
             handlePresentModalPress();
             setSelectedTrack(track);
           }}
