@@ -12,6 +12,7 @@ import {
   Center,
 } from "@/components/ui";
 import { ButtonIcon, ButtonText } from "@/components/ui/button";
+import { unknownTrackImageSource } from "@/constants/image";
 import { addSongToPlaylist, getPlaylist, listPlaylists } from "@/services/fileService";
 import { MyTrack } from "@/types/zing.types";
 import { router, useLocalSearchParams } from "expo-router";
@@ -112,7 +113,7 @@ export default function ListPlaylist() {
                   className="flex-row items-center justify-between"
                 >
                   <Image
-                    source={{ uri: item.artwork }}
+                    source={item.artwork || unknownTrackImageSource}
                     alt={"Playlist" + item.title}
                     className="w-16 h-16 rounded-lg"
                   />

@@ -31,24 +31,17 @@ export const NormalModal = ({
       onClose={() => {
         onClose();
       }}
-      size="md"
+      size="lg"
     >
       <ModalBackdrop />
       <ModalContent>
         <ModalHeader>
-          <Heading size="md" className="text-typography-950">
+          <Heading size="lg" className="text-typography-950">
             {title}
           </Heading>
-          <ModalCloseButton>
-            <Icon
-              as={CloseIcon}
-              size="md"
-              className="stroke-background-400 group-[:hover]/modal-close-button:stroke-background-700 group-[:active]/modal-close-button:stroke-background-900 group-[:focus-visible]/modal-close-button:stroke-background-900"
-            />
-          </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
-          <Text size="sm" className="text-typography-500">
+          <Text size="lg" className="text-typography-500">
             {message}
           </Text>
         </ModalBody>

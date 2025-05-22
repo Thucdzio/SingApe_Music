@@ -21,6 +21,8 @@ import { useTrackHistoryLogger } from "@/hooks/useTrackHistoryLogger";
 import { ThemeProvider, useTheme } from "@/components/ui/ThemeProvider";
 import { ModalProvider } from "@/context/modal";
 import { AlertProvider } from "@/context/alert";
+import * as Linking from "expo-linking";
+import { router } from "expo-router";
 import { backgroundColor } from "@/constants/tokens";
 
 SplashScreen.preventAutoHideAsync();
@@ -44,6 +46,30 @@ export default function RootLayout() {
 
   const navigation = useNavigation() as NavigationProp<any>;
   useDoubleBackExit(navigation);
+
+  useEffect(() => {
+    const handleDeepLink = ({ url }: { url: string }) => {
+      const parsed = Linking.parse(url);
+      
+      if (parsed.hostname === "notification.click") {
+        router.replace("/player"); // or "/track/[id]" if needed
+      }
+    };
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
+    // Also check if the app was opened from a deep link (cold start)
+    (async () => {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        handleDeepLink({ url: initialUrl });
+      }
+    })();
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   return (
     <GestureHandlerRootView>
