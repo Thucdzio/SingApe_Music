@@ -48,7 +48,7 @@ export const transcribeSpeech = async (
         encoding:
           Platform.OS === "android"
             ? "AMR_WB"
-            : Platform.OS === "web"
+            : Platform.OS === "web" 
             ? "WEBM_OPUS"
             : "LINEAR16",
         sampleRateHertz:

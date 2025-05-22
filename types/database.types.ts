@@ -350,7 +350,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
+      }      
       users: {
         Row: {
           avatar_url: string | null
@@ -377,6 +377,41 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      upload_songs: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          url: string
+          upload_at: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          url: string
+          upload_at?: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          url?: string
+          upload_at?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upload_songs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

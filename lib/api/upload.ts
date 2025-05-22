@@ -4,13 +4,14 @@ import { supabase } from "../supabase";
 
 const uploadMusic = async () => {
   try {
+    // 1. Người dùng chọn file nhạc
     const result = await DocumentPicker.pick({
       type: [DocumentPicker.types.audio],
     });
 
     const file = result[0];
 
-    // Get current user
+    // 2. Lấy thông tin user hiện tại
     const {
       data: { user },
       error: userError,
@@ -26,10 +27,8 @@ const uploadMusic = async () => {
     const fileName = `${Date.now()}.${fileExt}`;
     const filePathInBucket = `${userId}/${fileName}`;
 
-    // Read file as base64
+    // 3. Đọc file thành base64 rồi chuyển thành Uint8Array
     const base64String = await RNFS.readFile(file.uri, "base64");
-
-    // Convert base64 to Uint8Array
     const byteCharacters = atob(base64String);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -37,18 +36,47 @@ const uploadMusic = async () => {
     }
     const byteArray = new Uint8Array(byteNumbers);
 
-    // Upload to Supabase
-    const { data, error } = await supabase.storage
+    // 4. Upload lên Supabase Storage bucket 'usermusic'
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from("usermusic")
       .upload(filePathInBucket, byteArray, {
         contentType: file.type,
         upsert: true,
       });
 
-    if (error) {
-      console.error("Upload error:", error);
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      return;
+    }
+
+    console.log("Upload success:", uploadData);
+
+    // 5. Lấy public URL
+    const { data: publicUrlData } = supabase.storage
+      .from("usermusic")
+      .getPublicUrl(filePathInBucket);
+
+    const publicUrl = publicUrlData?.publicUrl;
+
+    if (!publicUrl) {
+      console.error("Failed to get public URL");
+      return;
+    }
+
+    // 6. Lưu metadata vào bảng 'songs'
+    const { error: insertError } = await supabase.from("upload_songs").insert([
+      {
+        user_id: userId,
+        title: file.name,
+        url: publicUrl,
+        upload_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (insertError) {
+      console.error("Insert song error:", insertError);
     } else {
-      console.log("Upload success:", data);
+      console.log("Song metadata saved successfully.");
     }
   } catch (err) {
     if (DocumentPicker.isCancel(err)) {
