@@ -11,6 +11,7 @@ import {
   Pressable,
   VStack,
   Image,
+  Spinner,
 } from "@/components/ui";
 import { Box } from "@/components/ui/box";
 import { ButtonIcon, ButtonText } from "@/components/ui/button";
@@ -64,6 +65,8 @@ export default function Library() {
   );
   const [loading, setLoading] = useState(false);
   const [uploadedSongsLoading, setUploadedSongsLoading] = useState(false);
+  const [isUploadingMusic, setIsUploadingMusic] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [error, setError] = useState(null);
   const isFocused = useIsFocused();
   const store = useLibraryStore();
@@ -95,6 +98,37 @@ export default function Library() {
   const createPlaylist = () => {
     router.push("/createPlaylist" as Href);
   };
+
+  // Handle music upload with loading state and callbacks
+  const handleUploadMusic = async () => {
+    setIsUploadingMusic(true);
+    setUploadSuccess(false);
+
+    // Call uploadMusic with callbacks
+    await uploadMusic({
+      onStart: () => {
+        console.log("Upload started");
+        setIsUploadingMusic(true);
+      },
+      onSuccess: (song) => {
+        console.log("Upload completed successfully:", song);
+        // Add the new song to the list without refetching everything
+        setUploadedSongs((prev) => [song, ...prev]);
+        setIsUploadingMusic(false);
+        setUploadSuccess(true);
+
+        // Auto-hide success message after 3 seconds
+        setTimeout(() => {
+          setUploadSuccess(false);
+        }, 3000);
+      },
+      onError: (error) => {
+        console.error("Upload error:", error);
+        setIsUploadingMusic(false);
+      },
+    });
+  };
+
   // Fetch playlists and uploaded songs when component is focused
   useFocusEffect(
     useCallback(() => {
@@ -258,15 +292,20 @@ export default function Library() {
               showsHorizontalScrollIndicator={false}
               removeClippedSubviews={false}
             />
-            <HStack className="items-center justify-between">
+            <HStack className="items-center">
               <Heading className="text-2xl font-bold">
                 Bài hát đã tải lên
               </Heading>
               <Pressable
-                onPress={uploadMusic}
+                onPress={handleUploadMusic}
+                disabled={isUploadingMusic}
                 className="rounded-full w-10 h-10 data-[active=true]:bg-background-100 items-center justify-center"
               >
-                <Icon as={Plus} className="fill-primary-500" />
+                {isUploadingMusic ? (
+                  <Spinner size="small" color="primary.500" />
+                ) : (
+                  <Icon as={Plus} className="fill-primary-500" />
+                )}
               </Pressable>
             </HStack>
             <Divider className="w-full mb-2" />
@@ -327,7 +366,6 @@ export default function Library() {
           </VStack>
         </Box>
       </ScrollView>
-      {/* Bottom sheet modal for uploaded song options */}
       <MyBottomSheet bottomSheetRef={bottomSheetRef}>
         {selectedItem && "url" in selectedItem ? (
           <VStack space="md" className="p-4">
@@ -353,7 +391,6 @@ export default function Library() {
             <Heading className="text-xl">Tùy chọn</Heading>
             <Button
               onPress={() => {
-                // Type guard to ensure selectedItem is a MyTrack
                 if (
                   selectedItem &&
                   !("url" in selectedItem) &&
@@ -364,12 +401,11 @@ export default function Library() {
                   deletePlaylist(playlistId);
                   setData(data.filter((item) => item.id !== playlistId));
 
-                  // Convert MyTrack array to MyPlaylist array
                   const playlistItems = data
                     .filter((item) => item.id !== playlistId)
                     .map((item) => ({
                       ...item,
-                      tracks: [], // Add empty tracks array to make it compatible with MyPlaylist
+                      tracks: [], 
                     }));
 
                   store.setPlaylists(playlistItems);
@@ -390,6 +426,53 @@ export default function Library() {
           </VStack>
         )}
       </MyBottomSheet>
+      {uploadSuccess && (
+        <Animated.View 
+          entering={FadeIn.duration(300)}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: '50%',
+            zIndex: 999,
+            alignItems: 'center',
+            transform: [{ translateY: -50 }],
+          }}
+        >
+          <Box 
+            bg="success.500" 
+            px="5" 
+            py="3" 
+            rounded="xl" 
+            shadow="9"
+            borderWidth={2}
+            borderColor="success.400"
+            style={{
+              width: '85%',
+              alignItems: 'center',
+              backgroundColor: 'rgba(34, 197, 94, 0.95)',
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.3,
+              shadowRadius: 6,
+              elevation: 10,
+            }}
+          >
+            <HStack space="md" alignItems="center" mb={1}>
+              <Icon as={Music} size="sm" color="white" />
+              <Text color="white" fontWeight="bold" fontSize={18}>
+                Tải lên thành công!
+              </Text>
+            </HStack>
+            <Text color="white" textAlign="center" fontSize={14} letterSpacing={0.3}>
+              Bài hát đã được thêm vào thư viện của bạn
+            </Text>
+          </Box>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
