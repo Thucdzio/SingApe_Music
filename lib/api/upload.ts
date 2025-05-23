@@ -3,7 +3,6 @@ import RNFS from "react-native-fs";
 import { supabase } from "../supabase";
 import { UploadSong } from "./upload_songs.api";
 
-// Define types for callbacks
 type UploadCallbacks = {
   onStart?: () => void;
   onSuccess?: (song: UploadSong) => void;
@@ -12,24 +11,18 @@ type UploadCallbacks = {
 
 const uploadMusic = async (callbacks?: UploadCallbacks) => {
   try {
-    // Notify upload is starting
     callbacks?.onStart?.();
-
-    // 1. Người dùng chọn file nhạc
     const result = await DocumentPicker.pick({
       type: [DocumentPicker.types.audio],
     });
 
     const file = result[0];
-
-    // Ensure filename is available
     if (!file.name) {
       const error = new Error("File name is missing");
       callbacks?.onError?.(error);
       throw error;
     }
 
-    // 2. Lấy thông tin user hiện tại
     const {
       data: { user },
       error: userError,
@@ -46,7 +39,6 @@ const uploadMusic = async (callbacks?: UploadCallbacks) => {
     const fileName = `${Date.now()}.${fileExt}`;
     const filePathInBucket = `${userId}/${fileName}`;
 
-    // 3. Đọc file thành base64 rồi chuyển thành Uint8Array
     const base64String = await RNFS.readFile(file.uri, "base64");
     const byteCharacters = atob(base64String);
     const byteNumbers = new Array(byteCharacters.length);
@@ -55,7 +47,6 @@ const uploadMusic = async (callbacks?: UploadCallbacks) => {
     }
     const byteArray = new Uint8Array(byteNumbers);
 
-    // 4. Upload lên Supabase Storage bucket 'usermusic'
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("usermusic")
       .upload(filePathInBucket, byteArray, {
@@ -70,7 +61,6 @@ const uploadMusic = async (callbacks?: UploadCallbacks) => {
 
     console.log("Upload success:", uploadData);
 
-    // 5. Lấy public URL
     const { data: publicUrlData } = supabase.storage
       .from("usermusic")
       .getPublicUrl(filePathInBucket);
@@ -83,7 +73,6 @@ const uploadMusic = async (callbacks?: UploadCallbacks) => {
       throw error;
     }
 
-    // 6. Lưu metadata vào bảng 'songs'
     const songData = {
       user_id: userId,
       title: file.name,
@@ -102,13 +91,13 @@ const uploadMusic = async (callbacks?: UploadCallbacks) => {
       throw insertError;
     } else {
       console.log("Song metadata saved successfully:", insertData);
-      // Notify success with the complete song data
       callbacks?.onSuccess?.(insertData as UploadSong);
     }
     return insertData as UploadSong;
   } catch (err) {
     if (DocumentPicker.isCancel(err)) {
       console.log("User cancelled picker");
+      callbacks?.onError?.(new Error("Upload cancelled"));
     } else {
       console.error("Upload failed:", err);
       callbacks?.onError?.(err);

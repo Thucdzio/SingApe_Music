@@ -71,6 +71,9 @@ export default function Library() {
   const isFocused = useIsFocused();
   const store = useLibraryStore();
 
+  // Use this ref to track if an upload is actually in progress
+  const uploadInProgressRef = useRef(false);
+
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
     bottomSheetRef.current?.present();
@@ -98,17 +101,37 @@ export default function Library() {
   const createPlaylist = () => {
     router.push("/createPlaylist" as Href);
   };
+  // Handle focus/blur state to fix spinner issue
+  useEffect(() => {
+    // When focus returns to the screen
+    if (isFocused) {
+      // If no actual upload is in progress, make sure spinner is hidden
+      if (!uploadInProgressRef.current) {
+        setIsUploadingMusic(false);
+      }
+    }
+
+    // Cleanup function when component unmounts or loses focus
+    return () => {
+      // Don't reset if there's a real upload in progress
+      if (!uploadInProgressRef.current) {
+        setIsUploadingMusic(false);
+      }
+    };
+  }, [isFocused]);
 
   // Handle music upload with loading state and callbacks
   const handleUploadMusic = async () => {
     setIsUploadingMusic(true);
     setUploadSuccess(false);
+    uploadInProgressRef.current = true;
 
     // Call uploadMusic with callbacks
     await uploadMusic({
       onStart: () => {
         console.log("Upload started");
         setIsUploadingMusic(true);
+        uploadInProgressRef.current = true;
       },
       onSuccess: (song) => {
         console.log("Upload completed successfully:", song);
@@ -116,6 +139,7 @@ export default function Library() {
         setUploadedSongs((prev) => [song, ...prev]);
         setIsUploadingMusic(false);
         setUploadSuccess(true);
+        uploadInProgressRef.current = false;
 
         // Auto-hide success message after 3 seconds
         setTimeout(() => {
@@ -125,13 +149,18 @@ export default function Library() {
       onError: (error) => {
         console.error("Upload error:", error);
         setIsUploadingMusic(false);
+        uploadInProgressRef.current = false;
       },
     });
   };
-
   // Fetch playlists and uploaded songs when component is focused
   useFocusEffect(
     useCallback(() => {
+      // Reset loading states if no upload is actually in progress
+      if (!uploadInProgressRef.current) {
+        setIsUploadingMusic(false);
+      }
+
       const fetchData = async () => {
         setLoading(true);
         try {
@@ -152,6 +181,7 @@ export default function Library() {
           setLoading(false);
         }
       };
+
       const fetchUploadedSongs = async () => {
         setUploadedSongsLoading(true);
         try {
@@ -167,6 +197,14 @@ export default function Library() {
 
       fetchData();
       fetchUploadedSongs();
+
+      // Cleanup function when focus leaves
+      return () => {
+        // Only reset if no actual upload is in progress
+        if (!uploadInProgressRef.current) {
+          setIsUploadingMusic(false);
+        }
+      };
     }, [])
   );
   const handleOnOptionsPress = (item: MyTrack) => {
@@ -405,7 +443,7 @@ export default function Library() {
                     .filter((item) => item.id !== playlistId)
                     .map((item) => ({
                       ...item,
-                      tracks: [], 
+                      tracks: [],
                     }));
 
                   store.setPlaylists(playlistItems);
@@ -427,30 +465,30 @@ export default function Library() {
         )}
       </MyBottomSheet>
       {uploadSuccess && (
-        <Animated.View 
+        <Animated.View
           entering={FadeIn.duration(300)}
           style={{
-            position: 'absolute',
+            position: "absolute",
             left: 0,
             right: 0,
-            top: '50%',
+            top: "50%",
             zIndex: 999,
-            alignItems: 'center',
+            alignItems: "center",
             transform: [{ translateY: -50 }],
           }}
         >
-          <Box 
-            bg="success.500" 
-            px="5" 
-            py="3" 
-            rounded="xl" 
+          <Box
+            bg="success.500"
+            px="5"
+            py="3"
+            rounded="xl"
             shadow="9"
             borderWidth={2}
             borderColor="success.400"
             style={{
-              width: '85%',
-              alignItems: 'center',
-              backgroundColor: 'rgba(34, 197, 94, 0.95)',
+              width: "85%",
+              alignItems: "center",
+              backgroundColor: "rgba(34, 197, 94, 0.95)",
               shadowColor: "#000",
               shadowOffset: {
                 width: 0,
@@ -467,7 +505,12 @@ export default function Library() {
                 Tải lên thành công!
               </Text>
             </HStack>
-            <Text color="white" textAlign="center" fontSize={14} letterSpacing={0.3}>
+            <Text
+              color="white"
+              textAlign="center"
+              fontSize={14}
+              letterSpacing={0.3}
+            >
               Bài hát đã được thêm vào thư viện của bạn
             </Text>
           </Box>
