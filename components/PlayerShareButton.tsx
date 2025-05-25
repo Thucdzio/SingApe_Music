@@ -61,7 +61,7 @@ export const PlayerShareButton = ({
   };
 
   return (
-    <>
+    <View>
       <Pressable onPress={() => setIsModalOpen(true)}>
         <MaterialCommunityIcons
           name="share"
@@ -131,6 +131,6 @@ export const PlayerShareButton = ({
           </VStack>
         </ModalContent>
       </Modal>
-    </>
+    </View>
   );
 };

@@ -3,18 +3,22 @@ import { ExtendedTrack, MyTrack } from "@/types/zing.types";
 import { useEffect } from "react";
 import { Track } from "react-native-track-player";
 
-export async function convertZingToTrack(track: ExtendedTrack): Promise<MyTrack> { 
+export async function convertZingToTrack(
+  track: ExtendedTrack
+): Promise<MyTrack> {
   if (track.link.includes("/album")) {
     track.datatype = "album";
   } else if (track.link.includes("/playlist")) {
     track.datatype = "playlist";
   } else {
-    // try {
-    //   const song = await fetchSong(track.encodeId);
-    //   track.link = song;
-    // } catch (error) {
-    //   console.error("Error fetching song:", error);
-    // }
+    try {
+      const song = await fetchSong(track.encodeId);
+      track.link = song;
+
+      console.log("link", song);
+    } catch (error) {
+      console.error("Error fetching song:", error);
+    }
     track.datatype = "track";
   }
 
@@ -31,7 +35,7 @@ export async function convertZingToTrack(track: ExtendedTrack): Promise<MyTrack>
     weeklyRanking: track.weeklyRanking,
     datatype: track.datatype,
     releaseDate: track.releaseDate,
-    artists: track.artists
+    artists: track.artists,
   };
 }
 
@@ -63,6 +67,6 @@ export function convertToTrack(track: ExtendedTrack) {
     weeklyRanking: track.weeklyRanking,
     datatype: track.datatype,
     releaseDate: track.releaseDate,
-    artists: track.artists
+    artists: track.artists,
   };
 }

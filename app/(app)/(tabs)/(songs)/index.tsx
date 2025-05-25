@@ -325,7 +325,7 @@ export default function Songs() {
 
   const renderRecentSection = () => {
     return (
-      <>
+      <View>
         <HStack className="justify-between items-center pr-4">
           <Heading className={headingStyle}>Gần đây</Heading>
           <Button
@@ -348,24 +348,24 @@ export default function Songs() {
             handleOnOptionsPress(track as MyTrack);
           }}
         />
-      </>
+      </View>
     );
   };
 
   const renderTop100Section = () => {
     return (
-      <>
+      <View>
         <Heading className={headingStyle}>Tuyển tập top</Heading>
         <Box className="">
           <AlbumList horizontal={true} data={homeData.top100Section} />
         </Box>
-      </>
+      </View>
     );
   };
 
   const recommendSection = () => {
     return (
-      <>
+      <View>
         <Heading className={headingStyle}>Dựa trên sở thích của bạn</Heading>
         <TracksList
           id="recommend"
@@ -377,35 +377,35 @@ export default function Songs() {
             handleOnOptionsPress(track as MyTrack);
           }}
         />
-      </>
+      </View>
     );
   };
 
   const renderChillSection = () => {
     return (
-      <>
+      <View>
         <Heading className={headingStyle}>Thư giãn</Heading>
         <Box className="">
           <AlbumList horizontal={true} data={homeData.chillSection} />
         </Box>
-      </>
+      </View>
     );
   };
 
   const renderAlbumHotSection = () => {
     return (
-      <>
+      <View>
         <Heading className={headingStyle}>Album Hot</Heading>
         <Box className="">
           <AlbumList horizontal={true} data={homeData.albumHotSection} />
         </Box>
-      </>
+      </View>
     );
   };
 
   const renderNewReleaseSection = () => {
     return (
-      <>
+      <View>
         <Heading className={headingStyle}>Mới phát hành</Heading>
         <Box>
           <ColumnWiseFlatList
@@ -415,7 +415,7 @@ export default function Songs() {
             }}
           />
         </Box>
-      </>
+      </View>
     );
   };
 

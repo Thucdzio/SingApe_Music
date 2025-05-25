@@ -33,7 +33,11 @@ import { supabase } from "./supabase";
 //   console.log(json);
 // };
 
-const KOYEB_API_URL = "http://192.168.0.101:8080/"; // Replace with your Koyeb API URL
+// const KOYEB_API_URL = "http://192.168.0.101:8080/"; // Replace with your Koyeb API URL
+// =======
+const KOYEB_API_URL =
+  "https://yielding-leia-vietnam-national-university-83340bf5.koyeb.app/";
+
 // const KOYEB_API_URL = "http://192.168.1.2:25565/";
 
 export const getSpotifyToken = async () => {
@@ -43,10 +47,12 @@ export const getSpotifyToken = async () => {
 };
 
 export const fetchSearch = async (query: string) => {
-  const response = await fetch(KOYEB_API_URL + "zingmp3/search?keyword=" + query);
+  const response = await fetch(
+    KOYEB_API_URL + "zingmp3/search?keyword=" + query
+  );
   const data = await response.json();
   return data.data;
-}
+};
 
 export const fetchTop100Tracks = async () => {
   const response = await fetch(KOYEB_API_URL + "zingmp3/top100");
@@ -68,8 +74,11 @@ export const fetchHome = async () => {
 
 export const fetchSong = async (encodeId: string) => {
   try {
-    const response = await fetch(KOYEB_API_URL + "zingmp3/song/" + encodeId);
+    const response = await fetch(
+      "http://192.168.1.13:8080/" + "zingmp3/song/" + encodeId
+    );
     const data = await response.json();
+    // console.log("data", data);
     return data.data["128"];
   } catch (error) {
     console.error("Error fetching song URL:", error);
@@ -99,4 +108,11 @@ export const fetchArtist = async (encodeId: string) => {
     console.error("Error fetching artist:", error);
     throw error;
   }
-}
+};
+
+export const fetchLyric = async (encodeId: string) => {
+  const response = await fetch(KOYEB_API_URL + "zingmp3/lyric/" + encodeId);
+  const data = await response.json();
+  console.log("data", data);
+  return data.data;
+};

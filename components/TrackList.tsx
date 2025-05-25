@@ -37,39 +37,40 @@ export const TracksList = ({
   const { activeQueueId, setActiveQueueId } = useQueue();
 
   const handleTrackSelect = async (selectedTrack: MyTrack) => {
-    // const trackIndex = tracks.findIndex(
-    //   (track) => track.url === selectedTrack.url
-    // );
+    console.log("selectedTrack", selectedTrack);
+    const trackIndex = tracks.findIndex(
+      (track) => track.url === selectedTrack.url
+    );
 
-    // if (trackIndex === -1) return;
+    if (trackIndex === -1) return;
 
-    // const isChangingQueue = id !== activeQueueId;
+    const isChangingQueue = id !== activeQueueId;
 
-    // if (isChangingQueue) {
-    //   const beforeTracks = tracks.slice(0, trackIndex);
-    //   const afterTracks = tracks.slice(trackIndex + 1);
+    if (isChangingQueue) {
+      const beforeTracks = tracks.slice(0, trackIndex);
+      const afterTracks = tracks.slice(trackIndex + 1);
 
-    //   await TrackPlayer.reset();
+      await TrackPlayer.reset();
 
-    //   // we construct the new queue
-    //   await TrackPlayer.add(selectedTrack);
-    //   await TrackPlayer.add(afterTracks);
-    //   await TrackPlayer.add(beforeTracks);
+      // we construct the new queue
+      await TrackPlayer.add(selectedTrack);
+      await TrackPlayer.add(afterTracks);
+      await TrackPlayer.add(beforeTracks);
 
-    //   await TrackPlayer.play();
-    //   saveListeningHistory(tracks[trackIndex]);
+      await TrackPlayer.play();
+      saveListeningHistory(tracks[trackIndex]);
 
-    //   queueOffset.current = trackIndex;
-    //   setActiveQueueId(id);
-    // } else {
-    //   const nextTrackIndex =
-    //     trackIndex - queueOffset.current < 0
-    //       ? tracks.length + trackIndex - queueOffset.current
-    //       : trackIndex - queueOffset.current;
+      queueOffset.current = trackIndex;
+      setActiveQueueId(id);
+    } else {
+      const nextTrackIndex =
+        trackIndex - queueOffset.current < 0
+          ? tracks.length + trackIndex - queueOffset.current
+          : trackIndex - queueOffset.current;
 
-    //   await TrackPlayer.skip(nextTrackIndex);
-    //   TrackPlayer.play();
-    // }
+      await TrackPlayer.skip(nextTrackIndex);
+      TrackPlayer.play();
+    }
     if (onTrackSelect) {
       onTrackSelect(selectedTrack);
     } else {
