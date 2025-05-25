@@ -9,13 +9,16 @@ import { router } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { trackTitleFilter } from "@/helpers/filter";
 import TrackPlayer from "react-native-track-player";
-import Library from "../assets/data/library.json";
+import { fetchSearch } from "@/lib/spotify";
+import { convertZingToTrack } from "@/helpers/convert";
+import { MyTrack } from "@/types/zing.types";
 
 export default function Voice() {
   const [transcribedSpeech, setTranscribedSpeech] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [searchResult, setSearchResult] = useState<MyTrack | null>(null);
   const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
 
@@ -35,29 +38,54 @@ export default function Voice() {
   const stopRecording = async () => {
     setIsRecording(false);
     setIsTranscribing(true);
+    setSearchResult(null);
 
     try {
       const speechTranscript = await transcribeSpeech(audioRecordingRef);
-      setTranscribedSpeech(speechTranscript || "");
 
-      const song = Library.find(trackTitleFilter(speechTranscript));
-      console.log("SONG :", song);
-      if (song) {
-        setIsPlaying(true);
-        await TrackPlayer.reset();
-        await TrackPlayer.add(song);
-        await TrackPlayer.play();
+      if (!speechTranscript) {
+        setTranscribedSpeech(
+          "Không thể nhận diện giọng nói. Vui lòng thử lại."
+        );
+        setIsTranscribing(false);
+        return;
+      }
 
-        router.back();
+      setTranscribedSpeech(speechTranscript);
+      console.log("speechTranscript :", speechTranscript);
+
+      // Sử dụng API tìm kiếm thay vì tìm trong Library
+      const searchResponse = await fetchSearch(speechTranscript);
+
+      if (searchResponse.songs && searchResponse.songs.length > 0) {
+        // Chuyển đổi bài hát đầu tiên thành định dạng Track
+        const track = await convertZingToTrack(searchResponse.songs[0]);
+
+        if (track) {
+          setSearchResult(track);
+          setIsPlaying(true);
+          await TrackPlayer.reset();
+          await TrackPlayer.add(track);
+          await TrackPlayer.play();
+          router.back();
+        } else {
+          setSearchResult(null);
+          setIsPlaying(false);
+        }
       } else {
+        setSearchResult(null);
         setIsPlaying(false);
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error in voice recognition:", e);
+      setTranscribedSpeech(
+        "Đã xảy ra lỗi. Vui lòng kiểm tra kết nối mạng và thử lại."
+      );
+      setSearchResult(null);
+      setIsPlaying(false);
     } finally {
       setIsTranscribing(false);
     }
-    console.log("Found ", isPlaying);
   };
 
   return (
@@ -85,11 +113,11 @@ export default function Voice() {
                 {transcribedSpeech || "Thử nói gì đó ... "}
               </Text>
             )}
-            {isPlaying && transcribedSpeech ? (
+            {searchResult ? (
               <Text className="text-green-500 mt-5">
-                Đang mở bài hát: "{transcribedSpeech}"
+                Đang mở bài hát: "{searchResult.title}"
               </Text>
-            ) : !isPlaying && transcribedSpeech ? (
+            ) : transcribedSpeech && !isTranscribing ? (
               <Text className="text-red-500 mt-5">
                 Không tìm thấy bài hát với tên: "{transcribedSpeech}"
               </Text>

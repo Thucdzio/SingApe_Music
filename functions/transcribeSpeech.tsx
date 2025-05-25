@@ -5,6 +5,20 @@ import { Platform } from "react-native";
 import * as Device from "expo-device";
 import { readBlobAsBase64 } from "./readBlobAsBase64";
 
+// Function to get the appropriate server URL based on platform
+const getServerUrl = () => {
+  if (Platform.OS === "android") {
+    // For Android emulator
+    if (!Device.isDevice) {
+      return "http://10.0.2.2:4000";
+    }
+    // For Android device
+    return "http://192.168.1.13:4000";
+  }
+  // For iOS and web
+  return "http://localhost:4000";
+};
+
 export const transcribeSpeech = async (
   audioRecordingRef: MutableRefObject<Audio.Recording>
 ) => {
@@ -48,7 +62,7 @@ export const transcribeSpeech = async (
         encoding:
           Platform.OS === "android"
             ? "AMR_WB"
-            : Platform.OS === "web" 
+            : Platform.OS === "web"
             ? "WEBM_OPUS"
             : "LINEAR16",
         sampleRateHertz:
@@ -57,37 +71,46 @@ export const transcribeSpeech = async (
             : Platform.OS === "web"
             ? 48000
             : 41000,
-        languageCode: "en-US",
+        languageCode: "vi-VN",
+        alternativeLanguageCodes: ["en-US"],
       };
 
       if (recordingUri && dataUrl) {
-        const rootOrigin =
-          Platform.OS === "android"
-            ? // ? "10.0.2.2"
-              // : Device.isDevice
-              process.env.LOCAL_DEV_IP || "192.168.1.13"
-            : "localhost";
-        const serverUrl = `http://${rootOrigin}:4000`;
-        console.log("URRL :", serverUrl);
-        const serverResponse = await fetch(`${serverUrl}/speech-to-text`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ audioUrl: dataUrl, config: audioConfig }),
-        })
-          .then((res) => res.json())
-          .catch((e: Error) => console.error(e));
+        const serverUrl = getServerUrl();
+        console.log("Server URL:", serverUrl);
 
-        const results = serverResponse?.results;
-        console.log(serverResponse);
-        console.log("Server reponse", results);
-        if (results) {
-          const transcript = results?.[0].alternatives?.[0].transcript;
-          if (!transcript) return undefined;
-          return transcript;
-        } else {
-          console.error("No transcript found");
+        try {
+          const serverResponse = await fetch(`${serverUrl}/speech-to-text`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ audioUrl: dataUrl, config: audioConfig }),
+          });
+
+          if (!serverResponse.ok) {
+            throw new Error(
+              `Server responded with status: ${serverResponse.status}`
+            );
+          }
+
+          const data = await serverResponse.json();
+          const results = data?.results;
+          console.log("Server response:", results);
+
+          if (results) {
+            const transcript = results?.[0].alternatives?.[0].transcript;
+            if (!transcript) {
+              console.error("No transcript found in results");
+              return undefined;
+            }
+            return transcript;
+          } else {
+            console.error("No results found in server response");
+            return undefined;
+          }
+        } catch (error) {
+          console.error("Error calling speech-to-text API:", error);
           return undefined;
         }
       }

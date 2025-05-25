@@ -57,6 +57,7 @@ import {
   Search,
   Share2,
   UserRoundCheck,
+  Mic,
 } from "lucide-react-native";
 import { AlbumList } from "@/components/AlbumList";
 
@@ -429,15 +430,30 @@ export default function Songs() {
           titleClassName="text-3xl font-bold"
           headerClassName="bg-background-0 px-4"
           right={
-            <Button
-              variant="link"
-              className="text-sm font-semibold"
-              onPress={() => {
-                router.navigate("/search" as Href);
-              }}
-            >
-              <ButtonIcon as={Search} size="xxl" className="text-primary-500" />
-            </Button>
+            <HStack space="md">
+              <Button
+                variant="link"
+                className="text-sm font-semibold"
+                onPress={() => {
+                  router.navigate("/search" as Href);
+                }}
+              >
+                <ButtonIcon
+                  as={Search}
+                  size="xxl"
+                  className="text-primary-500"
+                />
+              </Button>
+              <Button
+                variant="link"
+                className="text-sm font-semibold"
+                onPress={() => {
+                  router.navigate("/voice" as Href);
+                }}
+              >
+                <ButtonIcon as={Mic} size="xxl" className="text-primary-500" />
+              </Button>
+            </HStack>
           }
         />
       </SafeAreaView>
@@ -453,15 +469,30 @@ export default function Songs() {
           titleClassName="text-3xl font-bold"
           headerClassName="bg-background-0 px-4"
           right={
-            <Button
-              variant="link"
-              className="text-sm font-semibold"
-              onPress={() => {
-                router.navigate("/search" as Href);
-              }}
-            >
-              <ButtonIcon as={Search} size="xxl" className="text-primary-500" />
-            </Button>
+            <HStack space="md">
+              <Button
+                variant="link"
+                className="text-sm font-semibold"
+                onPress={() => {
+                  router.navigate("/search" as Href);
+                }}
+              >
+                <ButtonIcon
+                  as={Search}
+                  size="xxl"
+                  className="text-primary-500"
+                />
+              </Button>
+              <Button
+                variant="link"
+                className="text-sm font-semibold"
+                onPress={() => {
+                  router.navigate("/voice" as Href);
+                }}
+              >
+                <ButtonIcon as={Mic} size="xxl" className="text-primary-500" />
+              </Button>
+            </HStack>
           }
         />
         <Center className="flex-1">
@@ -494,15 +525,30 @@ export default function Songs() {
           titleClassName="text-3xl font-bold"
           headerClassName="bg-background-0 px-4"
           right={
-            <Button
-              variant="link"
-              className="text-sm font-semibold"
-              onPress={() => {
-                router.navigate("/search" as Href);
-              }}
-            >
-              <ButtonIcon as={Search} size="xxl" className="text-primary-500" />
-            </Button>
+            <HStack space="md">
+              <Button
+                variant="link"
+                className="text-sm font-semibold"
+                onPress={() => {
+                  router.navigate("/search" as Href);
+                }}
+              >
+                <ButtonIcon
+                  as={Search}
+                  size="xxl"
+                  className="text-primary-500"
+                />
+              </Button>
+              <Button
+                variant="link"
+                className="text-sm font-semibold"
+                onPress={() => {
+                  router.navigate("/voice" as Href);
+                }}
+              >
+                <ButtonIcon as={Mic} size="xxl" className="text-primary-500" />
+              </Button>
+            </HStack>
           }
         />
         <VStack space="lg">
