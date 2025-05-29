@@ -63,7 +63,6 @@ import { AlbumList } from "@/components/AlbumList";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<MyTrack[]>([]);
-  const haveFloatingPlayer = useActiveTrack();
   const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
 
   const [homeData, setHomeData] = useState<{
@@ -215,6 +214,8 @@ export default function Songs() {
           ? await handleData(albumHotSection)
           : [],
       });
+
+      console.log("New Release Section Data:", homeData.newReleaseSection);
     } catch (error) {
       console.error("", error);
       setIsError(true);
@@ -344,7 +345,7 @@ export default function Songs() {
           className="px-4 data-[active=true]:no-underline"
           scrollEnabled={false}
           ItemSeparatorComponent={() => <View className="h-3" />}
-          tracks={homeData.recentSection.slice(0, 3)}
+          tracks={homeData.recentSection.slice(0, 5)}
           onTrackOptionPress={(track) => {
             handleOnOptionsPress(track as MyTrack);
           }}
@@ -632,7 +633,7 @@ const ColumnWiseFlatList = ({
 }: ColumnWiseFlatListProps) => {
   const screenWidth = useWindowDimensions().width - 32;
   const snapInterval = screenWidth + 14; // 16 is the width of the separator
-  const numCols = 3;
+  const numCols = 5;
 
   const transformedData = useMemo(() => {
     const columns: MyTrack[][] = [];

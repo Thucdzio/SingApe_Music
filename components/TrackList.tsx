@@ -73,9 +73,10 @@ export const TracksList = ({
     }
     if (onTrackSelect) {
       onTrackSelect(selectedTrack);
-    } else {
-      playPlaylistFromTrack(tracks, selectedTrack);
     }
+    //  else {
+    //   playPlaylistFromTrack(tracks, selectedTrack);
+    // }
   };
 
   if (!tracks || tracks.length === 0) {

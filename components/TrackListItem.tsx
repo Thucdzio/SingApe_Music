@@ -36,7 +36,7 @@ import {
 } from "./ui/actionsheet";
 import { ScrollView } from "react-native-gesture-handler";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { useWindowDimensions } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import { MyTrack } from "@/types/zing.types";
 
 export type TracksListItemProps = {
@@ -90,7 +90,7 @@ export const TracksListItem = ({
         />
 
         {isActiveTrack ? (
-          <>
+          <View>
             <BlurView
               className="absolute w-full h-full"
               tint="dark"
@@ -104,7 +104,7 @@ export const TracksListItem = ({
                 className="absolute text-indigo-500 fill-indigo-500"
               />
             )}
-          </>
+          </View>
         ) : null}
       </Center>
     );

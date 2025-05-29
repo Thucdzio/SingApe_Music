@@ -49,7 +49,7 @@ export const playPlaylist = async (tracks: Track[]) => {
   try {
     if (!tracks || tracks.length === 0) return;
 
-    const currentTrack = {...tracks[0], url: await fetchSong(tracks[0].id) };
+    const currentTrack = { ...tracks[0], url: await fetchSong(tracks[0].id) };
     await TrackPlayer.reset();
     await TrackPlayer.add(currentTrack);
     await TrackPlayer.play();
@@ -60,7 +60,6 @@ export const playPlaylist = async (tracks: Track[]) => {
       }
       await TrackPlayer.add(track);
     }
-    
   } catch (error) {
     console.error("Error loading playlist:", error);
   }

@@ -68,7 +68,7 @@ export const FloatingPlayer = ({ style }: ViewProps) => {
           spacing={50}
           speed={speed}
           style={{ width: "100%" }}
-          position={marqueePosition}       
+          position={marqueePosition}
         >
           <Text
             numberOfLines={1}
