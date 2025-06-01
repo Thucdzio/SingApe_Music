@@ -5,7 +5,6 @@ import { VStack } from "@/components/ui";
 import { useModal } from "@/context/modal";
 import { useAuth } from "@/context/auth";
 import { convertZingToTrack } from "@/helpers/convert";
-import { likeSong } from "@/lib/api";
 import { fetchPlaylist } from "@/lib/spotify";
 import {
   createPlaylist,

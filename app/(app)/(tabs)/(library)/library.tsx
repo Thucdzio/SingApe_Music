@@ -293,6 +293,7 @@ export default function Library() {
                 <ButtonText>Tải xuống</ButtonText>
               </Button>
             </HStack>
+            <View className="h-2" />
             <HStack className="items-center gap-2">
               <Heading className="text-2xl font-bold">Danh sách phát</Heading>
               <Pressable
@@ -324,7 +325,7 @@ export default function Library() {
                 </Pressable>
               )}
               ItemSeparatorComponent={() => <View className="h-3" />}
-              ListFooterComponent={() => <View className="h-28" />}
+              ListFooterComponent={() => <View className="h-3" />}
               scrollEnabled={false}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
@@ -353,10 +354,10 @@ export default function Library() {
               </Box>
             ) : uploadedSongs.length === 0 ? (
               <Box className="h-20 items-center justify-center">
-                <Text className="text-secondary-400">
+                <Text className="text-primary-500">
                   Bạn chưa tải lên bài hát nào
                 </Text>
-                <Text className="text-secondary-400 mt-1">
+                <Text className="text-primary-500 mt-1">
                   Nhấn vào dấu + để tải lên bài hát
                 </Text>
               </Box>

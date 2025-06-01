@@ -90,7 +90,7 @@ export const TracksListItem = ({
         />
 
         {isActiveTrack ? (
-          <View>
+          <Center className="absolute w-full h-full">
             <BlurView
               className="absolute w-full h-full"
               tint="dark"
@@ -104,7 +104,7 @@ export const TracksListItem = ({
                 className="absolute text-indigo-500 fill-indigo-500"
               />
             )}
-          </View>
+          </Center>
         ) : null}
       </Center>
     );
