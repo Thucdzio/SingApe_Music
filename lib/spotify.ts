@@ -35,10 +35,10 @@ import { supabase } from "./supabase";
 
 // const KOYEB_API_URL = "http://192.168.0.101:8080/"; // Replace with your Koyeb API URL
 // =======
-const KOYEB_API_URL =
-  "https://yielding-leia-vietnam-national-university-83340bf5.koyeb.app/";
+// const KOYEB_API_URL =
+//   "https://yielding-leia-vietnam-national-university-83340bf5.koyeb.app/";
 
-// const KOYEB_API_URL = "http://192.168.1.2:25565/";
+const KOYEB_API_URL = "http://192.168.1.11:8080/";
 
 export const getSpotifyToken = async () => {
   const response = await fetch(`${KOYEB_API_URL}spotify-token`);
@@ -75,7 +75,7 @@ export const fetchHome = async () => {
 export const fetchSong = async (encodeId: string) => {
   try {
     const response = await fetch(
-      "http://192.168.1.13:8080/" + "zingmp3/song/" + encodeId
+      "http://192.168.1.11:8080/" + "zingmp3/song/" + encodeId
     );
     const data = await response.json();
     // console.log("data", data);
