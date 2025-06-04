@@ -87,6 +87,7 @@ export const playPlaylistFromTrack = async (
   if (index === -1) return;
 
   const currentTrack = { ...trackIndex, url: await fetchSong(trackIndex.id) };
+  console.log("currentTrack", currentTrack);
 
   await TrackPlayer.reset();
   await TrackPlayer.add(currentTrack);
