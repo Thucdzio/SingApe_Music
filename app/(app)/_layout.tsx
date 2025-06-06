@@ -2,10 +2,6 @@ import { useAuth } from "@/context/auth";
 import { router, Stack, Tabs } from "expo-router";
 
 export default function Layout() {
-    const { session } = useAuth();
-    if (!session) {
-        router.navigate("/(auth)");
-    }
     return (
         <Stack>
             <Tabs.Screen name="(tabs)" options={{ headerShown: false }} />

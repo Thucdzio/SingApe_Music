@@ -1,4 +1,4 @@
-import { deletePlaylist } from "@/services/fileService";
+import { deletePlaylist } from "@/services/cacheService";
 import { Artist, MyPlaylist, MyTrack } from "@/types/zing.types";
 import { create } from "zustand";
 

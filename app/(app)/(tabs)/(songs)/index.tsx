@@ -42,7 +42,7 @@ import {
   checkIfSongInFavorites,
   getListeningHistory,
   removeSongFromFavorite,
-} from "@/services/fileService";
+} from "@/services/cacheService";
 import { getAllSongs, getSongsByArtistId } from "@/lib/api/songs";
 import { getAllArtists } from "@/lib/api/artists";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
@@ -63,6 +63,7 @@ import {
 import { AlbumList } from "@/components/AlbumList";
 import { downloadSong } from "@/components/DowloadMusic";
 import { PlayerShareButton } from "@/components/PlayerShareButton";
+import { useFavoriteStore } from "@/store/mylib";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<MyTrack[]>([]);
@@ -91,12 +92,12 @@ export default function Songs() {
   const numCols = 3;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
   // Data states
   // const [songs, setSongs] = useState<Song[]>([]);
   // const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const favouriteStore = useFavoriteStore();
   const router = useRouter();
   const navigation = useNavigation();
 
@@ -256,9 +257,9 @@ export default function Songs() {
     bottomSheetRef.current?.close();
   }, []);
 
-  const favoriteState = async () => {
+  const favoriteState = () => {
     if (selectedItem) {
-      const isFavorite = await checkIfSongInFavorites(selectedItem);
+      const isFavorite = favouriteStore.isTrackFavorite(selectedItem.id);
       setIsFavorite(isFavorite);
     }
   };
@@ -276,9 +277,11 @@ export default function Songs() {
   const handleFavoritePress = async () => {
     if (selectedItem) {
       try {
-        if (await checkIfSongInFavorites(selectedItem)) {
+        if (isFavorite) {
+          favouriteStore.removeTrackFromFavorites(selectedItem.id);
           await removeSongFromFavorite(selectedItem);
         } else {
+          favouriteStore.addTrackToFavorites(selectedItem);
           await addSongToFavorite(selectedItem);
         }
       } catch (error) {

@@ -37,7 +37,7 @@ import {
   checkPlaylistExists,
   createPlaylist,
   createPlaylistWithTracks,
-} from "@/services/fileService";
+} from "@/services/cacheService";
 import { fetchPlaylist } from "@/lib/spotify";
 import { convertZingToTrack } from "@/helpers/convert";
 import {

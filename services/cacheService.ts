@@ -1,4 +1,4 @@
-import { Album, MyPlaylist, MyTrack } from '@/types/zing.types';
+import { Album, Artist, MyPlaylist, MyTrack } from '@/types/zing.types';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { Track } from 'react-native-track-player';
@@ -6,6 +6,7 @@ import { Track } from 'react-native-track-player';
 const HISTORY_FILE = FileSystem.documentDirectory + 'listeningHistory.json';
 const PLAYLISTS_DIR = FileSystem.documentDirectory + 'Playlists/';
 const FAVORITES_DIR = FileSystem.documentDirectory + 'Favorites/';
+const FOLLOWS_DIR = FileSystem.documentDirectory + 'Follows/';
 const RECENTSEARCH_FILE = FileSystem.documentDirectory + 'recentSearch.json';
 
 export async function downloadMusic(url: string, filename: string) {
@@ -219,7 +220,7 @@ export const listPlaylists = async () => {
 };
 
 
-
+//------------------------------------------------------------------------------------------------------------
 
 const ensureFavoritesDirExists = async () => {
   const dirInfo = await FileSystem.getInfoAsync(FAVORITES_DIR);
@@ -241,7 +242,11 @@ export const addSongToFavorite = async (song: MyTrack) => {
     const content = await FileSystem.readAsStringAsync(filePath);
     favorites = JSON.parse(content);
   }
-
+  const existingTrack = favorites.find((track: MyTrack) => track.id === song.id);
+  if (existingTrack) {
+    console.log('Track already exists in favorites:', song.id);
+    return; // Track already exists, no need to add again
+  }
   favorites.push(song);
   await FileSystem.writeAsStringAsync(filePath, JSON.stringify(favorites));
 }
@@ -306,4 +311,57 @@ export const getRecentSearch = async () => {
     console.error('Error reading recent search:', e);
     return [];
   }
+}
+
+
+// -------------------------------------------------------------------------------------------------------------
+const ensureFollowsDirExists = async () => {
+  const dirInfo = await FileSystem.getInfoAsync(FOLLOWS_DIR);
+  if (!dirInfo.exists) {
+    await FileSystem.makeDirectoryAsync(FOLLOWS_DIR, { intermediates: true });
+  }
+}
+
+const getFollowFilePath = (userId: string) => `${FOLLOWS_DIR}${userId}.json`;
+
+export const addFollowArtist = async (userId: string, artist: Artist) => {
+  await ensureFollowsDirExists();
+  const filePath = getFollowFilePath(userId);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  let follows: Artist[] = [];
+
+  if (fileInfo.exists) {
+    const content = await FileSystem.readAsStringAsync(filePath);
+    follows = JSON.parse(content);
+  }
+  const existingArtist = follows.find((a: Artist) => a.id === artist.id);
+  if (existingArtist) {
+    console.log('Artist already followed:', artist.id);
+    return; // Artist already exists, no need to add again
+  }
+
+  follows.push(artist);
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(follows));
+}
+
+export const removeFollowArtist = async (userId: string, artistId: string) => {
+  const filePath = getFollowFilePath(userId);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    throw new Error('Follows do not exist');
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  const follows = JSON.parse(content);
+  const updatedFollows = follows.filter((a: Artist) => a.id !== artistId);
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(updatedFollows));
+}
+
+export const getFollows = async (userId: string) => {
+  const filePath = getFollowFilePath(userId);
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  if (!fileInfo.exists) {
+    throw new Error('Follows do not exist');
+  }
+  const content = await FileSystem.readAsStringAsync(filePath);
+  return JSON.parse(content);
 }

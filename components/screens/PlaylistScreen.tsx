@@ -54,6 +54,12 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
 import { useQueueStore } from "@/store/queue";
 import { generateTracksListId } from "@/services/playbackService";
+import { BS_MoveToArtist } from "../buttons/BS_MoveToArtist";
+import { BS_AddToPlaylist } from "../buttons/BS_AddToPlaylist";
+import { BS_AddToFavorite } from "../buttons/BS_AddToFavorite";
+import { BS_Download } from "../buttons/BS_Download";
+import { BS_RemoveFromPlaylist } from "../buttons/BS_RemoveFromPlaylist";
+import { BS_Share } from "../buttons/BS_Share";
 
 interface PlaylistProps {
   id?: string;
@@ -71,6 +77,7 @@ interface PlaylistProps {
   onOptionPress?: () => void;
   onPlusPress?: () => void;
   onEditPress?: () => void;
+  onRemoveFromPlaylist: (track: MyTrack) => Promise<void>;
 }
 
 export const PlaylistScreen = ({
@@ -89,6 +96,7 @@ export const PlaylistScreen = ({
   onOptionPress,
   onPlusPress,
   onEditPress,
+  onRemoveFromPlaylist,
 }: PlaylistProps) => {
   const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
   const { playing } = useIsPlaying();
@@ -143,31 +151,13 @@ export const PlaylistScreen = ({
     handlePresentModalPress();
   };
 
-  const handleAddToPlaylistPress = () => {};
-  const handleFavoritePress = () => {
+  const handleAddToPlaylistPress = () => {
     if (selectedItem) {
-      setSelectedItem({
-        ...selectedItem,
-        isFavorite: !selectedItem?.isFavorite,
+      router.push({
+        pathname: "/addToPlaylist",
+        params: selectedItem,
       });
     }
-  };
-  const handleDownloadPress = () => {
-    // Handle download action
-  };
-  const handleRemoveFromPlaylistPress = () => {
-    // Handle remove from playlist action
-  };
-  const handleArtistPress = () => {
-    handleDismissModalPress();
-    console.log("artistId", selectedItem?.artist);
-    router.navigate({
-      pathname: `/(app)/(tabs)/(${variant})/artists/[id]`,
-      params: { id: selectedItem?.artist ?? "" },
-    });
-  };
-  const handleSharePress = () => {
-    // Handle share action
   };
 
   const variantRender = () => {
@@ -404,37 +394,30 @@ export const PlaylistScreen = ({
           <Divider />
         </Box>
         <VStack space="lg" className="w-full">
-          <ButtonBottomSheet
-            onPress={handleAddToPlaylistPress}
-            buttonIcon={CirclePlus}
-            buttonText="Thêm vào danh sách phát"
+          <BS_AddToPlaylist
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleFavoritePress}
-            stateChangable={true}
-            fillIcon={selectedItem?.isFavorite}
-            buttonIcon={Heart}
-            buttonText="Thêm vào yêu thích"
+          <BS_AddToFavorite
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleDownloadPress}
-            buttonIcon={CircleArrowDown}
-            buttonText="Tải xuống"
+          <BS_Download
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleRemoveFromPlaylistPress}
-            buttonIcon={CircleX}
-            buttonText="Xóa khỏi danh sách phát"
+          <BS_MoveToArtist
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleArtistPress}
-            buttonIcon={UserRoundCheck}
-            buttonText="Chuyển đến nghệ sĩ"
+          <BS_RemoveFromPlaylist
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
+            handleRemoveFromPlaylist={onRemoveFromPlaylist}
           />
-          <ButtonBottomSheet
-            onPress={handleSharePress}
-            buttonIcon={Share2}
-            buttonText="Chia sẻ"
+          <BS_Share
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
         </VStack>
       </MyBottomSheet>

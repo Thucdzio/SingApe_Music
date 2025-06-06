@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { FlatList, FlatListProps, Text, View } from "react-native";
 import { TracksListItem } from "./TrackListItem";
 import TrackPlayer, { Track } from "react-native-track-player";
-import { saveListeningHistory } from "@/services/fileService";
+import { saveListeningHistory } from "@/services/cacheService";
 import { useQueue } from "@/store/queue";
 import { fetchSong } from "@/lib/spotify";
 import { Box, Center, HStack } from "./ui";

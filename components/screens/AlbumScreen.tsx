@@ -53,6 +53,11 @@ import ButtonBottomSheet from "../bottomSheet/ButtonBottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQueueStore } from "@/store/queue";
 import { set } from "@gluestack-style/react";
+import { BS_AddToPlaylist } from "../buttons/BS_AddToPlaylist";
+import { BS_AddToFavorite } from "../buttons/BS_AddToFavorite";
+import { BS_Download } from "../buttons/BS_Download";
+import { BS_MoveToArtist } from "../buttons/BS_MoveToArtist";
+import { BS_Share } from "../buttons/BS_Share";
 
 interface AlbumProps {
   id?: string;
@@ -89,7 +94,7 @@ export const AlbumScreen = ({
   onDownloadPress,
   inUserPlaylist = false,
 }: AlbumProps) => {
-  const [selectedItem, setSelectedItem] = useState<Track>();
+  const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
   const { playing } = useIsPlaying();
   const queueId = useQueueStore((state) => state.activeQueueId);
   const [activeButton, setActiveButton] = useState(false);
@@ -146,7 +151,7 @@ export const AlbumScreen = ({
     bottomSheetRef.current?.dismiss();
   }, []);
 
-  const handleTrackOptionPress = (track: Track) => {
+  const handleTrackOptionPress = (track: MyTrack) => {
     handlePresentModalPress();
     setSelectedItem(track);
   };
@@ -390,37 +395,25 @@ export const AlbumScreen = ({
           <Divider />
         </Box>
         <VStack space="md" className="w-full">
-          <ButtonBottomSheet
-            onPress={handleAddToPlaylistPress}
-            buttonIcon={CirclePlus}
-            buttonText="Thêm vào danh sách phát"
+          <BS_AddToPlaylist
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleFavoritePress}
-            stateChangable={true}
-            fillIcon={selectedItem?.isFavorite}
-            buttonIcon={Heart}
-            buttonText="Thêm vào yêu thích"
+          <BS_AddToFavorite
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleDownloadPress}
-            buttonIcon={CircleArrowDown}
-            buttonText="Tải xuống"
+          <BS_Download
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleRemoveFromPlaylistPress}
-            buttonIcon={CircleX}
-            buttonText="Xóa khỏi danh sách phát"
+          <BS_MoveToArtist
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
-          <ButtonBottomSheet
-            onPress={handleArtistPress}
-            buttonIcon={CircleUserRound}
-            buttonText="Chuyển đến nghệ sĩ"
-          />
-          <ButtonBottomSheet
-            onPress={handleSharePress}
-            buttonIcon={Share2}
-            buttonText="Chia sẻ"
+          <BS_Share
+            selectedItem={selectedItem}
+            handleDismissModalPress={handleDismissModalPress}
           />
         </VStack>
       </MyBottomSheet>

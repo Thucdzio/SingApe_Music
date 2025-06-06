@@ -29,7 +29,7 @@ import {
   addSongToFavorite,
   checkIfSongInFavorites,
   removeSongFromFavorite,
-} from "@/services/fileService";
+} from "@/services/cacheService";
 import { MyTrack } from "@/types/zing.types";
 
 const PlayerScreen = () => {

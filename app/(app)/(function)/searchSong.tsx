@@ -6,7 +6,7 @@ import { useAlert } from "@/context/alert";
 import { convertZingToTrack } from "@/helpers/convert";
 import { useDebounce } from "@/hooks/useDebounce";
 import { fetchSearch } from "@/lib/spotify";
-import { addSongToPlaylist } from "@/services/fileService";
+import { addSongToPlaylist } from "@/services/cacheService";
 import { playTrack } from "@/services/playbackService";
 import { useLibraryStore } from "@/store/mylib";
 import { MyTrack, SearchResult } from "@/types/zing.types";

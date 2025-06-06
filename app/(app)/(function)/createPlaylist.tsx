@@ -7,7 +7,7 @@ import { useAuth } from "@/context/auth";
 import {
   createPlaylist,
   createPlaylistWithTracks,
-} from "@/services/fileService";
+} from "@/services/cacheService";
 import { MyTrack } from "@/types/zing.types";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";

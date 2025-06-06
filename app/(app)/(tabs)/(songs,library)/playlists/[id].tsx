@@ -11,7 +11,8 @@ import {
   deletePlaylist,
   getPlaylist,
   listPlaylists,
-} from "@/services/fileService";
+  removeSongFromPlaylist,
+} from "@/services/cacheService";
 import { generateTracksListId, playPlaylist, playPlaylistFromTrack } from "@/services/playbackService";
 import { usePlaylists } from "@/store/library";
 import { useLibraryStore } from "@/store/mylib";
@@ -41,6 +42,7 @@ export default function Playlists() {
   const [data, setData] = useState<MyTrack[]>([]);
 
   const playlists = useLibraryStore((state) => state.playlists);
+  const setPlaylist = useLibraryStore((state) => state.setPlaylist);
   const deleteStorePlaylist = useLibraryStore((state) => state.deletePlaylist);
 
   const { user } = useAuth();
@@ -186,6 +188,17 @@ export default function Playlists() {
     }, [playlists])
   );
 
+  const onRemoveFromPlaylist = async (track: MyTrack) => {
+    await removeSongFromPlaylist(item.id, track);
+    const updatedTracks = data.filter((t) => t.id !== track.id);
+    const updatedPlaylist = {
+      ...item,
+      tracks: updatedTracks,
+    };
+    setPlaylist(updatedPlaylist);
+    setData(updatedTracks);
+  }
+
   return (
     <View className="flex-1 bg-background-0">
       <Stack.Screen
@@ -214,6 +227,7 @@ export default function Playlists() {
             },
           })
         }
+        onRemoveFromPlaylist={onRemoveFromPlaylist}
       />
       <MyBottomSheet bottomSheetRef={bottomSheetRef}>
         <VStack space="md" className="w-full">

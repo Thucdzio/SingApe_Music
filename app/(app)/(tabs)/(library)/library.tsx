@@ -20,7 +20,7 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { unknownTrackImageSource } from "@/constants/image";
 import { fontSize, textColor } from "@/constants/tokens";
-import { deletePlaylist, listPlaylists } from "@/services/fileService";
+import { deletePlaylist, listPlaylists } from "@/services/cacheService";
 import { playTrack } from "@/services/playbackService";
 import { useLibraryStore } from "@/store/mylib";
 import { MyPlaylist, MyTrack } from "@/types/zing.types";
@@ -174,7 +174,7 @@ export default function Library() {
           }));
 
           // Now it matches the MyPlaylist[] type
-          store.setPlaylists(playlistItems);
+          store.setPlaylists(playlists);
         } catch (error) {
           console.error("Error fetching playlists:", error);
         } finally {
