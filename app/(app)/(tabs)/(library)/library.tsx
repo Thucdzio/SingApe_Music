@@ -261,7 +261,7 @@ export default function Library() {
                 <ButtonText className="text-secondary-50">Yêu thích</ButtonText>
               </Button>
               <Button
-                onPress={handleFavorite}
+                onPress={handleFollow}
                 variant="solid"
                 className="rounded-lg justify-start bg-yellow-400 dark:bg-yellow-400 data-[active=true]:bg-yellow-500 w-1/2 h-14"
                 size="xl"

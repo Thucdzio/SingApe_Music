@@ -26,9 +26,9 @@ import { useColorScheme } from "nativewind";
 export default function TabsNavigation() {
   const { session } = useAuth();
   const { colorScheme } = useColorScheme();
-  if (!session) {
-    // router.replace("/(auth)");
-  }
+  // if (!session) {
+  //   router.navigate("/(auth)");
+  // }
 
   useEffect(() => {
     const bgColor =
@@ -81,13 +81,13 @@ export default function TabsNavigation() {
             tabBarIcon: ({ color }) => <Icon as={Library} color={color} />,
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="debug"
           options={{
             title: "Debug",
             tabBarIcon: ({ color }) => <Icon as={Settings} color={color} />,
           }}
-        />
+        /> */}
         <Tabs.Screen
           name="trending"
           options={{

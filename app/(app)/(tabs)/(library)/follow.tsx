@@ -7,12 +7,11 @@ import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TracksList } from "@/components/TrackList";
 import { Track } from "react-native-track-player";
+import { MyTrack } from "@/types/zing.types";
+import { Artist } from "@/lib/supabase";
 
 export default function Follow() {
   const [isLoading, setIsLoading] = useState(false);
-    const [selectedTrack, setSelectedTrack] = useState<Track>();
-    const [tracks, setTracks] = useState<Track[]>([]);
-    const [hasPermission, setHasPermission] = useState(false);
 
   useEffect(() => {
     // const fetchData = async () => {
