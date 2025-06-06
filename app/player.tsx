@@ -5,7 +5,6 @@ import { PlayerRepeatToggle } from "../components/PlayerRepeatToggle";
 import { unknownTrackImageSource } from "@/constants/image";
 import { colors, fontSize } from "@/constants/tokens";
 import { usePlayerBackground } from "@/hooks/usePlayerBackground";
-import { useTrackPlayerFavorite } from "@/hooks/useTrackPlayerFavorite";
 import {
   AntDesign,
   Feather,
@@ -15,7 +14,7 @@ import {
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useActiveTrack } from "react-native-track-player";
+import { Track, useActiveTrack } from "react-native-track-player";
 import { Box, VStack, HStack, Text, Spinner, Center } from "@/components/ui";
 import { Alert, Image, Pressable, View } from "react-native";
 import { PlayerShuffleToggle } from "@/components/PlayerShuffleToggle";
@@ -25,20 +24,58 @@ import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
 import AudioQualitySwitcher from "@/components/AudioQualitySelector";
 import { downloadSong } from "@/components/DowloadMusic";
 import { KaraokeMode } from "@/components/KaraokeMode";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  addSongToFavorite,
+  checkIfSongInFavorites,
+  removeSongFromFavorite,
+} from "@/services/fileService";
+import { MyTrack } from "@/types/zing.types";
 
 const PlayerScreen = () => {
   const [showKaraoke, setShowKaraoke] = useState(false);
-
   const activeTrack = useActiveTrack();
-  console.log("Active Track:", activeTrack);
-
   const { imageColors } = usePlayerBackground(
     activeTrack?.artwork ?? unknownTrackImageSource
   );
-
   const { top, bottom } = useSafeAreaInsets();
-  const { isFavorite, toggleFavorite } = useTrackPlayerFavorite();
+  const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  // Sử dụng useEffect để cập nhật selectedItem khi activeTrack thay đổi
+  useEffect(() => {
+    if (activeTrack) {
+      setSelectedItem(activeTrack as MyTrack);
+    }
+  }, [activeTrack]);
+
+  // Sử dụng useEffect để kiểm tra trạng thái yêu thích
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (selectedItem) {
+        const is_Favorite = await checkIfSongInFavorites(selectedItem);
+        setIsFavorite(is_Favorite);
+        console.log("Is favorite:", is_Favorite);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [selectedItem]);
+
+  const handleFavoritePress = async () => {
+    if (selectedItem) {
+      try {
+        if (isFavorite) {
+          await removeSongFromFavorite(selectedItem);
+        } else {
+          await addSongToFavorite(selectedItem);
+        }
+        setIsFavorite(!isFavorite); // Cập nhật trạng thái yêu thích
+      } catch (error) {
+        console.error("Error playing playlist:", error);
+      }
+    }
+  };
 
   if (!activeTrack) {
     console.log("No active track found");
@@ -140,7 +177,10 @@ const PlayerScreen = () => {
                   size={20}
                   color={isFavorite ? colors.primary : colors.icon}
                   style={{ marginHorizontal: 14 }}
-                  onPress={toggleFavorite}
+                  onPress={() => {
+                    console.log("isFavorite", isFavorite);
+                    handleFavoritePress();
+                  }}
                 />
               </HStack>
             </VStack>

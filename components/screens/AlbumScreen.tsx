@@ -294,14 +294,17 @@ export const AlbumScreen = ({
 
       <View className="absolute w-full" style={{ paddingTop: insets.top }}>
         <Animated.View
-          style={[headerBackgroundAnimatedStyle, {
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            paddingTop: insets.top,
-          }]}
+          style={[
+            headerBackgroundAnimatedStyle,
+            {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              paddingTop: insets.top,
+            },
+          ]}
           // className="absolute w-full h-full bg-transparent"
         >
           <LinearGradient

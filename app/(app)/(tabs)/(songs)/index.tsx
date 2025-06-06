@@ -6,6 +6,7 @@ import {
   RefreshControl,
   useWindowDimensions,
   InteractionManager,
+  Alert,
 } from "react-native";
 import { Href, Link, useNavigation, useRouter } from "expo-router";
 import {
@@ -60,6 +61,8 @@ import {
   Mic,
 } from "lucide-react-native";
 import { AlbumList } from "@/components/AlbumList";
+import { downloadSong } from "@/components/DowloadMusic";
+import { PlayerShareButton } from "@/components/PlayerShareButton";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<MyTrack[]>([]);
@@ -598,7 +601,15 @@ export default function Songs() {
               buttonText="Thêm vào yêu thích"
             />
             <ButtonBottomSheet
-              onPress={handleDownloadPress}
+              onPress={() => {
+                const result = downloadSong(
+                  selectedItem?.url ?? "",
+                  selectedItem?.title ?? "" + ".mp3"
+                );
+                if (result !== null) {
+                  Alert.alert("Tải thành công", "Nhạc đã được tải về.");
+                }
+              }}
               buttonIcon={CircleArrowDown}
               buttonText="Tải xuống"
             />
@@ -607,6 +618,12 @@ export default function Songs() {
               buttonIcon={UserRoundCheck}
               buttonText="Chuyển đến nghệ sĩ"
             />
+            {/* <PlayerShareButton
+              title={selectedItem?.title}
+              artist={selectedItem?.artist}
+              image={selectedItem?.artwork}
+              url={selectedItem?.url ?? ""  }
+            /> */}
             <ButtonBottomSheet
               onPress={handleSharePress}
               buttonIcon={Share2}

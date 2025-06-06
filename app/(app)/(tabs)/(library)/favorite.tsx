@@ -10,11 +10,12 @@ import { Track } from "react-native-track-player";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { getFavorites } from "@/services/fileService";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { MyTrack } from "@/types/zing.types";
 
 export default function Favorite() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<Track>();
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const [tracks, setTracks] = useState<MyTrack[]>([]);
   const [hasPermission, setHasPermission] = useState(false);
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -41,9 +42,7 @@ export default function Favorite() {
   if (isLoading) {
     return (
       <SafeAreaView className="bg-background-0 dark:bg-background-0 flex-1">
-        <LoadingOverlay 
-          isUnder={true}
-        />
+        <LoadingOverlay isUnder={true} />
         <CustomHeader
           title="Yêu thích"
           showBack={true}
@@ -51,7 +50,7 @@ export default function Favorite() {
           headerClassName="bg-background-0 dark:bg-background-0"
         />
       </SafeAreaView>
-    )
+    );
   }
 
   return (
@@ -68,9 +67,7 @@ export default function Favorite() {
           tracks={tracks}
           className="px-4"
           scrollEnabled={false}
-          ListFooterComponent={
-            <View className="h-28" />
-          }
+          ListFooterComponent={<View className="h-28" />}
           ItemSeparatorComponent={() => <View className="h-3" />}
           onTrackOptionPress={(track: Track) => {
             handlePresentModalPress();
