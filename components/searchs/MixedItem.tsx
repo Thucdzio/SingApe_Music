@@ -142,15 +142,15 @@ export const MixedItem = ({
           onSelectArtist(newItem);
         }}
       >
-        <HStack space="lg" className="px-2 items-center">
+        <HStack space="lg" className="pl-2 pr-3 items-center">
           <Image
             source={newItem.thumbnailM}
             className="rounded-full"
             size="sm"
             alt={newItem.name || "Unknown"}
           />
-          <HStack space="md" className="flex-1 justify-between items-center">
-            <VStack space="xs">
+          <HStack className="flex-1 justify-between items-center">
+            <VStack space="xs" className="flex-1">
               <Text className="text-base font-semibold text-black dark:text-white">
                 {newItem.name}
               </Text>

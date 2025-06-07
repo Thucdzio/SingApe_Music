@@ -13,28 +13,31 @@ import { useModal } from "@/context/modal";
 import { supabase } from "@/lib/supabase";
 import {
   addSongToFavorite,
+  clearListeningHistory,
   deleteListeningHistory,
   getListeningHistory,
   removeSongFromFavorite,
   saveListeningHistory,
 } from "@/services/cacheService";
-import { useFavoriteStore } from "@/store/mylib";
+import { useFavoriteStore, useLibraryStore } from "@/store/mylib";
 import { MyTrack } from "@/types/zing.types";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, Stack } from "expo-router";
 import { CircleArrowDown, CirclePlus, Heart, Share2, Trash, UserRoundCheck } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, View } from "react-native";
+import { LinearTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function History() {
-  const [tracks, setTracks] = useState<MyTrack[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const { show } = useModal();
   const favouriteStore = useFavoriteStore();
+  const historyStore = useLibraryStore((state) => state.history);
+  const libraryStore = useLibraryStore();
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
@@ -48,6 +51,10 @@ export default function History() {
     const fetchTracks = async () => {
       setIsLoading(true);
       try {
+        if (historyStore.length > 0) {
+          return;
+        }
+
         const history = await getListeningHistory();
         const track = history.map((item) => {
           return {
@@ -60,12 +67,7 @@ export default function History() {
             genre: item.track.genre || undefined,
           } as MyTrack;
         });
-
-        setTracks(track);
-        console.log(
-          "Fetched tracks: ",
-          track.map((item) => item.id + " " + item.title)
-        );
+        libraryStore.setHistory(track);
       } catch (error) {
         console.error("Error fetching tracks:", error);
       } finally {
@@ -84,8 +86,8 @@ export default function History() {
       confirmText: "Xóa",
       cancelText: "Hủy",
       onConfirm: async () => {
-        await deleteListeningHistory();
-        setTracks([]);
+        libraryStore.clearHistory();
+        await clearListeningHistory();
       },
     });
   };
@@ -185,10 +187,9 @@ export default function History() {
           </Pressable>
         }
       />
-
       <TracksList
         id="history"
-        tracks={tracks}
+        tracks={historyStore}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View className="h-3" />}
         contentContainerStyle={{
@@ -206,7 +207,6 @@ export default function History() {
         handleDismissModalPress={handleDismissModalPress}
         handlePresentModalPress={handleDownloadPress}
       />
-      
     </SafeAreaView>
   );
 }

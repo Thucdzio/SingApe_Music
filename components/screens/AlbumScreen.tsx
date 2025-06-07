@@ -104,7 +104,7 @@ export const AlbumScreen = ({
   const colorScheme = useColorScheme();
 
   const formatedDate = formatDate(releaseDate || "");
-  const artistsName = "Unknown Artist";
+  const artistsName = "SingApe";
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -231,7 +231,7 @@ export const AlbumScreen = ({
           <VStack className="bg-transparent">
             <Box className="w-full justify-center items-center mt-4">
               <Image
-                source={{ uri: imageUrl || unknownTrackImageSource }}
+                source={imageUrl || unknownTrackImageSource}
                 className="w-48 h-48 rounded-lg"
                 alt="Playlist Image"
                 resizeMode="cover"
@@ -243,9 +243,7 @@ export const AlbumScreen = ({
             </Box>
             <HStack space="md" className="items-center px-4">
               <Image
-                source={{
-                  uri: artists?.[0]?.thumbnail || unknownTrackImageSource,
-                }}
+                source={artists?.[0]?.thumbnail || unknownTrackImageSource}
                 className="w-7 h-7 rounded-full"
                 alt="User"
                 resizeMode="cover"
@@ -373,11 +371,7 @@ export const AlbumScreen = ({
       <MyBottomSheet bottomSheetRef={bottomSheetRef}>
         <HStack space="md">
           <Image
-            source={
-              selectedItem?.artwork
-                ? { uri: selectedItem.artwork }
-                : unknownTrackImageSource
-            }
+            source={selectedItem?.artwork || unknownTrackImageSource}
             className="rounded"
             size="sm"
             alt="track artwork"

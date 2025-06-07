@@ -58,7 +58,7 @@ import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Library() {
-  const [data, setData] = useState<MyTrack[]>([]);
+  const [data, setData] = useState<MyPlaylist[]>([]);
   const [uploadedSongs, setUploadedSongs] = useState<UploadSong[]>([]);
   const [selectedItem, setSelectedItem] = useState<MyTrack | UploadSong | null>(
     null
@@ -319,6 +319,7 @@ export default function Library() {
                 >
                   <PlaylistCard
                     item={item}
+                    tracks={item.tracks}
                     type="Danh sách phát"
                     onOptionPress={() => handleOnOptionsPress(item)}
                   />
@@ -404,6 +405,7 @@ export default function Library() {
             )}
           </VStack>
         </Box>
+        <View className="h-28" />
       </ScrollView>
       <MyBottomSheet bottomSheetRef={bottomSheetRef}>
         {selectedItem && "url" in selectedItem ? (

@@ -142,7 +142,6 @@ export default function Favorite() {
             />
             <ButtonBottomSheet
               onPress={handleFavoritePress}
-              stateChangable={true}
               fillIcon={true}
               buttonIcon={Heart}
               buttonText="Đã thích"

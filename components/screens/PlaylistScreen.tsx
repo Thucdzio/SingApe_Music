@@ -60,6 +60,7 @@ import { BS_AddToFavorite } from "../buttons/BS_AddToFavorite";
 import { BS_Download } from "../buttons/BS_Download";
 import { BS_RemoveFromPlaylist } from "../buttons/BS_RemoveFromPlaylist";
 import { BS_Share } from "../buttons/BS_Share";
+import { MergeImage } from "../MergeImage";
 
 interface PlaylistProps {
   id?: string;
@@ -118,7 +119,7 @@ export const PlaylistScreen = ({
   });
 
   const headerBackgroundAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(scrollY.value, [0, 200], [0, 1]);
+    const opacity = interpolate(scrollY.value, [100, 200], [0, 1]);
     return { opacity };
   });
 
@@ -138,6 +139,27 @@ export const PlaylistScreen = ({
     return { transform: [{ translateY }] };
   });
 
+  const imageAnimatedStyle = useAnimatedStyle(() => {
+    const IMAGE_HEIGHT = 28;
+    const scale = interpolate(
+      scrollY.value,
+      [0, 70],
+      [1, 0.6],
+      Extrapolation.CLAMP
+    );
+    const translateY = IMAGE_HEIGHT * (1 - scale) * 5;
+    const opacity = interpolate(
+      scrollY.value,
+      [70, 150],
+      [1, 0],
+      Extrapolation.CLAMP
+    );
+    return {
+      opacity,
+      transform: [{ scale }, { translateY: translateY }],
+    };
+  });
+
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const handlePresentModalPress = useCallback(() => {
     bottomSheetRef.current?.present();
@@ -149,15 +171,6 @@ export const PlaylistScreen = ({
   const handleTrackOptionPress = (track: MyTrack) => {
     setSelectedItem(track);
     handlePresentModalPress();
-  };
-
-  const handleAddToPlaylistPress = () => {
-    if (selectedItem) {
-      router.push({
-        pathname: "/addToPlaylist",
-        params: selectedItem,
-      });
-    }
   };
 
   const variantRender = () => {
@@ -219,81 +232,95 @@ export const PlaylistScreen = ({
 
   return (
     <View className="flex-1">
-      <Animated.ScrollView
+      {/* <Animated.ScrollView
         className="flex-1 w-full bg-transparent"
         onScroll={scrollHandler}
-      >
-        <LinearGradient
-          colors={getGradient(id || "")}
-          style={[{ paddingTop: insets.top }]}
-          locations={[0.2, 0.4, 0.6, 0.8, 1]}
-        >
-          <VStack className="bg-transparent">
-            <Box className="w-full justify-center items-center mt-4">
-              <Image
-                source={{ uri: imageUrl || unknownTrackImageSource }}
-                className="w-48 h-48 rounded-lg"
-                alt="Playlist Image"
-                resizeMode="cover"
-              />
-            </Box>
-            <Box className="justify-center items-center mt-4">
-              <Heading>{title}</Heading>
-              <Text className="text-gray-500 mt-2">{description}</Text>
-            </Box>
-            <HStack space="md" className="items-center px-4">
-              <Image
-                source={{
-                  uri:
-                    userImage ||
-                    "https://ui-avatars.com/api/?length=1&bold=true&background=f76806&name=" +
-                      createdBy,
-                }}
-                className="w-7 h-7 rounded-full"
-                alt="User"
-                resizeMode="cover"
-              />
-              <Text className="text-gray-500">{createdBy}</Text>
-            </HStack>
-            <HStack className="space-x-2 justify-between pr-4 py-2 w-full">
-              {variantRender()}
-              <HStack className="justify-items-end gap-2">
-                <Button
-                  variant="solid"
-                  className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
-                  size="md"
-                  onPress={onShufflePress}
-                >
-                  <ButtonIcon as={Shuffle} className={buttonIconStyle} />
-                </Button>
-                <Animated.View>
+      > */}
+      <TracksList
+        id={id || title || "default"}
+        tracks={tracks || []}
+        ItemSeparatorComponent={() => <View className="h-3" />}
+        onScroll={scrollHandler}
+        scrollEnabled={true}
+        trackClassName="px-4"
+        ListFooterComponent={() => <View className="h-28" />}
+        onTrackSelect={onTrackPress}
+        onTrackOptionPress={handleTrackOptionPress}
+        ListHeaderComponent={
+          <LinearGradient
+            colors={getGradient(id || "")}
+            style={[{ paddingTop: insets.top }]}
+            locations={[0.2, 0.4, 0.6, 0.8, 1]}
+          >
+            <VStack className="bg-transparent">
+              <Box className="w-full justify-center items-center mt-4">
+                <Animated.View style={[imageAnimatedStyle]}>
+                  {imageUrl ? (
+                    <Image
+                      source={imageUrl || unknownTrackImageSource}
+                      className="w-48 h-48 rounded-lg"
+                      alt="Playlist Image"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <MergeImage
+                      image1={tracks?.[0]?.artwork || null}
+                      image2={tracks?.[1]?.artwork || unknownTrackImageSource}
+                      image3={tracks?.[2]?.artwork || unknownTrackImageSource}
+                      image4={tracks?.[3]?.artwork || unknownTrackImageSource}
+                    />
+                  )}
+                </Animated.View>
+              </Box>
+              <Box className="justify-center items-center mt-4">
+                <Heading>{title}</Heading>
+                <Text className="text-gray-500 mt-2">{description}</Text>
+              </Box>
+              <HStack space="md" className="items-center px-4">
+                <Image
+                  source={{
+                    uri:
+                      userImage ||
+                      "https://ui-avatars.com/api/?length=1&bold=true&background=f76806&name=" +
+                        createdBy,
+                  }}
+                  className="w-7 h-7 rounded-full"
+                  alt="User"
+                  resizeMode="cover"
+                />
+                <Text className="text-gray-500">{createdBy || "SingApe"}</Text>
+              </HStack>
+              <HStack className="space-x-2 justify-between pr-4 py-2 w-full">
+                {variantRender()}
+                <HStack className="justify-items-end gap-2">
                   <Button
                     variant="solid"
-                    className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
+                    className="rounded-full justify-center bg-transparent h-14 w-14 data-[active=true]:bg-transparent data-[active=true]:opacity-40"
                     size="md"
-                    onPress={onPlayPress}
+                    onPress={onShufflePress}
                   >
-                    <ButtonIcon
-                      as={playing && queue === id ? Pause : Play}
-                      className="text-black fill-black w-6 h-6"
-                    />
+                    <ButtonIcon as={Shuffle} className={buttonIconStyle} />
                   </Button>
-                </Animated.View>
+                  <Animated.View>
+                    <Button
+                      variant="solid"
+                      className="rounded-full justify-center bg-indigo-400 data-[active=true]:bg-indigo-900 h-14 w-14"
+                      size="md"
+                      onPress={onPlayPress}
+                    >
+                      <ButtonIcon
+                        as={playing && queue === id ? Pause : Play}
+                        className="text-black fill-black w-6 h-6"
+                      />
+                    </Button>
+                  </Animated.View>
+                </HStack>
               </HStack>
-            </HStack>
-          </VStack>
-        </LinearGradient>
-        <TracksList
-          id={id || title || "default"}
-          tracks={tracks || []}
-          ItemSeparatorComponent={() => <View className="h-3" />}
-          scrollEnabled={false}
-          className="p-4"
-          ListFooterComponent={() => <View className="h-28" />}
-          onTrackSelect={onTrackPress}
-          onTrackOptionPress={handleTrackOptionPress}
-        />
-      </Animated.ScrollView>
+            </VStack>
+          </LinearGradient>
+        }
+      />
+      {/* </Animated.ScrollView> */}
 
       <Animated.View
         className="absolute w-full"
@@ -343,7 +370,7 @@ export const PlaylistScreen = ({
             style={[scrollHeaderTitleAnimatedStyle]}
             className="text-primary-500 text-2xl font-bold ml-4"
           >
-            Danh sách phát
+            {title}
           </Animated.Text>
         </HStack>
         <Animated.View
@@ -356,7 +383,7 @@ export const PlaylistScreen = ({
         >
           <Button
             variant="solid"
-            className="rounded-full justify-center bg-blue-400 data-[active=true]:bg-blue-900 h-14 w-14"
+            className="rounded-full justify-center bg-indigo-400 data-[active=true]:bg-indigo-900 h-14 w-14"
             size="md"
             onPress={onPlayPress}
           >

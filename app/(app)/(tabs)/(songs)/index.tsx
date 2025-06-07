@@ -181,22 +181,22 @@ export default function Songs() {
 
       // setTracks(tracks);
 
-      const zingData: Home = await fetchHome();
-      const chillSection = zingData?.items.find(
+      const resultData: Home = await fetchHome();
+      const chillSection = resultData?.items.find(
         (item) => item.title === "Chill"
       )?.items;
 
-      const newReleaseSection = zingData?.items.find(
+      const newReleaseSection = resultData?.items.find(
         (item) => item.sectionType === "new-release"
       )?.items;
 
       const recentSection = await getListeningHistory();
 
-      const top100Section = zingData?.items.find(
+      const top100Section = resultData?.items.find(
         (item) => item.sectionId === "h100"
       )?.items;
 
-      const albumHotSection = zingData?.items.find(
+      const albumHotSection = resultData?.items.find(
         (item) => item.sectionId === "hAlbum"
       )?.items;
 
@@ -218,8 +218,6 @@ export default function Songs() {
           ? await handleData(albumHotSection)
           : [],
       });
-
-      console.log("New Release Section Data:", homeData.newReleaseSection);
     } catch (error) {
       console.error("", error);
       setIsError(true);
@@ -390,6 +388,9 @@ export default function Songs() {
   };
 
   const renderChillSection = () => {
+    if (!homeData.chillSection || homeData.chillSection.length === 0) {
+      return null; // Return null if there are no chill tracks
+    }
     return (
       <View>
         <Heading className={headingStyle}>Thư giãn</Heading>

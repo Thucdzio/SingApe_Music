@@ -35,6 +35,7 @@ import { BS_AddToPlaylist } from "../buttons/BS_AddToPlaylist";
 import { BS_AddToFavorite } from "../buttons/BS_AddToFavorite";
 import { BS_Download } from "../buttons/BS_Download";
 import { BS_Share } from "../buttons/BS_Share";
+import { BS_RemoveFromHistory } from "../buttons/BS_RemoveFromHistory";
 
 interface TrackBottomSheetProps {
   bottomSheetRef: React.RefObject<BottomSheetModal>;
@@ -84,6 +85,10 @@ TrackBottomSheetProps) => {
           handleDismissModalPress={handleDismissModalPress}
         />
         <BS_Download
+          selectedItem={selectedItem}
+          handleDismissModalPress={handleDismissModalPress}
+        />
+        <BS_RemoveFromHistory
           selectedItem={selectedItem}
           handleDismissModalPress={handleDismissModalPress}
         />
