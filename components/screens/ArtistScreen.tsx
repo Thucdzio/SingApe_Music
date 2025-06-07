@@ -90,6 +90,7 @@ import { addFollowArtist, removeFollowArtist } from "@/services/cacheService";
 interface ArtistProps {
   id?: string;
   name?: string;
+  alias?: string;
   description?: string;
   imageUrl?: string;
   data?: ArtistResult;
@@ -108,6 +109,7 @@ export const ArtistScreen = ({
   id,
   name,
   description,
+  alias,
   imageUrl,
   data,
   gradientColor,
@@ -115,10 +117,7 @@ export const ArtistScreen = ({
   onTrackPress,
   onPlayPress,
   onShufflePress,
-  onAddToPlaylistPress,
   onOptionPress,
-  onPlusPress,
-  onEditPress,
 }: ArtistProps) => {
   const followStore = useFollowStore();
   const { user } = useAuth();
@@ -126,7 +125,7 @@ export const ArtistScreen = ({
   const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [followed, setFollowed] = useState(followStore.isArtistFollowing(id || ""));
+  const [followed, setFollowed] = useState(false);
   const { playing } = useIsPlaying();
   const { visible } = useFloatingPlayerVisible();
   const [showAllTracks, setShowAllTracks] = useState<boolean>(false);
@@ -185,24 +184,34 @@ export const ArtistScreen = ({
   }, []);
 
   useEffect(() => {
+    if (data) {
+      const isFollowed = followStore.isArtistFollowing(id || "");
+      console.log("Is artist followed:", isFollowed);
+      setFollowed(isFollowed);
+    }
+  }, []);
+
+  useEffect(() => {
     const updateFollow = async () => {
       try {
         if (debouncedFollow) {
-          const artist = {
+          const artist: Artist = {
             id: id || "",
+            encodeId: id || "",
             name: name || "",
+            thumbnail: imageUrl || "",
             thumbnailM: imageUrl || "",
-            encodeId: "",
+            totalFollow: data?.totalFollow || 0,
+            isOA: true,
             link: "",
-            spotlight: "",
-            alias: "",
-            thumbnail: "",
-            isOA: false,
+            spotlight: "false",
+            alias: alias || "",
             playlistId: "",
-            totalFollow: 0
           }
+          console.log("Adding artist to following:", artist);
           followStore.addArtistToFollowing(artist);
           if (user?.id) {
+            console.log("User ID:", user.id);
             await addFollowArtist(user.id, artist);
           } else {
             console.log("User ID is undefined");
@@ -211,6 +220,7 @@ export const ArtistScreen = ({
         } else {
           followStore.removeArtistFromFollowing(id || "");
           if (user?.id) {
+            console.log("Removing artist from following:", id);
             await removeFollowArtist(user.id, id || "");
           } else {
             console.log("User ID is undefined");

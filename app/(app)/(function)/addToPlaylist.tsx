@@ -13,8 +13,14 @@ import {
 } from "@/components/ui";
 import { ButtonIcon, ButtonText } from "@/components/ui/button";
 import { unknownTrackImageSource } from "@/constants/image";
-import { addSongToPlaylist, getPlaylist, listPlaylists } from "@/services/cacheService";
-import { MyTrack } from "@/types/zing.types";
+import {
+  addSongToPlaylist,
+  getPlaylist,
+  listPlaylists,
+  removeSongFromPlaylist,
+} from "@/services/cacheService";
+import { useLibraryStore } from "@/store/mylib";
+import { MyPlaylist, MyTrack } from "@/types/zing.types";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   Check,
@@ -34,6 +40,7 @@ export default function ListPlaylist() {
   const [data, setData] = useState<MyTrack[]>([]);
 
   const [selected, setSelected] = useState<string[]>([]);
+  const [initSelected, setInitSelected] = useState<string[]>([]);
 
   const toggleSelect = (id: string) => {
     const isSelected = selected.includes(id);
@@ -55,16 +62,49 @@ export default function ListPlaylist() {
   const handleConfirm = async () => {
     console.log("Xác nhận thêm vào danh sách phát", selected);
     await Promise.all(
-      await selected.map(async (playlistId) => {
-        await addSongToPlaylist(playlistId, item);
+      // selected.map(async (playlistId) => {
+      //   await addSongToPlaylist(playlistId, item);
+      // })
+      data.map(async (playlist) => {
+        if (
+          selected.includes(playlist.id) &&
+          !initSelected.includes(playlist.id)
+        ) {
+          try {
+            await addSongToPlaylist(playlist.id, item);
+          } catch (error) {
+            console.log("Error removing song from playlist:", error);
+          }
+        } else if (
+          !selected.includes(playlist.id) &&
+          initSelected.includes(playlist.id)
+        ) {
+          // If it was initially selected but now deselected, remove the song
+          try {
+            await removeSongFromPlaylist(playlist.id, item);
+          } catch (error) {
+            console.log("Error removing song from playlist:", error);
+          }
+        }
       })
     );
     router.back();
-  }
+  };
 
   useEffect(() => {
     const fetchAlbum = async () => {
-      const response = await listPlaylists();
+      const response: MyPlaylist[] = await listPlaylists();
+      let playlists = [];
+      for (const playlist of response) {
+        const trackInPlaylist = playlist.tracks.find(
+          (track) => track.id === item.id
+        );
+        if (trackInPlaylist) {
+          playlists.push(playlist.id);
+        }
+      }
+      setSelected(playlists);
+      setInitSelected(playlists);
       setData(response);
     };
 
@@ -126,19 +166,19 @@ export default function ListPlaylist() {
                     </Text>
                   </VStack>
                   <Center className="w-8">
-                  {isSelected ? (
-                    <AnimatedIcon
-                      as={CircleCheck}
-                      size="xl"
-                      className="text-background-0 fill-green-500 h-8 w-8 "
-                    />
-                  ) : (
-                    <AnimatedIcon
-                      as={Circle}
-                      size="xl"
-                      className="text-primary-500 h-6 w-6 "
-                    />
-                  )}
+                    {isSelected ? (
+                      <AnimatedIcon
+                        as={CircleCheck}
+                        size="xl"
+                        className="text-background-0 fill-green-500 h-8 w-8 "
+                      />
+                    ) : (
+                      <AnimatedIcon
+                        as={Circle}
+                        size="xl"
+                        className="text-primary-500 h-6 w-6 "
+                      />
+                    )}
                   </Center>
                 </Pressable>
               );

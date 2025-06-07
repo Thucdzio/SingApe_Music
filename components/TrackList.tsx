@@ -10,10 +10,15 @@ import { Box, Center, HStack } from "./ui";
 import { Heading } from "./ui/heading";
 import { MyTrack } from "@/types/zing.types";
 import { playPlaylistFromTrack } from "@/services/playbackService";
+import Animated, {
+  FlatListPropsWithLayout,
+  LinearTransition,
+} from "react-native-reanimated";
 
-export type TracksListProps = Partial<FlatListProps<MyTrack>> & {
+export type TracksListProps = Partial<FlatListPropsWithLayout<MyTrack>> & {
   id: string;
   tracks: MyTrack[];
+  trackClassName?: string;
   hideQueueControls?: boolean;
   showIndex?: boolean;
   variant?: "album" | "playlist";
@@ -26,6 +31,7 @@ export const TracksList = ({
   id,
   tracks,
   hideQueueControls = false,
+  trackClassName,
   onTrackSelect,
   onTrackOptionPress,
   children,
@@ -79,23 +85,13 @@ export const TracksList = ({
     playPlaylistFromTrack(tracks, selectedTrack);
   };
 
-  if (!tracks || tracks.length === 0) {
-    return (
-      <Center className="flex-1">
-        <Heading className="text-primary-500 text-center w-2/3">
-          Không có bài hát nào
-        </Heading>
-        {children}
-      </Center>
-    );
-  }
-
   return (
-    <FlatList
+    <Animated.FlatList
       data={tracks || Library}
-      initialNumToRender={8}
-      maxToRenderPerBatch={9}
-      windowSize={5}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={10}
+      itemLayoutAnimation={LinearTransition}
       renderItem={({ item: track, index: index }) => (
         <HStack>
           {showIndex && (
@@ -105,7 +101,7 @@ export const TracksList = ({
               </Text>
             </Center>
           )}
-          <Box className="flex-1">
+          <Box className={`flex-1 ${trackClassName || ""}`}>
             <TracksListItem
               track={track}
               onTrackSelect={handleTrackSelect}
@@ -115,6 +111,14 @@ export const TracksList = ({
             />
           </Box>
         </HStack>
+      )}
+      ListEmptyComponent={() => (
+        <Center className="flex-1">
+          <Heading className="text-primary-500 text-center w-2/3">
+            Không có bài hát nào
+          </Heading>
+          {children}
+        </Center>
       )}
       keyExtractor={(item) => item.id || item.url}
       {...flatlistProps}

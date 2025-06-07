@@ -20,6 +20,7 @@ interface LibraryState {
   deletePlaylist: (playlistId: string) => void;
 
   // History actions
+  setHistory: (tracks: MyTrack[]) => void;
   addTrackToHistory: (track: MyTrack) => void;
   removeTrackFromHistory: (trackId: string) => void;
   clearHistory: () => void;
@@ -100,6 +101,14 @@ export const useLibraryStore = create<LibraryState>()((set, get) => ({
       ),
     })),
 
+
+
+  setHistory: (tracks: MyTrack[]) => {
+    set({
+      history: tracks
+    });
+  },
+
   addTrackToHistory: (track: MyTrack) => {
     const filteredHistory = get().history.filter((t) => t.id !== track.id);
     set({
@@ -160,6 +169,8 @@ export const useFollowStore = create<FollowState>()((set, get) => ({
     })),
   
   isArtistFollowing: (artistId: string) => {
-    return get().following.some((artist) => artist.id === artistId);
+    return get().following.some((artist) => 
+      artist.id === artistId
+    );
   }
 }));

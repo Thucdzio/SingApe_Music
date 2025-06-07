@@ -89,13 +89,6 @@ export default function TabsNavigation() {
             tabBarIcon: ({ color }) => <Icon as={Library} color={color} />,
           }}
         />
-        {/* <Tabs.Screen
-          name="debug"
-          options={{
-            title: "Debug",
-            tabBarIcon: ({ color }) => <Icon as={Settings} color={color} />,
-          }}
-        /> */}
         <Tabs.Screen
           name="trending"
           options={{

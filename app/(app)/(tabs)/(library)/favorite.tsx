@@ -11,7 +11,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { getFavorites, removeSongFromFavorite } from "@/services/cacheService";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { MyTrack } from "@/types/zing.types";
-import { TrackBottomSheet } from "@/components/bottomSheet/TrackBottomSheet";
+import { HistoryTrackBottomSheet } from "@/components/bottomSheet/HistoryTrackBottomSheet";
 import { useFavoriteStore } from "@/store/mylib";
 import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
 import { unknownTrackImageSource } from "@/constants/image";
@@ -142,7 +142,6 @@ export default function Favorite() {
             />
             <ButtonBottomSheet
               onPress={handleFavoritePress}
-              stateChangable={true}
               fillIcon={true}
               buttonIcon={Heart}
               buttonText="Đã thích"

@@ -52,7 +52,7 @@ export async function saveToLibrary(uri: string, albumName = 'MyMusic') {
   return asset;
 }
 
-export async function saveListeningHistory(track: Track) {
+export async function saveListeningHistory(track: MyTrack) {
   const historyFileUri = HISTORY_FILE;
   let history = [];
 
@@ -82,7 +82,24 @@ export async function getListeningHistory(): Promise<Array<{ track: MyTrack; tim
   }
 }
 
-export async function deleteListeningHistory() {
+export async function deleteListeningHistory(trackId: string) {
+  const fileInfo = await FileSystem.getInfoAsync(HISTORY_FILE);
+  if (fileInfo.exists) {
+    let history = [];
+
+    try {
+      const fileContent = await FileSystem.readAsStringAsync(HISTORY_FILE);
+      history = JSON.parse(fileContent);
+    } catch (error) {
+      console.log('Cant read history file.');
+    }
+
+    const updatedHistory = history.filter((item: any) => item.track.id !== trackId);
+    await FileSystem.writeAsStringAsync(HISTORY_FILE, JSON.stringify(updatedHistory));
+  }
+}
+
+export async function clearListeningHistory() {
   const fileInfo = await FileSystem.getInfoAsync(HISTORY_FILE);
   if (fileInfo.exists) {
     await FileSystem.writeAsStringAsync(HISTORY_FILE, JSON.stringify([]));
