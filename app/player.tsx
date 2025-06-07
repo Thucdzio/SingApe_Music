@@ -18,7 +18,6 @@ import { Track, useActiveTrack } from "react-native-track-player";
 import { Box, VStack, HStack, Text, Spinner, Center } from "@/components/ui";
 import { Alert, Image, Pressable, View } from "react-native";
 import { PlayerShuffleToggle } from "@/components/PlayerShuffleToggle";
-import { PlayerShareButton } from "@/components/PlayerShareButton";
 import { router } from "expo-router";
 import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
 import AudioQualitySwitcher from "@/components/AudioQualitySelector";
@@ -31,9 +30,11 @@ import {
   removeSongFromFavorite,
 } from "@/services/cacheService";
 import { MyTrack } from "@/types/zing.types";
+import { ShareModal } from "@/components/ShareModal";
 
 const PlayerScreen = () => {
   const [showKaraoke, setShowKaraoke] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const activeTrack = useActiveTrack();
   const { imageColors } = usePlayerBackground(
     activeTrack?.artwork ?? unknownTrackImageSource
@@ -147,12 +148,22 @@ const PlayerScreen = () => {
           <VStack>
             <VStack className="h-[70px]">
               <HStack className="justify-between items-center">
-                <PlayerShareButton
-                  title={activeTrack.title}
-                  artist={activeTrack.artist}
-                  image={activeTrack.artwork}
-                  url={activeTrack.url}
-                />
+                <HStack>
+                  <MaterialCommunityIcons
+                    name="share"
+                    size={30}
+                    color={colors.icon}
+                    onPress={() => setShowModal(true)}
+                  />
+                  <ShareModal
+                    isVisible={showModal}
+                    onClose={() => setShowModal(false)}
+                    title={activeTrack.title ?? ""}
+                    artist={activeTrack.artist ?? ""}
+                    url={activeTrack.url ?? ""}
+                    image={activeTrack.artwork}
+                  />
+                </HStack>
                 <Center className="flex-1 overflow-hidden">
                   <MovingText
                     text={activeTrack.title ?? ""}

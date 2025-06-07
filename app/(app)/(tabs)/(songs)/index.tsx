@@ -62,12 +62,14 @@ import {
 } from "lucide-react-native";
 import { AlbumList } from "@/components/AlbumList";
 import { downloadSong } from "@/components/DowloadMusic";
-import { PlayerShareButton } from "@/components/PlayerShareButton";
+
 import { useFavoriteStore } from "@/store/mylib";
+import { ShareModal } from "@/components/ShareModal";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<MyTrack[]>([]);
   const [selectedItem, setSelectedItem] = useState<MyTrack | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const [homeData, setHomeData] = useState<{
     tracks: Track[];
@@ -317,6 +319,7 @@ export default function Songs() {
       handleDismissModalPress();
       console.log("Share", selectedItem);
       // Implement share functionality here
+      setShowModal(true);
     }
   };
 
@@ -621,12 +624,6 @@ export default function Songs() {
               buttonIcon={UserRoundCheck}
               buttonText="Chuyển đến nghệ sĩ"
             />
-            {/* <PlayerShareButton
-              title={selectedItem?.title}
-              artist={selectedItem?.artist}
-              image={selectedItem?.artwork}
-              url={selectedItem?.url ?? ""  }
-            /> */}
             <ButtonBottomSheet
               onPress={handleSharePress}
               buttonIcon={Share2}
@@ -634,6 +631,14 @@ export default function Songs() {
             />
           </VStack>
         </MyBottomSheet>
+        <ShareModal
+          isVisible={showModal}
+          onClose={() => setShowModal(false)}
+          title={selectedItem?.title ?? ""}
+          artist={selectedItem?.artist ?? ""}
+          url={selectedItem?.url ?? ""}
+          image={selectedItem?.artwork}
+        />
         <Box className="h-28" />
       </ScrollView>
     </SafeAreaView>
