@@ -37,7 +37,7 @@ import { BS_Download } from "../buttons/BS_Download";
 import { BS_Share } from "../buttons/BS_Share";
 import { BS_RemoveFromHistory } from "../buttons/BS_RemoveFromHistory";
 
-interface TrackBottomSheetProps {
+interface HistoryTrackBottomSheetProps {
   bottomSheetRef: React.RefObject<BottomSheetModal>;
   selectedItem: MyTrack | null;
   handleDismissModalPress: () => void;
@@ -45,13 +45,12 @@ interface TrackBottomSheetProps {
   // isFavorite: boolean;
 }
 
-export const TrackBottomSheet = ({
+export const HistoryTrackBottomSheet = ({
   bottomSheetRef,
   selectedItem,
   handleDismissModalPress,
   handlePresentModalPress,
-}: // isFavorite,
-TrackBottomSheetProps) => {
+}: HistoryTrackBottomSheetProps) => {
   return (
     <MyBottomSheet bottomSheetRef={bottomSheetRef}>
       <HStack space="md">
@@ -85,6 +84,10 @@ TrackBottomSheetProps) => {
           handleDismissModalPress={handleDismissModalPress}
         />
         <BS_Download
+          selectedItem={selectedItem}
+          handleDismissModalPress={handleDismissModalPress}
+        />
+        <BS_RemoveFromHistory
           selectedItem={selectedItem}
           handleDismissModalPress={handleDismissModalPress}
         />

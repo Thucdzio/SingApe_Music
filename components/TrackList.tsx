@@ -91,6 +91,7 @@ export const TracksList = ({
       initialNumToRender={10}
       maxToRenderPerBatch={10}
       windowSize={10}
+      itemLayoutAnimation={LinearTransition}
       renderItem={({ item: track, index: index }) => (
         <HStack>
           {showIndex && (

@@ -1,6 +1,16 @@
 import { Href, router, Stack } from "expo-router";
-import { Box, HStack, Text, VStack, Image, Button } from "@/components/ui";
 import {
+  Box,
+  HStack,
+  Text,
+  VStack,
+  Image,
+  Button,
+  Center,
+} from "@/components/ui";
+import {
+  Bell,
+  ChevronRight,
   CircleUserRound,
   CrownIcon,
   LogOut,
@@ -33,6 +43,7 @@ import { LightBox } from "@/components/preview/LightBox";
 import { useTheme } from "@/components/ui/ThemeProvider";
 import { DarkBox } from "@/components/preview/DarkBox";
 import { SystemBox } from "@/components/preview/System";
+import { AccordionButton } from "@/components/accordion/AccordionButton";
 
 export default function Profile() {
   const { signOut, user } = useAuth();
@@ -58,14 +69,14 @@ export default function Profile() {
 
   const onAccountPress = () => {
     router.push("/profile/settings/account" as Href);
-  }
+  };
 
   const handleSetting = () => {
     router.push("/profile/settings" as Href);
   };
 
   const handleNotification = () => {
-    router.push("/profile/notifications" as Href);
+    router.navigate("/profile/notifications" as Href);
   };
 
   return (
@@ -90,7 +101,7 @@ export default function Profile() {
             />
           </Avatar>
           <VStack className="pl-4 gap-1">
-            <Text className="text-2xl font-bold pt-2">
+            <Text className="text-2xl text-primary-500 font-bold pt-2">
               {user?.user_metadata.display_name}
             </Text>
             {/* <HStack className="w-fit justify-center items-center gap-2 bg-info-50 text-info-800 px-2 py-1 rounded-2xl shadow-md border border-info-200">
@@ -103,16 +114,27 @@ export default function Profile() {
           </VStack>
         </HStack>
       </VStack>
-      <Button
+      {/* <Button
         onPress={onAccountPress}
         variant="solid"
         action="secondary"
         className="w-full bg-transparent justify-start mb-2 data-[active=true]:bg-background-200"
       >
-        <ButtonIcon className="text-primary-500" as={CircleUserRound} />
-        <ButtonText>Tài khoản</ButtonText>
-      </Button>
-      <Button
+        <HStack className="w-full justify-between">
+          <HStack space="sm" className="items-center">
+            <ButtonIcon className="text-primary-500" as={CircleUserRound} />
+            <ButtonText>Tài khoản</ButtonText>
+          </HStack>
+          <ButtonIcon as={ChevronRight} className="text-primary-500" />
+        </HStack>
+      </Button> */}
+      <VStack className="px-2">
+        <AccordionButton
+          onPress={onAccountPress}
+          buttonText="Tài khoản"
+          leftIcon={CircleUserRound}
+        />
+        {/* <Button
         onPress={onThemePress}
         variant="solid"
         action="secondary"
@@ -120,49 +142,63 @@ export default function Profile() {
       >
         <ButtonIcon className="text-primary-500" as={Palette} />
         <ButtonText>Chế độ</ButtonText>
-      </Button>
-      <AccordionItem isExpanded={themeSelectorOpen} viewKey="m1">
-        <RadioGroup value={values} onChange={setValues}>
-          <HStack space="2xl" className="px-4 h-full justify-evenly">
-            <Radio value="light">
-              <VStack space="md" className="items-center">
-                <LightBox />
-                <RadioIndicator>
-                  <RadioIcon as={CircleIcon} />
-                </RadioIndicator>
-                <RadioLabel className="text-base">Sáng</RadioLabel>
-              </VStack>
-            </Radio>
-            <Radio value="dark">
-              <VStack space="md" className="items-center">
-                <DarkBox />
-                <RadioIndicator>
-                  <RadioIcon as={CircleIcon} />
-                </RadioIndicator>
-                <RadioLabel className="text-base">Tối</RadioLabel>
-              </VStack>
-            </Radio>
-            <Radio value="system">
-              <VStack space="md" className="items-center">
-                <SystemBox />
-                <RadioIndicator>
-                  <RadioIcon as={CircleIcon} />
-                </RadioIndicator>
-                <RadioLabel className="text-base">Hệ thống</RadioLabel>
-              </VStack>
-            </Radio>
-          </HStack>
-        </RadioGroup>
-      </AccordionItem>
-      <Button
-        onPress={handleSignOut}
-        variant="solid"
-        action="secondary"
-        className="w-full bg-transparent justify-start mb-2 data-[active=true]:bg-background-200"
-      >
-        <ButtonIcon className="text-primary-500" as={LogOut} />
-        <ButtonText>Đăng xuất</ButtonText>
-      </Button>
+      </Button> */}
+        <AccordionButton
+          onPress={onThemePress}
+          buttonText="Chế độ"
+          leftIcon={Palette}
+          chevronChangable
+        />
+        <AccordionItem isExpanded={themeSelectorOpen} viewKey="m1">
+          <RadioGroup value={values} onChange={setValues}>
+            <HStack space="2xl" className="px-4 h-full justify-evenly">
+              <Radio value="light">
+                <VStack space="md" className="items-center">
+                  <LightBox />
+                  <RadioIndicator>
+                    <RadioIcon as={CircleIcon} />
+                  </RadioIndicator>
+                  <RadioLabel className="text-base">Sáng</RadioLabel>
+                </VStack>
+              </Radio>
+              <Radio value="dark">
+                <VStack space="md" className="items-center">
+                  <DarkBox />
+                  <RadioIndicator>
+                    <RadioIcon as={CircleIcon} />
+                  </RadioIndicator>
+                  <RadioLabel className="text-base">Tối</RadioLabel>
+                </VStack>
+              </Radio>
+              <Radio value="system">
+                <VStack space="md" className="items-center">
+                  <SystemBox />
+                  <RadioIndicator>
+                    <RadioIcon as={CircleIcon} />
+                  </RadioIndicator>
+                  <RadioLabel className="text-base">Hệ thống</RadioLabel>
+                </VStack>
+              </Radio>
+            </HStack>
+          </RadioGroup>
+        </AccordionItem>
+        <AccordionButton
+          onPress={handleNotification}
+          buttonText="Thông báo"
+          leftIcon={Bell}
+        />
+      </VStack>
+      <Center>
+        <Button
+          onPress={handleSignOut}
+          variant="solid"
+          action="primary"
+          size="lg"
+          className="mb-2 w-36 data-[active=true]:bg-background-200 rounded-full"
+        >
+          <ButtonText>Đăng xuất</ButtonText>
+        </Button>
+      </Center>
     </SafeAreaView>
   );
 }

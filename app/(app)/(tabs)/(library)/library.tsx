@@ -366,7 +366,7 @@ export default function Library() {
               <Animated.FlatList
                 data={uploadedSongs}
                 keyExtractor={(item) => item.id.toString()}
-                layout={LinearTransition}
+                itemLayoutAnimation={LinearTransition}
                 renderItem={({ item }) => (
                   <UploadedSongCard
                     song={item}

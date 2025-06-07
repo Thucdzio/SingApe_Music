@@ -1,6 +1,6 @@
 import ButtonBottomSheet from "@/components/bottomSheet/ButtonBottomSheet";
 import { MyBottomSheet } from "@/components/bottomSheet/MyBottomSheet";
-import { TrackBottomSheet } from "@/components/bottomSheet/TrackBottomSheet";
+import { HistoryTrackBottomSheet } from "@/components/bottomSheet/HistoryTrackBottomSheet";
 import CustomHeader from "@/components/CustomHeader";
 import { downloadSong } from "@/components/DowloadMusic";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
@@ -201,7 +201,7 @@ export default function History() {
         }}
         className="px-4"
       />
-      <TrackBottomSheet
+      <HistoryTrackBottomSheet
         bottomSheetRef={bottomSheetRef}
         selectedItem={selectedItem}
         handleDismissModalPress={handleDismissModalPress}
