@@ -52,10 +52,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { ScrollView, FlatList } from "react-native";
+import { ScrollView, FlatList, Alert } from "react-native";
 import { stat } from "react-native-fs";
 import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { downloadSong } from "@/components/DowloadMusic";
 
 export default function Library() {
   const [data, setData] = useState<MyTrack[]>([]);
@@ -290,7 +291,19 @@ export default function Library() {
                   as={ArrowBigDownDash}
                   className="text-black fill-black"
                 />
-                <ButtonText>Tải xuống</ButtonText>
+                <ButtonText
+                  onPress={() => {
+                    const result = downloadSong(
+                      selectedItem?.url ?? "",
+                      selectedItem?.title ?? "" + ".mp3"
+                    );
+                    if (result !== null) {
+                      Alert.alert("Tải thành công", "Nhạc đã được tải về.");
+                    }
+                  }}
+                >
+                  Tải xuống
+                </ButtonText>
               </Button>
             </HStack>
             <View className="h-2" />
