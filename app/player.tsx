@@ -351,7 +351,7 @@ const PlayerScreen = () => {
                   }
                 }}
               >
-                <Icon as={CircleArrowDown} size="xxl" />
+                <Icon as={CircleArrowDown} size="xxl" color="white" />
               </Pressable>
 
               <HStack space="xl">
@@ -360,7 +360,7 @@ const PlayerScreen = () => {
                     setShowModal(true);
                   }}
                 >
-                  <Icon as={Share2} size="xxl" />
+                  <Icon as={Share2} size="xxl" color="white" />
                 </Pressable>
                 <ShareModal
                   isVisible={showModal}
@@ -376,7 +376,7 @@ const PlayerScreen = () => {
                     <KaraokeMode lyricText={lyricText} />;
                   }}
                 >
-                  <Icon as={LetterText} size="xxl" />
+                  <Icon as={LetterText} size="xxl" color="white" />
                 </Pressable>
               </HStack>
               {/* <AntDesign

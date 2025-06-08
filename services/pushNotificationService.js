@@ -47,7 +47,7 @@ setTimeout(() => {
   sendTestNotification();
   setInterval(() => {
     sendTestNotification();
-  }, 1500000); // 5 phút
-}, 60000);
+  }, 120000); // 5 phút
+}, 600000);
 
 export { sendTestNotification };
