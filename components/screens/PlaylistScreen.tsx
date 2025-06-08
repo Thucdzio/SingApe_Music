@@ -274,9 +274,9 @@ export const PlaylistScreen = ({
               </Box>
               <Box className="justify-center items-center mt-4">
                 <Heading>{title}</Heading>
-                <Text className="text-gray-500 mt-2">{description}</Text>
+                {description && <Text className="text-gray-500 mt-2">{description}</Text>}
               </Box>
-              <HStack space="md" className="items-center px-4">
+              <HStack space="md" className="items-center px-4 mt-2">
                 <Image
                   source={{
                     uri:
@@ -288,8 +288,11 @@ export const PlaylistScreen = ({
                   alt="User"
                   resizeMode="cover"
                 />
-                <Text className="text-gray-500">{createdBy || "SingApe"}</Text>
+                <Text className="text-primary-500 font-bold">{createdBy || "SingApe"}</Text>
               </HStack>
+              <Text className="text-gray-500 text-sm px-4 mt-2">
+                {tracks?.length || 0} bài hát
+              </Text>
               <HStack className="space-x-2 justify-between pr-4 py-2 w-full">
                 {variantRender()}
                 <HStack className="justify-items-end gap-2">

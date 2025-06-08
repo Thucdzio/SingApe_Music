@@ -26,9 +26,10 @@ export const PlaylistCard = ({
   const renderImage = () => {
     if (!item.artwork) {
       console.log("No artwork available for item:", item);
+      const image1 = tracks && tracks.length > 0 ? tracks?.[0]?.artwork : null;
       return (
         <MergeImage
-          image1={tracks?.[0].artwork || unknownTrackImageSource}
+          image1={image1 || null}
           image2={tracks?.[1] && tracks?.[1].artwork || unknownTrackImageSource}
           image3={tracks?.[2] && tracks?.[2].artwork || unknownTrackImageSource}
           image4={tracks?.[3] && tracks?.[3].artwork || unknownTrackImageSource}

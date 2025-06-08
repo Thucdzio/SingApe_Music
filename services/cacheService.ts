@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/auth';
 import { Album, Artist, MyPlaylist, MyTrack } from '@/types/zing.types';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -117,7 +118,7 @@ const getPlaylistFilePath = (playlistId: string) => `${PLAYLISTS_DIR}${playlistI
 
 export const createPlaylist = async (username: string, id: string, playlistName: string, artwork: string, description: string) => {
   await ensurePlaylistDirExists();
-  const filePath = getPlaylistFilePath(playlistName);
+  const filePath = getPlaylistFilePath(id);
   const fileInfo = await FileSystem.getInfoAsync(filePath);
   if (fileInfo.exists) {
     throw new Error('Playlist already exists');
@@ -138,7 +139,7 @@ export const createPlaylist = async (username: string, id: string, playlistName:
 
 export const createPlaylistWithTracks = async (username: string, id: string, playlistName: string, artwork: string, description: string, tracks: MyTrack[]) => {
   await ensurePlaylistDirExists();
-  const filePath = getPlaylistFilePath(playlistName);
+  const filePath = getPlaylistFilePath(id);
   const fileInfo = await FileSystem.getInfoAsync(filePath);
   if (fileInfo.exists) {
     throw new Error('Playlist already exists');
@@ -166,8 +167,8 @@ export const updatePlaylist = async (playlistId: string, updatedPlaylist: MyPlay
   await FileSystem.writeAsStringAsync(filePath, JSON.stringify(updatedPlaylist));
 }
 
-export const deletePlaylist = async (playlistName: string) => {
-  const filePath = getPlaylistFilePath(playlistName);
+export const deletePlaylist = async (playlistId: string) => {
+  const filePath = getPlaylistFilePath(playlistId);
   const fileInfo = await FileSystem.getInfoAsync(filePath);
   if (!fileInfo.exists) {
     console.log('Playlist does not exist:', filePath);
@@ -176,8 +177,8 @@ export const deletePlaylist = async (playlistName: string) => {
   await FileSystem.deleteAsync(filePath);
 };
 
-export const addSongToPlaylist = async (playlistName: string, song: MyTrack) => {
-  const filePath = getPlaylistFilePath(playlistName);
+export const addSongToPlaylist = async (id: string, song: MyTrack) => {
+  const filePath = getPlaylistFilePath(id);
   const fileInfo = await FileSystem.getInfoAsync(filePath);
   if (!fileInfo.exists) {
     throw new Error('Playlist does not exist');
@@ -192,8 +193,8 @@ export const addSongToPlaylist = async (playlistName: string, song: MyTrack) => 
   await FileSystem.writeAsStringAsync(filePath, JSON.stringify(playlist));
 };
 
-export const removeSongFromPlaylist = async (playlistName: string, song: MyTrack) => {
-  const filePath = getPlaylistFilePath(playlistName);
+export const removeSongFromPlaylist = async (id: string, song: MyTrack) => {
+  const filePath = getPlaylistFilePath(id);
   const fileInfo = await FileSystem.getInfoAsync(filePath);
   if (!fileInfo.exists) {
     throw new Error('Playlist does not exist');

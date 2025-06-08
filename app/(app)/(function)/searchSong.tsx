@@ -125,7 +125,7 @@ export default function SearchSong() {
       <Animated.FlatList
         data={data}
         keyExtractor={(item) => item.id.toString()}
-        layout={LinearTransition}
+        itemLayoutAnimation={LinearTransition}
         showsVerticalScrollIndicator={false}
         initialNumToRender={10}
         maxToRenderPerBatch={10}

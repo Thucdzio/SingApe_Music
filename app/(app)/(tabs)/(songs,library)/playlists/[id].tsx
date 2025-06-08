@@ -50,6 +50,7 @@ export default function Playlists() {
   const { playing } = useIsPlaying();
   const activeQueueId = useQueueStore((state) => state.activeQueueId);
   const setActiveQueueId = useQueueStore((state) => state.setActiveQueueId);
+  const queueId = generateTracksListId(item.title || "Unknown", item.id);;
   const variant = useSegments().find((segment) => segment === "(songs)")
     ? "songs"
     : "library";
@@ -87,8 +88,6 @@ export default function Playlists() {
   };
 
   const handleOnPlayPress = async () => {
-    const queueId = item.id;
-    console.log("Queue ID:", queueId);
     if (activeQueueId === queueId) {
       if (!playing) {
         await TrackPlayer.play();
@@ -103,7 +102,6 @@ export default function Playlists() {
   };
 
   const handleOnShufflePress = async () => {
-    const queueId = generateTracksListId(item.title || "Unknown", item.id);
     if (activeQueueId === queueId) {
       if (!playing) {
         await TrackPlayer.play();
@@ -113,8 +111,9 @@ export default function Playlists() {
       await TrackPlayer.pause();
     } else {
       setActiveQueueId(queueId);
+      const shuffledTracks = data;
       playPlaylist(
-        data.sort(() => Math.random() - 0.5)
+        shuffledTracks.sort(() => Math.random() - 0.5)
       );
     }
   };
@@ -207,7 +206,7 @@ export default function Playlists() {
         }}
       />
       <PlaylistScreen
-        id={item.id}
+        id={queueId}
         imageUrl={item.artwork}
         title={item.title}
         createdBy={item.createdBy}

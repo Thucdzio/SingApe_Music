@@ -33,7 +33,7 @@ export default function createPlaylistScreen() {
         user?.user_metadata.display_name,
         playlistName,
         playlistName,
-        unknownTrackImageSource,
+        "",
         "Danh sách phát của " + user?.user_metadata.display_name,
         [item]
       );

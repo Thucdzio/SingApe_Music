@@ -86,21 +86,17 @@ export const playPlaylistFromTrack = async (
   const index = tracks.findIndex((track) => track.id === trackIndex.id);
   if (index === -1) return;
 
-  const currentTrack = { ...trackIndex, url: await fetchSong(trackIndex.id) };
-  console.log("currentTrack", currentTrack);
+  if (!tracks || tracks.length === 0) return;
 
+  const currentTrack = { ...tracks[index], url: await fetchSong(tracks[0].id) };
   await TrackPlayer.reset();
   await TrackPlayer.add(currentTrack);
   await TrackPlayer.play();
 
-  Promise.all(
-    tracks.map(async (track) => {
-      if (track.id.length === 8) {
-        track.url = await fetchSong(track.id);
-      }
-      return track;
-    })
-  ).then((tracks) => {
-    TrackPlayer.add(tracks);
-  });
+  for (const track of tracks) {
+    if (track.id.length === 8) {
+      track.url = await fetchSong(track.id);
+    }
+    await TrackPlayer.add(track);
+  }
 };
