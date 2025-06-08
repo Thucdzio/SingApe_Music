@@ -98,6 +98,7 @@ const PlayerScreen = () => {
     if (activeTrack) {
       setSelectedItem(activeTrack as MyTrack);
     }
+    loadLyrics();
   }, [activeTrack]);
 
   const loadLyrics = async () => {
@@ -121,7 +122,7 @@ const PlayerScreen = () => {
       const text = await response.text();
       setLyricText(text);
     } catch (error) {
-      console.error("Error loading lyrics:", error);
+      console.log("Error loading lyrics:", error);
       setLyricText("");
     }
   };
@@ -356,7 +357,7 @@ const PlayerScreen = () => {
               <HStack space="xl">
                 <Pressable
                   onPress={() => {
-                    setShowKaraoke(true);
+                    setShowModal(true);
                   }}
                 >
                   <Icon as={Share2} size="xxl" />
@@ -372,6 +373,7 @@ const PlayerScreen = () => {
                 <Pressable
                   onPress={() => {
                     setShowKaraoke(true);
+                    <KaraokeMode lyricText={lyricText} />;
                   }}
                 >
                   <Icon as={LetterText} size="xxl" />

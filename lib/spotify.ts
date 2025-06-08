@@ -81,7 +81,7 @@ export const fetchSong = async (encodeId: string) => {
     // console.log("data", data);
     return data.data["128"];
   } catch (error) {
-    console.error("Error fetching song URL:", error);
+    console.log("Error fetching song URL:", error);
     throw error;
   }
 };
@@ -94,7 +94,7 @@ export const fetchPlaylist = async (encodeId: string) => {
     const data = await response.json();
     return data.data;
   } catch (error) {
-    console.error("Error fetching playlist:", error);
+    console.log("Error fetching playlist:", error);
     throw error;
   }
 };
@@ -105,7 +105,7 @@ export const fetchArtist = async (encodeId: string) => {
     const data = await response.json();
     return data.data;
   } catch (error) {
-    console.error("Error fetching artist:", error);
+    console.log("Error fetching artist:", error);
     throw error;
   }
 };

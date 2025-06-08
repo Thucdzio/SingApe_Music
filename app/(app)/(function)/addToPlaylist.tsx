@@ -150,11 +150,13 @@ export default function ListPlaylist() {
               onSubmitEditing={Keyboard.dismiss}
               onChangeText={(text) => {
                 const filteredData = data.filter((playlist) =>
-                  (playlist.title ?? "").toLowerCase().includes(text.toLowerCase())
+                  (playlist.title ?? "")
+                    .toLowerCase()
+                    .includes(text.toLowerCase())
                 );
                 setFilteredData(filteredData);
               }}
-            />  
+            />
           </Input>
           <FlatList
             data={filteredData}
@@ -171,7 +173,10 @@ export default function ListPlaylist() {
                   className="flex-row items-center justify-between"
                 >
                   <Image
-                    source={item.artwork || unknownTrackImageSource}
+                    source={
+                      item.artwork ||
+                      "https://statictuoitre.mediacdn.vn/thumb_w/640/2017/7-1512755474943.jpg"
+                    }
                     alt={"Playlist" + item.title}
                     className="w-16 h-16 rounded-lg"
                   />

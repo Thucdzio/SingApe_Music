@@ -207,7 +207,7 @@ export const ArtistScreen = ({
             spotlight: "false",
             alias: alias || "",
             playlistId: "",
-          }
+          };
           console.log("Adding artist to following:", artist);
           followStore.addArtistToFollowing(artist);
           if (user?.id) {
@@ -216,7 +216,6 @@ export const ArtistScreen = ({
           } else {
             console.log("User ID is undefined");
           }
-
         } else {
           followStore.removeArtistFromFollowing(id || "");
           if (user?.id) {
@@ -227,13 +226,12 @@ export const ArtistScreen = ({
           }
         }
       } catch (e) {
-        console.error("Failed to update follow state", e);
+        console.log("Failed to update follow state", e);
       }
     };
 
     updateFollow();
   }, [debouncedFollow]);
-
 
   const handleTrackOptionPress = (track: MyTrack) => {
     setSelectedItem(track);

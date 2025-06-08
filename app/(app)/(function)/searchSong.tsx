@@ -26,8 +26,12 @@ export default function SearchSong() {
   const { showAlert } = useAlert();
 
   const playlists = useLibraryStore((state) => state.playlists);
-  const addTrackToStorePlaylist = useLibraryStore((state) => state.addTrackToPlaylist);
-  const checkTrackInPlaylist = useLibraryStore((state) => state.checkTrackInPlaylist);
+  const addTrackToStorePlaylist = useLibraryStore(
+    (state) => state.addTrackToPlaylist
+  );
+  const checkTrackInPlaylist = useLibraryStore(
+    (state) => state.checkTrackInPlaylist
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +42,7 @@ export default function SearchSong() {
             const track = await convertZingToTrack(item);
             return track;
           })
-        )
+        );
 
         setData(convertedTracks);
       } else {
@@ -55,31 +59,28 @@ export default function SearchSong() {
   const handleAddPress = (track: MyTrack) => {
     if (typeof item.id === "string") {
       try {
-      const exist = checkTrackInPlaylist(track.id, item.id);
-      if (exist) {
-        showAlert(
-          "Bài hát đã có trong danh sách phát này",
-        );
-        return;
-      }
-      addSongToPlaylist(item.id, track);
-      addTrackToStorePlaylist(track, item.id);
-      setData((prevData) => {
-        if (prevData) { 
-          return prevData.filter((t) => t.id !== track.id);
-        } else {
-          return [];
+        const exist = checkTrackInPlaylist(track.id, item.id);
+        if (exist) {
+          showAlert("Bài hát đã có trong danh sách phát này");
+          return;
         }
-      });
-    } catch (error) {
-      console.error("Error adding song to playlist:", error);
-    } finally {
-      
-    }
+        addSongToPlaylist(item.id, track);
+        addTrackToStorePlaylist(track, item.id);
+        setData((prevData) => {
+          if (prevData) {
+            return prevData.filter((t) => t.id !== track.id);
+          } else {
+            return [];
+          }
+        });
+      } catch (error) {
+        console.log("Error adding song to playlist:", error);
+      } finally {
+      }
     } else {
-      console.error("Invalid item.id: Expected a string but got an array.");
+      console.log("Invalid item.id: Expected a string but got an array.");
     }
-  }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background-0">
@@ -146,17 +147,17 @@ export default function SearchSong() {
             }}
           >
             <Button
-            variant="solid"
-            className="bg-transparent border-none data-[active=true]:bg-transparent w-10 h-10"
-            size="sm"
-            onPress={() => handleAddPress(item)}
-          >
-            <ButtonIcon
-              as={CirclePlus}
-              size="xxl"
-              className="text-primary-500"
-            />
-          </Button>
+              variant="solid"
+              className="bg-transparent border-none data-[active=true]:bg-transparent w-10 h-10"
+              size="sm"
+              onPress={() => handleAddPress(item)}
+            >
+              <ButtonIcon
+                as={CirclePlus}
+                size="xxl"
+                className="text-primary-500"
+              />
+            </Button>
           </TracksListItem>
         )}
       />

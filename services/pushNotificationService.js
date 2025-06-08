@@ -43,8 +43,11 @@ function sendTestNotification() {
 }
 
 // Gửi mỗi 5 phút
-setInterval(() => {
+setTimeout(() => {
   sendTestNotification();
-}, 300000); // 5 phút
+  setInterval(() => {
+    sendTestNotification();
+  }, 1500000); // 5 phút
+}, 60000);
 
 export { sendTestNotification };

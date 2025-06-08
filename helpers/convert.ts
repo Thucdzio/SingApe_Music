@@ -17,7 +17,7 @@ export async function convertZingToTrack(
 
       // console.log("link", song);
     } catch (error) {
-      console.error("Error fetching song:", error);
+      console.log("Error fetching song:", error);
     }
     track.datatype = "track";
   }

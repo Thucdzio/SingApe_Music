@@ -41,7 +41,7 @@ export const playTrack = async (track: Track) => {
     await TrackPlayer.load(track);
     await TrackPlayer.play();
   } catch (error) {
-    console.error("Error loading track:", error);
+    console.log("Error loading track:", error);
   }
 };
 
@@ -61,7 +61,7 @@ export const playPlaylist = async (tracks: Track[]) => {
       await TrackPlayer.add(track);
     }
   } catch (error) {
-    console.error("Error loading playlist:", error);
+    console.log("Error loading playlist:", error);
   }
 };
 

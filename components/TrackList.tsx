@@ -114,9 +114,7 @@ export const TracksList = ({
       )}
       ListEmptyComponent={() => (
         <Center className="flex-1">
-          <Heading className="text-primary-500 text-center w-2/3">
-            Không có bài hát nào
-          </Heading>
+          <Heading className="text-primary-500 text-center w-2/3"></Heading>
           {children}
         </Center>
       )}

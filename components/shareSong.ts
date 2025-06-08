@@ -27,7 +27,7 @@ export const shareSong = async ({
     try {
       await Linking.openURL(facebookShareUrl);
     } catch (err) {
-      console.error("Failed to open Facebook:", err);
+      console.log("Failed to open Facebook:", err);
     }
   } else {
     try {
@@ -37,7 +37,7 @@ export const shareSong = async ({
         url,
       });
     } catch (error) {
-      console.error("Error sharing:", error);
+      console.log("Error sharing:", error);
     }
   }
 };
