@@ -65,6 +65,11 @@ import { downloadSong } from "@/components/DowloadMusic";
 
 import { useFavoriteStore } from "@/store/mylib";
 import { ShareModal } from "@/components/ShareModal";
+import { BS_AddToFavorite } from "@/components/buttons/BS_AddToFavorite";
+import { BS_AddToPlaylist } from "@/components/buttons/BS_AddToPlaylist";
+import { BS_Download } from "@/components/buttons/BS_Download";
+import { BS_MoveToArtist } from "@/components/buttons/BS_MoveToArtist";
+import { BS_Share } from "@/components/buttons/BS_Share";
 
 export default function Songs() {
   const [tracks, setTracks] = useState<MyTrack[]>([]);
@@ -595,40 +600,25 @@ export default function Songs() {
             <Divider />
           </Box>
           <VStack space="md" className="w-full">
-            <ButtonBottomSheet
-              onPress={handleAddToPlaylistPress}
-              buttonIcon={CirclePlus}
-              buttonText="Thêm vào danh sách phát"
+            <BS_AddToPlaylist
+              selectedItem={selectedItem}
+              handleDismissModalPress={handleDismissModalPress}
             />
-            <ButtonBottomSheet
-              onPress={handleFavoritePress}
-              stateChangable={true}
-              fillIcon={isFavorite}
-              buttonIcon={Heart}
-              buttonText="Thêm vào yêu thích"
+            <BS_AddToFavorite
+              selectedItem={selectedItem}
+              handleDismissModalPress={handleDismissModalPress}
             />
-            <ButtonBottomSheet
-              onPress={() => {
-                const result = downloadSong(
-                  selectedItem?.url ?? "",
-                  selectedItem?.title ?? "" + ".mp3"
-                );
-                if (result !== null) {
-                  Alert.alert("Tải thành công", "Nhạc đã được tải về.");
-                }
-              }}
-              buttonIcon={CircleArrowDown}
-              buttonText="Tải xuống"
+            <BS_Download
+              selectedItem={selectedItem}
+              handleDismissModalPress={handleDismissModalPress}
             />
-            <ButtonBottomSheet
-              onPress={handleArtistPress}
-              buttonIcon={UserRoundCheck}
-              buttonText="Chuyển đến nghệ sĩ"
+            <BS_MoveToArtist
+              selectedItem={selectedItem}
+              handleDismissModalPress={handleDismissModalPress}
             />
-            <ButtonBottomSheet
-              onPress={handleSharePress}
-              buttonIcon={Share2}
-              buttonText="Chia sẻ"
+            <BS_Share
+              selectedItem={selectedItem}
+              handleDismissModalPress={handleDismissModalPress}
             />
           </VStack>
         </MyBottomSheet>

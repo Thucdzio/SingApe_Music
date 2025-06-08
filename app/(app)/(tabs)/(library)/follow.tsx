@@ -28,7 +28,7 @@ export default function Follow() {
         const response = await getFollows(user?.id || "");
         setData(response);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.log("No follow data found");
       } finally {
         setIsLoading(false);
       }

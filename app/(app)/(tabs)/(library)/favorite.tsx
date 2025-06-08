@@ -46,7 +46,7 @@ export default function Favorite() {
         const data = await getFavorites();
         setTracks(data);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.log("No data found");
       } finally {
         setIsLoading(false);
       }
