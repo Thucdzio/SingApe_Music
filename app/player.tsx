@@ -57,6 +57,7 @@ import { useDebouncedCallback } from "@/hooks/useDebounceCallback";
 import { useSharedValue } from "react-native-reanimated";
 import { MarqueeText } from "@/components/MarqueeText";
 import { getMixedColor } from "@/helpers/color";
+import { fetchLyric } from "@/lib/spotify";
 
 const PlayerScreen = () => {
   const [showKaraoke, setShowKaraoke] = useState(false);
@@ -75,6 +76,8 @@ const PlayerScreen = () => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [textWidth, setTextWidth] = useState(0);
   const [measured, setMeasured] = useState(false);
+
+  const [lyricText, setLyricText] = useState("");
 
   useEffect(() => {
     setMeasured(!measured);
@@ -96,6 +99,32 @@ const PlayerScreen = () => {
       setSelectedItem(activeTrack as MyTrack);
     }
   }, [activeTrack]);
+
+  const loadLyrics = async () => {
+    if (!activeTrack?.id) return;
+
+    try {
+      const lyricData = await fetchLyric(activeTrack.id);
+      if (!lyricData?.file) {
+        console.warn("No lyric file found");
+        setLyricText("Không tìm thấy lời bài hát ");
+        return;
+      }
+
+      const response = await fetch(lyricData.file);
+      if (!response.ok) {
+        console.warn("Failed to fetch lyric file, status:", response.status);
+        setLyricText("Không tìm thấy lời bài hát ");
+        return;
+      }
+
+      const text = await response.text();
+      setLyricText(text);
+    } catch (error) {
+      console.error("Error loading lyrics:", error);
+      setLyricText("");
+    }
+  };
 
   const debounceFavorite = useDebouncedCallback(async (item) => {
     await addSongToFavorite(item);
@@ -147,7 +176,7 @@ const PlayerScreen = () => {
         >
           <MaterialIcons name="close" size={28} color="white" />
         </Pressable>
-        <KaraokeMode />
+        <KaraokeMode lyricText={lyricText} />
       </View>
     );
   }
@@ -285,7 +314,10 @@ const PlayerScreen = () => {
               <PlayerRepeatToggle size={30} style={{ paddingTop: 10 }} />
             </HStack>
 
-            <HStack space="xl" className="items-center justify-between px-4 pt-4">
+            <HStack
+              space="xl"
+              className="items-center justify-between px-4 pt-4"
+            >
               {/* <AddToPlaylistButton track={activeTrack}></AddToPlaylistButton> */}
               {/* <AudioQualitySwitcher
                 qualities={[
