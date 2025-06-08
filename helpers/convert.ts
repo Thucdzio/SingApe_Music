@@ -15,7 +15,7 @@ export async function convertZingToTrack(
       const song = await fetchSong(track.encodeId);
       track.link = song;
 
-      console.log("link", song);
+      // console.log("link", song);
     } catch (error) {
       console.error("Error fetching song:", error);
     }

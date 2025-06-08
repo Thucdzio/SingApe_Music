@@ -292,16 +292,7 @@ export default function Library() {
                   className="text-black fill-black"
                 />
                 <ButtonText
-                  onPress={() => {
-                    const result = downloadSong(
-                      selectedItem?.url ?? "",
-                      selectedItem?.title ?? "" + ".mp3"
-                    );
-                    if (result !== null) {
-                      Alert.alert("Tải thành công", "Nhạc đã được tải về.");
-                    }
-                  }}
-                >
+                  >
                   Tải xuống
                 </ButtonText>
               </Button>
