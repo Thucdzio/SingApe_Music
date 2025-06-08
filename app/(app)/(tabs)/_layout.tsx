@@ -27,7 +27,6 @@ import supabase from "@/lib/supabase";
 export default function TabsNavigation() {
   const { session, setSession, setUser } = useAuth();
   const { colorScheme } = useColorScheme();
-  const rootNavigationState = useRootNavigationState();
 
   // useEffect(() => {
   //   if (!rootNavigationState?.key) return; // wait until navigation is ready
