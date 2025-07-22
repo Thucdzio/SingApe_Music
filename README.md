@@ -1,50 +1,60 @@
-# Welcome to your Expo app 👋
+# SingApe - Ứng dụng nghe nhạc thế hệ mới 
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+SingApe là một ứng dụng nghe nhạc hiện đại được thiết kế dành cho người dùng yêu âm nhạc, hỗ trợ đầy đủ tính năng như phát nhạc, tìm kiếm, hiển thị lời karaoke, tạo playlist cá nhân và chia sẻ bài hát. Trải nghiệm giống như Zing MP3 nhưng với giao diện hiện đại hơn và hỗ trợ nhiều tính năng cá nhân hóa.
 
-## Get started
+---
 
-1. Install dependencies
+## Tính năng chính
 
-   ```bash
-   npm install
-   ```
+- Phát nhạc: play / pause / next / previous / shuffle / repeat / phát nền
+- Tìm kiếm bài hát theo tên, ca sĩ, album, thể loại
+- Hiển thị lời bài hát đồng bộ theo thời gian (Karaoke mode)
+- Tùy chỉnh giao diện: Dark / Light mode + màu chủ đạo theo ảnh bài hát
+- Bảng xếp hạng âm nhạc từ nhiều nguồn ( ZingChart)
+- Playlist cá nhân, bài hát yêu thích, tải về nhạc
+- Chia sẻ bài hát lên Facebook, Zalo kèm ảnh preview + metadata Open Graph
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## Công nghệ sử dụng
 
-In the output, you'll find options to open the app in a
+| Phần mềm        | Mô tả                             |
+|-----------------|-----------------------------------|
+| React Native    | Giao diện mobile (Android/iOS)    |
+| Expo Router     | Điều hướng                        |
+| Gluestack UI    | UI Component Library              |
+| Tailwind CSS    | Styling                           |
+| Zustand         | Quản lý state nhẹ nhàng           |
+| React Native Track Player | Phát nhạc nền, điều khiển media |
+| FastAPI         | Backend API                       |
+| MySQL           | Cơ sở dữ liệu                     |
+| Supabase        | Lưu trữ metadata bài hát, playlist |
+| React Native Image Colors | Trích xuất màu từ ảnh bài hát |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+##  Cài đặt & chạy ứng dụng
 
-When you're ready, run:
-
+### 1. Clone source
 ```bash
-npm run reset-project
+git clone https://github.com/Thucdzio/SingApe_Music.git
+cd singape-app 
 ```
+### 2.Cài dependencies
+```bash
+npm install
+```
+### 3. Chạy ứng dụng trên Android
+```bash
+npx expo run android
+```
+( Đảm bảo bạn đã cài đặt máy ảo hoặc kết nối thiết bị điện thoại thật để chạy )
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 4.Authors
+- Lý Hồng Đức - 22021217@vnu.edu.vn
+- Nguyễn Việt An - 22021168@vnu.edu.vn
+- Lê Tiến Thực - 22021197@vnu.edu.vn
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 5.Demo
+Truy cập đường dẫn https://drive.google.com/file/d/1I1XG6FSnjPnaHV5Ps4QBkOW133LmICql/view?usp=drive_link
