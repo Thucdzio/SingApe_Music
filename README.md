@@ -12,7 +12,7 @@ SingApe là một ứng dụng nghe nhạc hiện đại được thiết kế d
 - Tùy chỉnh giao diện: Dark / Light mode + màu chủ đạo theo ảnh bài hát
 - Bảng xếp hạng âm nhạc từ nhiều nguồn ( ZingChart)
 - Playlist cá nhân, bài hát yêu thích, tải về nhạc
-- Chia sẻ bài hát lên Facebook, Zalo kèm ảnh preview + metadata Open Graph
+- Chia sẻ bài hát lên Facebook, Zalo kèm ảnh preview 
 
 ---
 
